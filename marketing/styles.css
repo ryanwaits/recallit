@@ -1,0 +1,309 @@
+/* Hallmark · pre-emit critique: P5 H5 E5 S5 R4 V4 */
+/* Hallmark · genre: playful · macrostructure: Bento Grid · theme: Plume
+ * tone: soft/playful · audience: curious learners · use: GitHub star + install
+ * nav: N9 edge-aligned (solid) · footer: Ft5 statement · enrichment: Tier-A CSS art (flip card)
+ * motion: tile-reveal · hover-lift (hover-only) · card-flip (tap/hover/key)
+ * rev2: hero flip centerpiece · "anything is a pack" examples gallery · accent CTA band
+ * touch: hover gated behind @media(hover:hover); flip toggles on tap/Enter/Space
+ * contrast: pass (46–50) · slop: pass (51–55) · honest: pass (56) · chrome: pass (57)
+ * tokens: pass (58) · responsive: pass (59) · icons: pass (60) · mobile: pass (36,59,61–69)
+ */
+
+*, *::before, *::after { box-sizing: border-box; }
+html, body { overflow-x: clip; }
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  line-height: var(--lh-normal);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1, h2, h3 {
+  font-family: var(--font-display);
+  font-weight: var(--display-weight);
+  letter-spacing: var(--tracking-tight);
+  line-height: var(--lh-tight);
+  margin: 0;
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+p { margin: 0; }
+a { color: inherit; }
+
+.wrap {
+  max-width: var(--page-max);
+  margin-inline: auto;
+  padding-inline: var(--page-gutter);
+}
+
+.label {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-neutral);
+}
+
+/* ── Nav · N9 edge-aligned minimal (solid cream, no blur) ───────── */
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-nav);
+  background: var(--color-paper);
+  border-bottom: var(--rule-hair) solid var(--color-rule);
+}
+.nav__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  padding-block: var(--space-sm);
+}
+.brand {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: var(--text-lg);
+  letter-spacing: -0.02em;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+.brand__dot {
+  width: 0.7em; height: 0.7em; border-radius: 999px;
+  background: var(--color-accent);
+  box-shadow: 0 0 0 4px color-mix(in oklab, var(--color-accent) 22%, transparent);
+}
+
+/* ── Buttons ─────────────────────────────────────────────────────── */
+.btn {
+  --_bg: transparent;
+  --_fg: var(--color-ink);
+  --_bd: var(--color-rule-2);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-xs);
+  min-height: 44px;
+  padding-inline: var(--space-lg);
+  border-radius: var(--radius-pill);
+  border: 1.5px solid var(--_bd);
+  background: var(--_bg);
+  color: var(--_fg);
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  font-weight: 600;
+  line-height: 1;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: transform var(--dur-micro) var(--ease-out),
+              background-color var(--dur-short) var(--ease-out),
+              border-color var(--dur-short) var(--ease-out),
+              color var(--dur-short) var(--ease-out);
+}
+.btn--primary { --_bg: var(--color-accent); --_fg: var(--color-ink); --_bd: transparent; }
+.btn--ghost { background: var(--color-paper); }
+.btn:active { transform: translateY(1px); }
+.btn:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
+@media (hover: hover) {
+  .btn--primary:hover { --_bg: var(--color-accent-2); --_fg: var(--color-paper); }
+  .btn--ghost:hover { --_bd: var(--color-ink); background: var(--color-paper-2); }
+}
+
+/* ── Hero · split: copy + flip card ─────────────────────────────── */
+.hero {
+  padding-block: var(--space-2xl) clamp(var(--space-3xl), 8vw, var(--space-4xl));
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  gap: clamp(var(--space-xl), 5vw, var(--space-3xl));
+  align-items: center;
+}
+.hero__copy { display: grid; justify-items: start; gap: var(--space-lg); }
+.hero__kicker {
+  display: inline-flex; align-items: center; gap: var(--space-xs);
+  padding: var(--space-2xs) var(--space-sm);
+  border: var(--rule-fine) solid var(--color-rule);
+  border-radius: var(--radius-pill);
+  background: var(--color-paper-2);
+}
+.hero h1 {
+  font-size: var(--text-display);
+  letter-spacing: var(--tracking-display);
+  max-width: 13ch;
+}
+.hero h1 em { font-family: var(--font-serif); font-style: italic; font-weight: 500; color: var(--color-accent-2); }
+.hero__lede { max-width: 44ch; font-size: var(--text-md); color: var(--color-ink-2); line-height: var(--lh-relaxed); }
+.hero__cta { display: flex; flex-wrap: wrap; gap: var(--space-sm); margin-top: var(--space-2xs); }
+.hero__note { font-size: var(--text-sm); color: var(--color-muted); }
+.hero__note code {
+  font-family: var(--font-mono); font-size: 0.92em;
+  background: var(--color-paper-3); padding: 0.1em 0.4em; border-radius: 6px;
+}
+
+/* ── The recall card (Tier-A CSS art · flips on tap / hover / key) ── */
+.flip {
+  perspective: 1100px;
+  cursor: pointer;
+  width: 100%;
+  aspect-ratio: 5 / 3.4;
+  border: 0;
+  background: transparent;
+  padding: 0;
+}
+.flip__inner {
+  position: relative; width: 100%; height: 100%;
+  transition: transform var(--dur-long) var(--ease-in-out);
+  transform-style: preserve-3d;
+}
+.flip.is-flipped .flip__inner { transform: rotateY(180deg); }
+@media (hover: hover) { .flip:hover .flip__inner { transform: rotateY(180deg); } }
+.flip:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 4px; border-radius: var(--radius-card); }
+.flip__face {
+  position: absolute; inset: 0;
+  backface-visibility: hidden;
+  border-radius: var(--radius-card);
+  border: var(--rule-card) solid var(--color-rule);
+  box-shadow: var(--shadow-card);
+  padding: var(--space-lg);
+  display: flex; flex-direction: column; justify-content: space-between; gap: var(--space-sm);
+}
+.flip__face--front { background: var(--color-paper-3); }
+.flip__face--back {
+  background: var(--color-accent);
+  color: var(--color-ink);
+  transform: rotateY(180deg);
+  border-color: transparent;
+}
+.flip__es { font-family: var(--font-display); font-weight: 700; font-size: var(--text-2xl); letter-spacing: var(--tracking-tight); line-height: 1.1; }
+.flip__en { font-size: var(--text-xl); font-weight: 600; }
+.flip__hint { font-family: var(--font-mono); font-size: var(--text-xs); letter-spacing: var(--tracking-label); text-transform: uppercase; color: var(--color-muted); }
+.flip__face--back .flip__hint { color: var(--color-ink); opacity: 0.7; }
+
+/* ── Section heads ──────────────────────────────────────────────── */
+.section { padding-block: var(--section-gap); }
+.section__head { display: grid; gap: var(--space-sm); max-width: 46ch; margin-bottom: var(--space-xl); }
+.section__head h2 { font-size: var(--text-3xl); letter-spacing: var(--tracking-display); }
+.section__head p { color: var(--color-ink-2); font-size: var(--text-md); line-height: var(--lh-relaxed); }
+
+/* ── "Anything is a pack" · examples gallery ────────────────────── */
+.examples { background: var(--color-paper-2); border-block: var(--rule-hair) solid var(--color-rule); }
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-md);
+}
+.mini {
+  background: var(--color-paper);
+  border: var(--rule-card) solid var(--color-rule);
+  border-radius: var(--radius-card);
+  padding: var(--space-md);
+  display: flex; flex-direction: column; gap: var(--space-sm); min-width: 0;
+  transition: transform var(--dur-short) var(--ease-out), box-shadow var(--dur-short) var(--ease-out);
+}
+@media (hover: hover) { .mini:hover { transform: translateY(-3px); box-shadow: var(--shadow-card); } }
+.mini__tag { align-self: flex-start; }
+.mini__q { font-family: var(--font-display); font-weight: 600; font-size: var(--text-md); letter-spacing: var(--tracking-tight); }
+.mini__a { display: flex; gap: var(--space-xs); color: var(--color-ink-2); font-size: var(--text-sm); padding-top: var(--space-sm); border-top: var(--rule-hair) solid var(--color-rule); }
+.mini__a::before { content: "↳"; color: var(--color-accent-2); flex: none; }
+
+/* ── "Why it sticks" · warm cards ───────────────────────────────── */
+.cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-md); }
+.card {
+  background: var(--color-paper-3);
+  border: var(--rule-card) solid var(--color-rule);
+  border-radius: var(--radius-card);
+  padding: var(--space-lg);
+  display: flex; flex-direction: column; gap: var(--space-sm); min-width: 0;
+  transition: transform var(--dur-short) var(--ease-out), box-shadow var(--dur-short) var(--ease-out);
+}
+@media (hover: hover) { .card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lift); } }
+.card h3 { font-size: var(--text-lg); letter-spacing: var(--tracking-tight); }
+.card p { color: var(--color-ink-2); }
+
+/* ── Install ─────────────────────────────────────────────────────── */
+.install__inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+  gap: var(--space-2xl);
+  align-items: center;
+}
+.install__inner h2 { font-size: var(--text-3xl); letter-spacing: var(--tracking-display); max-width: 14ch; }
+.install__inner > div p { color: var(--color-ink-2); margin-top: var(--space-md); max-width: 40ch; line-height: var(--lh-relaxed); }
+.install__cta { margin-top: var(--space-lg); display: flex; flex-wrap: wrap; gap: var(--space-sm); }
+.code { background: var(--color-ink); border-radius: var(--radius-card); padding: var(--space-lg); box-shadow: var(--shadow-card); }
+.code pre { margin: 0; font-family: var(--font-mono); font-size: var(--text-sm); color: var(--color-on-ink); line-height: 1.9; overflow-x: auto; }
+.code .c { color: var(--color-on-ink-2); }
+.code .p { color: var(--color-accent-on-ink); }
+
+/* ── Final CTA band (accent-committed) ──────────────────────────── */
+.cta {
+  background: var(--color-accent);
+  color: var(--color-ink);
+  border-radius: var(--radius-card);
+  margin-block: var(--section-gap);
+  padding: clamp(var(--space-xl), 6vw, var(--space-3xl));
+  display: grid; gap: var(--space-lg); justify-items: start;
+  box-shadow: var(--shadow-lift);
+}
+.cta h2 { font-size: var(--text-3xl); letter-spacing: var(--tracking-display); max-width: 16ch; }
+.cta p { font-size: var(--text-md); max-width: 42ch; opacity: 0.82; }
+.cta .btn--primary { --_bg: var(--color-ink); --_fg: var(--color-paper); }
+.cta .btn--ghost { --_bd: color-mix(in oklab, var(--color-ink) 40%, transparent); background: transparent; color: var(--color-ink); }
+@media (hover: hover) {
+  .cta .btn--primary:hover { --_bg: var(--color-ink-2); }
+  .cta .btn--ghost:hover { --_bd: var(--color-ink); background: color-mix(in oklab, var(--color-ink) 8%, transparent); }
+}
+
+/* ── Footer · Ft5 statement ──────────────────────────────────────── */
+.foot { padding-block: var(--space-xl) var(--space-2xl); }
+.foot__statement {
+  font-family: var(--font-display); font-weight: 700;
+  font-size: var(--text-3xl); letter-spacing: var(--tracking-display);
+  line-height: var(--lh-snug); max-width: 20ch;
+}
+.foot__statement em { font-family: var(--font-serif); font-style: italic; font-weight: 500; color: var(--color-accent-2); }
+.foot__meta {
+  margin-top: var(--space-xl); padding-top: var(--space-lg);
+  border-top: var(--rule-hair) solid var(--color-rule);
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-md);
+}
+.foot__links { display: flex; flex-wrap: wrap; gap: var(--space-md); }
+.foot__links a {
+  display: inline-flex; align-items: center; min-height: 44px;
+  text-decoration: none; color: var(--color-ink-2); font-weight: 500;
+  transition: color var(--dur-short) var(--ease-out);
+}
+.foot__links a:hover { color: var(--color-ink); }
+.foot__links a:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 3px; border-radius: 4px; }
+
+/* ── Reveal (one-shot) ───────────────────────────────────────────── */
+.reveal { opacity: 0; transform: translateY(14px); }
+.reveal.in { opacity: 1; transform: none; transition: opacity var(--dur-long) var(--ease-out), transform var(--dur-long) var(--ease-out); }
+
+/* ── Responsive ──────────────────────────────────────────────────── */
+@media (max-width: 60rem) {
+  .hero { grid-template-columns: minmax(0, 1fr); gap: var(--space-xl); }
+  .flip { max-width: 26rem; }
+  .gallery { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .cards { grid-template-columns: minmax(0, 1fr); }
+  .install__inner { grid-template-columns: minmax(0, 1fr); gap: var(--space-xl); }
+}
+@media (max-width: 40rem) {
+  .gallery { grid-template-columns: minmax(0, 1fr); }
+  .hero h1 { max-width: 100%; }
+  .foot__meta { flex-direction: column; align-items: flex-start; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal, .reveal.in { opacity: 1; transform: none; transition: none; }
+  .card, .mini, .btn, .flip__inner { transition: none; }
+  /* The card still flips on tap/hover — just instantly — so the back text stays reachable. */
+  html { scroll-behavior: auto; }
+}
