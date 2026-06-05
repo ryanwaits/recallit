@@ -1,0 +1,169 @@
+# recallit — Architecture
+
+## The one-sentence model
+
+**recallit-the-platform** is a topic-agnostic *recall engine* plus an agent that operates it. **recallit-for-Spanish** is just *data* on top of that engine — config, cards, scenarios, audio. The engine's code contains zero knowledge of Spanish; replace the data folder and the same platform becomes a chemistry tutor.
+
+Two principles drive every decision:
+
+- **Agent-native** — the agent has full parity with the user via atomic primitive tools; features (review, daily session, roleplay) are *prompts that compose primitives*, not bespoke code paths.
+- **Topic-agnostic** — everything subject-specific (language, dialect, what to say) lives in `data/` config + prompts. The ultimate test: plug a brand-new topic with config + prose only, zero code change.
+
+## Two layers
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  PLATFORM  (code — knows nothing about any subject)           │
+│                                                                │
+│   Agent (Claude)  ──drives──>  Atomic tools  ──>  Engine       │
+│   prompts compose tools         (in-process MCP)   primitives  │
+│        │                                            │          │
+│        │  invariants live here (code, tested):      │          │
+│        │  • FSRS scheduling       (scheduler.ts)     │          │
+│        │  • deterministic grading (evaluate.ts)      │          │
+│        │  • turn gating           (turn.ts)          │          │
+│        │  • one-new-thing mining  (mining.ts)        │          │
+│        │  • streak / checkpoint   (progress.ts,      │          │
+│        ▼                            checkpoint.ts)   │          │
+│   Voice modality (TTS/STT behind SttProvider/TtsProvider)      │
+└───────────────────────────────┬────────────────────────────────┘
+                                 │  reads / writes
+                                 ▼
+┌─────────────────────────────────────────────────────────────┐
+│  INSTANCE / PACK  (data — all the "Spanish" lives here)        │
+│   data/topics/spanish-mx-rgv/                                  │
+│     topic.json      modality:voice, dialect:mx-rgv, voiceId,   │
+│                     goalMetric:minutes_spoken                  │
+│     cards/*/item.md 41 i+1 sentences + RGV vocab (+ native.mp3)│
+│     scenarios/*.md  8 wife-conversation roleplays              │
+│     index.sqlite    derived due-query index                   │
+│     review_log.jsonl append-only review history               │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**The load-bearing rule:** *code owns invariants and sequencing; prompts + data own the subject and the pedagogy.* This is why the engine stays agnostic — anything Spanish-specific is either data (`topic.json`, cards) or prose the agent reads (scenarios, prompts), never a branch in `src/`.
+
+## Platform ↔ instance mapping
+
+| Concept | Platform (code) | Spanish instance (data) |
+|---|---|---|
+| What to learn | `RecallCard` shape (`front`/`back`/`context`) | 41 cards, e.g. `¿Qué onda?` → "What's up?" |
+| When to review | FSRS in `scheduler.ts` | each card's stored FSRS state |
+| How to grade | rubric in `evaluate.ts` | the card's `back` is the target |
+| Practice format | `buildPracticePrompt` (tiered correction) | `scenarios/grocery-run.md` |
+| The goal | `goalMetric` field | `"minutes_spoken"` |
+| Voice | `SttProvider` / `TtsProvider` | `voiceId`, `native.mp3` per card |
+| Tutor identity | `buildSystemPrompt` template | injected: "you tutor *Conversational Mexican Spanish (RGV)*" |
+
+## Data substrate
+
+Files are the **source of truth** (transparent, inspectable, agent-editable). A derived SQLite index makes due-queries `O(due)` instead of scanning every card; it is rebuildable from the files at any time.
+
+```
+data/
+  context.md                 # global learner notes (agent reads at session start)
+  user.json                  # active topic + learner-level prefs
+  topics/{topicId}/
+    topic.json               # DOMAIN CONFIG (name, modality, goalMetric, meta{})
+    cards/{cardId}/
+      item.md                # frontmatter: FSRS state + generic content; body: notes
+      native.mp3             # TTS audio (voice topics)
+      user-{ts}.webm         # learner's recorded attempts
+    index.sqlite             # derived; rebuild from item.md files
+    review_log.jsonl         # append-only {cardId, rating, due, ...}
+    scenarios/*.md           # roleplay/practice templates (domain prompts)
+    active.checkpoint        # in-progress daily session (resume point)
+  sessions/{id}.md           # per-session log
+```
+
+A card's frontmatter has generic field names only (`front`, `back`, `context`, `type`, `tags`, `meta`) — no language-specific fields. Spanish lives in `meta` (`dialect: mx-rgv`) and in `topic.json`.
+
+## Topic packs (distribution)
+
+`data/` is **gitignored** — it's the learner's runtime state, materialized locally. The *durable, shareable* form of a subject is a **pack**: tracked source under `packs/{id}/`, separate from the engine.
+
+```
+packs/{id}/
+  manifest.json     # versioned envelope: { schemaVersion, engine: ">=x", ...TopicConfig }
+  cards.json        # array of NewCardInput (+ optional `audio` → assets/ filename)
+  scenarios/*.md    # roleplay templates
+  assets/*.mp3      # bundled native audio (portable; no API key at install)
+```
+
+The schema + read-only loader live in `src/pack.ts` (`PackManifest`, `loadPack`). A pack is **Bun-only** like the engine and is installed via `recallit topic add <source>` (`src/install.ts`), which validates the manifest, checks the `engine` range, and projects the pack into `data/topics/{id}/` through `createCard` (so the derived `index.sqlite` is built — pack files never ship the index). Re-installing an id errors unless `--force`. The `<source>` is resolved by `src/resolve.ts` — a local dir, a `.tgz`, a git repo (`github:owner/repo[/subdir][#ref]`, `git+<url>`), or `npm:<spec>` — remote forms are fetched to a temp dir and cleaned up. `packs/spanish-mx-rgv/` is the reference pack. This is the agnostic principle extended to distribution: subjects ship and version independently of the engine.
+
+## The primitives (capability map)
+
+The engine's public functions are exposed to the agent as in-process MCP tools (`src/agent.ts`). Parity means anything the CLI/UI can do, the agent can do.
+
+- **Cards CRUD** — `create_card`, `read_card`, `update_card`, `delete_card`, `list_cards`, `search_cards`
+- **Review (deterministic core)** — `get_due_cards`, `present_card`, `await_user_response`, `reveal_answer`, `grade_card`
+- **Mining** — `mine_card` (one-new-thing / i+1 guardrail)
+- **Voice** — `speak` (TTS), `transcribe` (STT)
+- **Context / session** — `read_context`, `update_context`, `get_progress`, `list_scenarios`, `read_scenario`, `complete_phase`, `complete_session`
+
+Everything else — a review session, the daily regimen, a roleplay — is a **prompt** composing these tools.
+
+## Why it's agent-native
+
+Features are prose, not code:
+
+- **Review session** = prompt: loop `get_due_cards → present_card → await_user_response → reveal_answer → grade_card`.
+- **Daily session** (`buildDailySessionPrompt`) = phases (shadowing → review → roleplay → reflect), parameterized by the topic's `modality`; each phase checkpointed so a killed session resumes.
+- **Roleplay** = the agent reads a scenario file, converses forcing output, corrects errors (recast → explicit → metalinguistic), and mines new words with `mine_card`.
+
+To change behavior you edit prompts, not refactor code.
+
+## One spoken review turn, end to end
+
+```
+Browser mic (push-to-talk) ──WS──> server.ts
+   │
+   ▼  agent (Claude) decides what's next, reading topic.json + context.md
+   ├─ present_card        → returns FRONT only          [turn.ts: reveal is gated]
+   ├─ speak(front)        → ElevenLabs TTS in topic voice
+   ├─ await_user_response → you speak → STT → transcript
+   ├─ reveal_answer       → evaluate.ts computes rating  [deterministic, code-owned]
+   ├─ grade_card          → scheduler.ts FSRS reschedule [writes item.md + index + log]
+   └─ mine_card (optional)→ capture a new word           [one-new-thing check in code]
+```
+
+The agent narrates and decides what's pedagogically next; the engine guarantees the answer can't leak before you attempt it, the grade is consistent (so FSRS stays sound over months), and scheduling is correct. The subject is entirely in the data being read.
+
+## Module map
+
+| File | Responsibility |
+|---|---|
+| `src/types.ts` | generic domain types (no subject specifics) |
+| `src/paths.ts` | filesystem layout |
+| `src/card.ts` | `item.md` ⇄ `RecallCard` + FSRS serialization |
+| `src/scheduler.ts` | FSRS wrapper: `gradeCard`, `previewSchedule` (pure) |
+| `src/evaluate.ts` | deterministic answer grader + tokenizer |
+| `src/db.ts` | derived SQLite index: due-queries, rebuild |
+| `src/topic.ts` | topic CRUD + active-topic selection |
+| `src/store.ts` | card CRUD + `reviewCard` (file + index + log, consistent) |
+| `src/turn.ts` | per-session turn state machine (respond-before-reveal) |
+| `src/review.ts` | review orchestration service (LLM-free, testable) |
+| `src/mining.ts` | `mineCard` + one-new-thing (i+1) guardrail |
+| `src/quality.ts` | content-quality flags (`needs-review`) |
+| `src/progress.ts` | reviews-today, streak, danger-zone |
+| `src/checkpoint.ts` | daily-session phase checkpoint / resume |
+| `src/context.ts` | system / practice / daily prompt builders + context injection |
+| `src/agent.ts` | Claude Agent SDK glue: primitives → tools, the run loop, guardrails |
+| `src/voice/` | `SttProvider`/`TtsProvider` + ElevenLabs (TTS+Scribe STT) / OpenAI / mocks |
+| `src/server.ts` | Bun HTTP+WS voice host: wires topic `meta.voiceId`/`language`, serves `/media`, regenerates audio on edit |
+| `public/index.html` | push-to-talk browser client + progress panel |
+| `src/cli.ts` | headless CLI over the same primitives (incl. `topic add`) |
+| `src/pack.ts` | topic-pack spec: manifest/card zod schemas + read-only `loadPack` |
+| `src/install.ts` | `installPack` — validate, engine-gate, materialize a pack into `data/` via `createCard` |
+| `src/resolve.ts` | resolve a `topic add` source (dir / tarball / git / npm) to a local pack dir |
+| `packs/spanish-mx-rgv/` | the Spanish **pack** (data only: manifest + cards.json + scenarios + audio, not engine) |
+
+## The proof
+
+The same engine, agent, turn loop, and grader run a non-language deck (World Capitals) in the test suite with **zero code change** — only a different `topic.json` + cards. Spanish and Capitals are siblings; the platform neither knows nor cares which.
+
+- **recallit (platform)** = recall engine + agent + tools + voice, all subject-blind.
+- **recallit for Spanish (instance)** = `data/topics/spanish-mx-rgv/` — the config, voiced cards, and scenarios that teach the engine to be a conversational-Spanish tutor.
+
+Adding `data/topics/{anything}/` produces a new instance on the same platform, no engineering.
