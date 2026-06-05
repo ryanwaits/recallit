@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "engine": ">=0.1.0",
+  "id": "pack-min",
+  "name": "Minimal Pack",
+  "modality": "text",
+  "goalMetric": "cards_recalled",
+  "meta": {}
+}
