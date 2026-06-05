@@ -1,0 +1,414 @@
+[
+  {
+    "type": "sentence",
+    "front": "Tengo hambre.",
+    "back": "I'm hungry.",
+    "tags": ["food"],
+    "meta": {
+      "dialect": "mx-rgv"
+    },
+    "audio": "00-tengo-hambre.mp3"
+  },
+  {
+    "type": "sentence",
+    "front": "¿A qué hora regresas?",
+    "back": "What time are you coming back?",
+    "tags": ["plans", "time"],
+    "meta": {
+      "dialect": "mx-rgv"
+    },
+    "audio": "01-a-que-hora-regresas.mp3"
+  },
+  {
+    "type": "sentence",
+    "front": "Eres muy linda.",
+    "back": "You're very lovely. (to a woman)",
+    "tags": ["affection"],
+    "meta": {
+      "dialect": "mx-rgv"
+    },
+    "audio": "02-eres-muy-linda.mp3"
+  },
+  {
+    "type": "sentence",
+    "front": "No te preocupes, yo lo hago.",
+    "back": "Don't worry, I'll do it.",
+    "tags": ["home"],
+    "meta": {
+      "dialect": "mx-rgv"
+    },
+    "audio": "03-no-te-preocupes-yo-lo-hago.mp3"
+  },
+  {
+    "type": "sentence",
+    "front": "¿Ya comiste?",
+    "back": "Have you eaten yet?",
+    "tags": ["food"],
+    "meta": {
+      "dialect": "mx-rgv"
+    },
+    "audio": "04-ya-comiste.mp3"
+  },
+  {
+    "type": "sentence",
+    "front": "¿Me entiendes?",
+    "back": "Do you understand me?",
+    "tags": ["core"],
+    "meta": {
+      "dialect": "mx-rgv"
+    },
+    "audio": "05-me-entiendes.mp3"
+  },
+  {
+    "type": "vocab",
+    "front": "la troca",
+    "back": "the truck (regional)",
+    "context": "Vamos en la troca.",
+    "tags": ["rgv", "noun"],
+    "meta": {
+      "dialect": "mx-rgv"
+    },
+    "audio": "06-la-troca.mp3"
+  },
+  {
+    "type": "sentence",
+    "front": "Gracias por todo, mi amor.",
+    "back": "Thanks for everything, my love.",
+    "tags": ["affection"],
+    "meta": {
+      "dialect": "mx-rgv"
+    },
+    "audio": "07-gracias-por-todo-mi-amor.mp3"
+  },
+  {
+    "type": "sentence",
+    "front": "Hay que hacer la tarea con ellos.",
+    "back": "We have to do homework with them.",
+    "tags": ["family"],
+    "meta": {
+      "dialect": "mx-rgv"
+    },
+    "audio": "08-hay-que-hacer-la-tarea-con-ellos.mp3"
+  },
+  {
+    "type": "sentence",
+    "front": "Aquí nomás, ¿y tú?",
+    "back": "Just here, and you?",
+    "tags": ["rgv", "smalltalk"],
+    "meta": {
+      "dialect": "mx-rgv"
+    },
+    "audio": "09-aqui-nomas-y-tu.mp3"
+  },
+  {
+    "type": "sentence",
+    "front": "No sé cómo se dice.",
+    "back": "I don't know how to say it.",
+    "tags": ["core"],
+    "meta": {
+      "dialect": "mx-rgv"
+    },
+    "audio": "10-no-se-como-se-dice.mp3"
+  },
+  {
+    "type": "sentence",
+    "front": "Vamos a visitar a tu mamá.",
+    "back": "Let's go visit your mom.",
+    "tags": ["plans", "family"],
+    "meta": {
+      "dialect": "mx-rgv"
+    },
+    "audio": "11-vamos-a-visitar-a-tu-mama.mp3"
+  },
+  {
+    "type": "sentence",
+    "front": "Ya me voy al trabajo.",
+    "back": "I'm leaving for work now.",
+    "tags": ["home", "daily"],
+    "meta": {
+      "dialect": "mx-rgv"
+    },
+    "audio": "12-ya-me-voy-al-trabajo.mp3"
+  },
+  {
+    "type": "sentence",
+    "front": "Está bien sabroso.",
+    "back": "It's really tasty.",
+    "tags": ["food"],
+    "meta": {
+      "dialect": "mx-rgv"
+    },
+    "audio": "13-esta-bien-sabroso.mp3"
+  },
+  {
+    "type": "sentence",
+    "front": "¿Qué hacemos el fin de semana?",
+    "back": "What are we doing this weekend?",
+    "tags": ["plans"],
+    "meta": {
+      "dialect": "mx-rgv"
+    },
+    "audio": "14-que-hacemos-el-fin-de-semana.mp3"
+  },
+  {
+    "type": "sentence",
+    "front": "¿Sacaste la basura?",
+    "back": "Did you take out the trash?",
+    "tags": ["home"],
+    "meta": {
+      "dialect": "mx-rgv"
+    },
+    "audio": "15-sacaste-la-basura.mp3"
+  },
+  {
+    "type": "sentence",
+    "front": "Ya casi termino.",
+    "back": "I'm almost done.",
+    "tags": ["core"],
+    "meta": {
+      "dialect": "mx-rgv"
+    },
+    "audio": "16-ya-casi-termino.mp3"
+  },
+  {
+    "type": "vocab",
+    "front": "ahorita",
+    "back": "right now / in a little while (flexible!)",
+    "tags": ["rgv", "time"],
+    "meta": {
+      "dialect": "mx-rgv"
+    },
+    "audio": "17-ahorita.mp3"
+  },
+  {
+    "type": "sentence",
+    "front": "Tenemos que ir por el mandado.",
+    "back": "We have to go get the groceries.",
+    "tags": ["rgv", "plans"],
+    "meta": {
+      "dialect": "mx-rgv"
+    },
+    "audio": "18-tenemos-que-ir-por-el-mandado.mp3"
+  },
+  {
+    "type": "sentence",
+    "front": "¿Me pasas la sal, porfa?",
+    "back": "Can you pass me the salt, please?",
+    "tags": ["food"],
+    "meta": {
+      "dialect": "mx-rgv"
+    },
+    "audio": "19-me-pasas-la-sal-porfa.mp3"
+  },
+  {
+    "type": "sentence",
+    "front": "¿Cómo se dice eso?",
+    "back": "How do you say that?",
+    "tags": ["core"],
+    "meta": {
+      "dialect": "mx-rgv"
+    },
+    "audio": "20-como-se-dice-eso.mp3"
+  },
+  {
+    "type": "sentence",
+    "front": "¿Qué quieres de cenar?",
+    "back": "What do you want for dinner?",
+    "tags": ["home", "food"],
+    "meta": {
+      "dialect": "mx-rgv"
+    },
+    "audio": "21-que-quieres-de-cenar.mp3"
+  },
+  {
+    "type": "sentence",
+    "front": "¿Me ayudas tantito?",
+    "back": "Can you help me for a sec?",
+    "tags": ["rgv", "home"],
+    "meta": {
+      "dialect": "mx-rgv"
+    },
+    "audio": "22-me-ayudas-tantito.mp3"
+  },
+  {
+    "type": "sentence",
+    "front": "Los niños ya están dormidos.",
+    "back": "The kids are already asleep.",
+    "tags": ["family"],
+    "meta": {
+      "dialect": "mx-rgv"
+    },
+    "audio": "23-los-ninos-ya-estan-dormidos.mp3"
+  },
+  {
+    "type": "sentence",
+    "front": "¿Recogiste a los niños?",
+    "back": "Did you pick up the kids?",
+    "tags": ["family"],
+    "meta": {
+      "dialect": "mx-rgv"
+    },
+    "audio": "24-recogiste-a-los-ninos.mp3"
+  },
+  {
+    "type": "sentence",
+    "front": "Órale, vámonos.",
+    "back": "Alright, let's go.",
+    "tags": ["rgv"],
+    "meta": {
+      "dialect": "mx-rgv"
+    },
+    "audio": "25-orale-vamonos.mp3"
+  },
+  {
+    "type": "vocab",
+    "front": "tantito",
+    "back": "a little bit / a tiny moment",
+    "tags": ["rgv"],
+    "meta": {
+      "dialect": "mx-rgv"
+    },
+    "audio": "26-tantito.mp3"
+  },
+  {
+    "type": "sentence",
+    "front": "Estoy cansado.",
+    "back": "I'm tired. (male speaker)",
+    "tags": ["feelings"],
+    "meta": {
+      "dialect": "mx-rgv"
+    },
+    "audio": "27-estoy-cansado.mp3"
+  },
+  {
+    "type": "sentence",
+    "front": "Ahorita lavo los trastes.",
+    "back": "I'll wash the dishes in a bit.",
+    "tags": ["rgv", "home"],
+    "meta": {
+      "dialect": "mx-rgv"
+    },
+    "audio": "28-ahorita-lavo-los-trastes.mp3"
+  },
+  {
+    "type": "sentence",
+    "front": "Llego como a las seis.",
+    "back": "I'll get there around six.",
+    "tags": ["plans", "time"],
+    "meta": {
+      "dialect": "mx-rgv"
+    },
+    "audio": "29-llego-como-a-las-seis.mp3"
+  },
+  {
+    "type": "sentence",
+    "front": "Más despacio, porfa.",
+    "back": "Slower, please.",
+    "tags": ["core"],
+    "meta": {
+      "dialect": "mx-rgv"
+    },
+    "audio": "30-mas-despacio-porfa.mp3"
+  },
+  {
+    "type": "sentence",
+    "front": "¿Qué onda?",
+    "back": "What's up? / How's it going?",
+    "tags": ["rgv", "greeting"],
+    "meta": {
+      "dialect": "mx-rgv"
+    },
+    "audio": "31-que-onda.mp3"
+  },
+  {
+    "type": "sentence",
+    "front": "Te quiero mucho.",
+    "back": "I love you a lot.",
+    "tags": ["affection"],
+    "meta": {
+      "dialect": "mx-rgv"
+    },
+    "audio": "32-te-quiero-mucho.mp3"
+  },
+  {
+    "type": "vocab",
+    "front": "el mandado",
+    "back": "the grocery run / errand",
+    "context": "Voy a hacer el mandado.",
+    "tags": ["rgv", "noun"],
+    "meta": {
+      "dialect": "mx-rgv"
+    },
+    "audio": "33-el-mandado.mp3"
+  },
+  {
+    "type": "sentence",
+    "front": "Estoy cansada.",
+    "back": "I'm tired. (female speaker)",
+    "tags": ["feelings"],
+    "meta": {
+      "dialect": "mx-rgv"
+    },
+    "audio": "34-estoy-cansada.mp3"
+  },
+  {
+    "type": "sentence",
+    "front": "Otra vez, por favor.",
+    "back": "Again, please.",
+    "tags": ["core"],
+    "meta": {
+      "dialect": "mx-rgv"
+    },
+    "audio": "35-otra-vez-por-favor.mp3"
+  },
+  {
+    "type": "sentence",
+    "front": "Te extrañé hoy.",
+    "back": "I missed you today.",
+    "tags": ["affection"],
+    "meta": {
+      "dialect": "mx-rgv"
+    },
+    "audio": "36-te-extrane-hoy.mp3"
+  },
+  {
+    "type": "sentence",
+    "front": "Ándale pues.",
+    "back": "Okay then. / Go ahead.",
+    "tags": ["rgv"],
+    "meta": {
+      "dialect": "mx-rgv"
+    },
+    "audio": "37-andale-pues.mp3"
+  },
+  {
+    "type": "sentence",
+    "front": "Yo lavo y tú secas.",
+    "back": "I'll wash and you dry.",
+    "tags": ["home"],
+    "meta": {
+      "dialect": "mx-rgv"
+    },
+    "audio": "38-yo-lavo-y-tu-secas.mp3"
+  },
+  {
+    "type": "sentence",
+    "front": "Voy a hacer de comer.",
+    "back": "I'm going to make food.",
+    "tags": ["home", "food"],
+    "meta": {
+      "dialect": "mx-rgv"
+    },
+    "audio": "39-voy-a-hacer-de-comer.mp3"
+  },
+  {
+    "type": "sentence",
+    "front": "¿Cómo amaneciste?",
+    "back": "How did you wake up? (how are you this morning?)",
+    "tags": ["greeting"],
+    "meta": {
+      "dialect": "mx-rgv"
+    },
+    "audio": "40-como-amaneciste.mp3"
+  }
+]
