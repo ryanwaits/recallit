@@ -1,0 +1,37 @@
+{
+  "name": "recallit",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Agent-native, topic-agnostic spaced-repetition recall engine",
+  "module": "src/index.ts",
+  "//runtime": "Bun-only: the engine imports bun:sqlite (src/db.ts). Consume under Bun.",
+  "exports": {
+    ".": "./src/index.ts",
+    "./cli": "./src/cli.ts"
+  },
+  "bin": {
+    "recallit": "./src/cli.ts"
+  },
+  "files": ["src"],
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "bun test",
+    "lint": "biome check src",
+    "lint:fix": "biome check --write src",
+    "cli": "bun run src/cli.ts",
+    "serve": "bun run src/server.ts",
+    "seed:spanish": "bun run src/cli.ts topic add packs/spanish-mx-rgv --force"
+  },
+  "dependencies": {
+    "@anthropic-ai/claude-agent-sdk": "^0.3.150",
+    "gray-matter": "^4.0.3",
+    "ts-fsrs": "5.4.1",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.2.0",
+    "@types/bun": "^1.2.0",
+    "typescript": "^5.7.0"
+  }
+}
