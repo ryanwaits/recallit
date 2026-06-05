@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>recallit</title>
+    <style>
+      :root { color-scheme: light dark; }
+      body { font: 16px/1.5 system-ui, sans-serif; max-width: 40rem; margin: 2rem auto; padding: 0 1rem; }
+      h1 { font-size: 1.25rem; }
+      #log { display: flex; flex-direction: column; gap: .5rem; margin: 1rem 0; }
+      .msg { padding: .5rem .75rem; border-radius: .5rem; background: color-mix(in srgb, currentColor 8%, transparent); }
+      .prompt { font-weight: 600; }
+      .you { opacity: .8; }
+      #talk { width: 100%; padding: 1rem; font-size: 1rem; border-radius: .75rem; border: 1px solid currentColor; background: transparent; cursor: pointer; touch-action: none; }
+      #talk.recording { background: crimson; color: white; }
+      #talk:disabled { opacity: .4; cursor: not-allowed; }
+      form { display: flex; gap: .5rem; margin-top: .5rem; }
+      input { flex: 1; padding: .5rem; }
+      .hint { opacity: .6; font-size: .85rem; }
+      #progress { display: flex; gap: 1rem; flex-wrap: wrap; margin: .5rem 0 1rem; font-size: .9rem; }
+      #progress .stat { padding: .35rem .6rem; border-radius: .5rem; background: color-mix(in srgb, currentColor 8%, transparent); }
+      #progress .stat b { font-variant-numeric: tabular-nums; }
+      #progress .danger { background: color-mix(in srgb, crimson 25%, transparent); }
+    </style>
+  </head>
+  <body>
+    <h1>recallit</h1>
+    <p class="hint">Hold the button (or press and hold Space) to answer aloud. The tutor speaks each prompt.</p>
+    <div id="progress"></div>
+    <div id="log"></div>
+    <button id="talk" disabled>Hold to speak</button>
+    <form id="textForm">
+      <input id="textInput" placeholder="…or type your answer" autocomplete="off" />
+      <button type="submit">Send</button>
+    </form>
+    <button id="stop" style="margin-top:.5rem">End session</button>
+
+    <script>
+      const log = document.getElementById("log");
+      const talk = document.getElementById("talk");
+      const textForm = document.getElementById("textForm");
+      const textInput = document.getElementById("textInput");
+      const stopBtn = document.getElementById("stop");
+
+      let ws, currentCardId = null, recorder, chunks = [], mediaStream = null;
+
+      // Acquire the mic once and keep it warm, so press-to-talk records instantly
+      // instead of re-requesting the stream (and re-prompting) on every turn.
+      async function ensureMic() {
+        if (!mediaStream || !mediaStream.active) {
+          mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        }
+        return mediaStream;
+      }
+
+      // Minimal markdown → HTML for tutor prompts/captions (the agent speaks in
+      // markdown). HTML-escaped first; user transcripts are rendered as plain text.
+      function mdToHtml(text) {
+        const esc = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        return esc
+          .replace(/`([^`]+)`/g, "<code>$1</code>")
+          .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+          .replace(/\*([^*]+)\*/g, "<em>$1</em>")
+          .replace(/^\s*#{1,6}\s*(.+)$/gm, "<strong>$1</strong>")
+          .replace(/^\s*---\s*$/gm, "<hr>")
+          .replace(/\n/g, "<br>");
+      }
+
+      async function refreshProgress() {
+        try {
+          const p = await (await fetch("/api/progress")).json();
+          const stats = [
+            ["due", p.dueNow],
+            ["done today", p.reviewedToday],
+            ["streak", `${p.streak}🔥`],
+            [p.goalMetric || "goal", p.reviewedToday],
+          ];
+          const el = document.getElementById("progress");
+          el.innerHTML = stats
+            .map(([k, v]) => `<span class="stat">${k}: <b>${v}</b></span>`)
+            .join("");
+          if (p.dangerZone) {
+            el.innerHTML += `<span class="stat danger">streak at risk — practice today!</span>`;
+          }
+        } catch {}
+      }
+
+      function add(text, cls) {
+        const div = document.createElement("div");
+        div.className = "msg " + (cls || "");
+        if (cls === "you") div.textContent = text; // learner transcript — never as markup
+        else div.innerHTML = mdToHtml(text);        // tutor prompt/caption — render markdown
+        log.appendChild(div);
+        div.scrollIntoView();
+      }
+
+      function connect() {
+        ws = new WebSocket(`ws://${location.host}/ws`);
+        ws.onmessage = (ev) => {
+          const m = JSON.parse(ev.data);
+          if (m.type === "say") {
+            add(m.text + (m.context ? `  (${m.context})` : ""), "prompt");
+            if (m.mediaUrl) new Audio(m.mediaUrl).play().catch(() => {});
+            else if (m.audioBase64) playAudio(m.audioBase64);
+          } else if (m.type === "listen") {
+            currentCardId = m.cardId;
+            talk.disabled = false;
+            ensureMic().catch(() => {}); // warm the mic so the next press records instantly
+          } else if (m.type === "transcript") {
+            add("you: " + (m.text || "(unintelligible)"), "you");
+          } else if (m.type === "caption") {
+            add(m.text);
+          } else if (m.type === "done") {
+            add("✅ Session complete. " + (m.summary || ""), "prompt");
+            talk.disabled = true;
+            refreshProgress();
+          } else if (m.type === "error") {
+            add("⚠️ " + m.text);
+          }
+        };
+        ws.onclose = () => add("(disconnected)");
+      }
+
+      function playAudio(b64) {
+        const bytes = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
+        const url = URL.createObjectURL(new Blob([bytes], { type: "audio/mpeg" }));
+        new Audio(url).play().catch(() => {});
+      }
+
+      async function startRecording() {
+        if (talk.disabled || recorder?.state === "recording") return;
+        const stream = await ensureMic(); // reuses the warm stream — no per-press latency
+        chunks = [];
+        recorder = new MediaRecorder(stream, { mimeType: "audio/webm" });
+        recorder.ondataavailable = (e) => chunks.push(e.data);
+        recorder.onstop = async () => {
+          // Keep the stream warm for the next turn (do NOT stop tracks here).
+          const blob = new Blob(chunks, { type: "audio/webm" });
+          const b64 = btoa(String.fromCharCode(...new Uint8Array(await blob.arrayBuffer())));
+          ws.send(JSON.stringify({ type: "audio", cardId: currentCardId, mime: "audio/webm", dataBase64: b64 }));
+          talk.disabled = true;
+        };
+        recorder.start();
+        talk.classList.add("recording");
+        talk.textContent = "Release to send";
+      }
+
+      function stopRecording() {
+        if (recorder?.state === "recording") recorder.stop();
+        talk.classList.remove("recording");
+        talk.textContent = "Hold to speak";
+      }
+
+      talk.addEventListener("pointerdown", startRecording);
+      talk.addEventListener("pointerup", stopRecording);
+      talk.addEventListener("pointerleave", stopRecording);
+      document.addEventListener("keydown", (e) => { if (e.code === "Space") { e.preventDefault(); startRecording(); } });
+      document.addEventListener("keyup", (e) => { if (e.code === "Space") stopRecording(); });
+
+      textForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        if (!textInput.value || talk.disabled) return;
+        ws.send(JSON.stringify({ type: "text", cardId: currentCardId, text: textInput.value }));
+        add("you: " + textInput.value, "you");
+        textInput.value = "";
+        talk.disabled = true;
+      });
+      stopBtn.addEventListener("click", () => ws.send(JSON.stringify({ type: "stop" })));
+
+      refreshProgress();
+      connect();
+    </script>
+  </body>
+</html>
