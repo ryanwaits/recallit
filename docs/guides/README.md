@@ -4,6 +4,8 @@ Detailed, copy-pasteable use-case guides for **recallit** — an agent-native, t
 
 Engine knows no topic; topics are data packs you **create**, **install**, and **drill** (text or voice). Pick a guide by where you are in the journey.
 
+**New here?** Follow the numbered path: [01 stand it up](01-instantiate-multimodal-spanish.md) → [05 create a pack](05-creating-packs.md) → [06 use it](06-using-packs.md) → [07 add voice](07-multimodal-voice.md) → [08 recipes](08-recipes.md). Or jump to whatever fits below.
+
 ## Get started
 
 | Guide | What it covers |
