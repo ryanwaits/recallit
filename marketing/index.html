@@ -8,6 +8,23 @@
       name="description"
       content="recallit turns any subject into spaced-repetition flashcards and brings them back right before you'd forget. A language, a programming language, a book, a film, anything you study can be a pack."
     />
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="recallit · learn &amp; remember anything" />
+    <meta
+      property="og:description"
+      content="Drop a source. Get an honest pack. Practice it forever. It comes back right before you'd forget."
+    />
+    <meta property="og:image" content="og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="recallit · learn &amp; remember anything" />
+    <meta
+      name="twitter:description"
+      content="Drop a source. Get an honest pack. Practice it forever. It comes back right before you'd forget."
+    />
+    <meta name="twitter:image" content="og.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -18,7 +35,6 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <!-- NOTE: update the GitHub URLs below to the real repo before publishing. -->
     <header class="nav">
       <div class="wrap nav__inner">
         <a class="brand" href="#top"><span class="brand__dot" aria-hidden="true"></span>recallit</a>
@@ -32,9 +48,9 @@
           <span class="hero__kicker label">Recall engine</span>
           <h1>Learn &amp; remember <em>anything.</em></h1>
           <p class="hero__lede">
-            Spanish phrases, a programming language, the cast of a film, the plants in your garden.
-            If you can study it, recallit turns it into flashcards and brings them back right before
-            you'd forget.
+            Drop in a source: a PDF, a repo, a web page, or just a topic you name. recallit builds an
+            honest pack of cards and brings each one back right before you'd forget. Practice by
+            typing, or out loud.
           </p>
           <div class="hero__cta">
             <a class="btn btn--primary" href="https://github.com/ryanwaits/recallit">★ Star on GitHub</a>
@@ -63,6 +79,41 @@
             </div>
           </div>
         </div>
+      </section>
+
+      <aside class="wrap trust reveal" aria-label="What recallit is built on">
+        <ul class="trust__list">
+          <li>Built on the Claude Agent SDK</li>
+          <li>FSRS-6 scheduling</li>
+          <li>Open source</li>
+        </ul>
+      </aside>
+
+      <section class="wrap section loop-section">
+        <div class="section__head reveal">
+          <h2>Drop a source. Keep it forever.</h2>
+          <p>
+            One honest loop. The cards trace back to your source, and the schedule is math, not a
+            guess.
+          </p>
+        </div>
+        <ol class="loop">
+          <li class="loop__step reveal">
+            <span class="loop__num">01</span>
+            <h3>Drop a source</h3>
+            <p>A PDF, a repo, a web page, or a topic you name. recallit reads it and writes the cards.</p>
+          </li>
+          <li class="loop__step reveal">
+            <span class="loop__num">02</span>
+            <h3>Get an honest pack</h3>
+            <p>Every card cites a real quote from your source. Anything it can't verify is held back, not invented.</p>
+          </li>
+          <li class="loop__step reveal">
+            <span class="loop__num">03</span>
+            <h3>Practice it forever</h3>
+            <p>Type or speak your answers. FSRS-6 brings each card back right before you'd forget.</p>
+          </li>
+        </ol>
       </section>
 
       <section class="examples">

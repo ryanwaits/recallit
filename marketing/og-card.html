@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<!-- Source for marketing/og.png. Regenerate: see the screenshot command in README/commit. 1200x630. -->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@500&family=Newsreader:ital,opsz@1,18&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --paper: oklch(96% 0.020 70);
+        --paper-3: oklch(91% 0.030 70);
+        --rule: oklch(82% 0.022 70);
+        --muted: oklch(45% 0.024 55);
+        --ink-2: oklch(30% 0.018 55);
+        --ink: oklch(22% 0.015 50);
+        --accent: oklch(68% 0.130 18);
+        --accent-2: oklch(58% 0.150 18);
+      }
+      * { box-sizing: border-box; margin: 0; }
+      html, body { width: 1200px; height: 630px; }
+      body {
+        background: var(--paper);
+        color: var(--ink);
+        font-family: "Geist", system-ui, sans-serif;
+        padding: 76px 80px;
+        display: grid;
+        grid-template-columns: 1.25fr 0.75fr;
+        grid-template-rows: auto 1fr auto;
+        gap: 0 64px;
+        -webkit-font-smoothing: antialiased;
+      }
+      .brand {
+        grid-column: 1 / 2;
+        display: inline-flex; align-items: center; gap: 14px;
+        font-weight: 700; font-size: 30px; letter-spacing: -0.02em;
+      }
+      .brand .dot {
+        width: 22px; height: 22px; border-radius: 999px;
+        background: var(--accent);
+        box-shadow: 0 0 0 8px color-mix(in oklab, var(--accent) 22%, transparent);
+      }
+      .copy { grid-column: 1 / 2; grid-row: 2 / 3; align-self: center; }
+      h1 {
+        font-weight: 700; font-size: 92px; line-height: 1.02;
+        letter-spacing: -0.025em; max-width: 11ch;
+      }
+      h1 em {
+        font-family: "Newsreader", serif; font-style: italic; font-weight: 500;
+        color: var(--accent-2);
+      }
+      .sub {
+        margin-top: 28px; font-size: 30px; line-height: 1.45;
+        color: var(--ink-2); max-width: 22ch;
+      }
+      .strip {
+        grid-column: 1 / 3; grid-row: 3 / 4; align-self: end;
+        display: flex; gap: 18px; align-items: center;
+        font-family: "Geist Mono", ui-monospace, monospace;
+        font-size: 19px; letter-spacing: 0.06em; text-transform: uppercase;
+        color: var(--muted);
+        border-top: 1px solid var(--rule); padding-top: 26px;
+      }
+      .strip .sep { color: var(--accent-2); }
+      .card {
+        grid-column: 2 / 3; grid-row: 1 / 3; align-self: center; justify-self: end;
+        width: 320px; aspect-ratio: 5 / 3.4;
+        background: var(--accent); color: var(--ink);
+        border-radius: 18px; padding: 32px;
+        box-shadow: 0 28px 60px -22px oklch(45% 0.10 18 / 0.34);
+        transform: rotate(4deg);
+        display: flex; flex-direction: column; justify-content: space-between;
+      }
+      .card .tag {
+        font-family: "Geist Mono", monospace; font-size: 16px;
+        letter-spacing: 0.06em; text-transform: uppercase; opacity: 0.72;
+      }
+      .card .q { font-weight: 700; font-size: 46px; letter-spacing: -0.02em; line-height: 1.05; }
+    </style>
+  </head>
+  <body>
+    <span class="brand"><span class="dot"></span>recallit</span>
+    <div class="copy">
+      <h1>Learn &amp; remember <em>anything.</em></h1>
+      <p class="sub">Drop a source. Get an honest pack. Practice it forever.</p>
+    </div>
+    <div class="card">
+      <span class="tag">Front</span>
+      <span class="q">¿Qué onda?</span>
+      <span class="tag">Tap to flip ↻</span>
+    </div>
+    <div class="strip">
+      <span>Built on the Claude Agent SDK</span>
+      <span class="sep">·</span>
+      <span>FSRS-6</span>
+      <span class="sep">·</span>
+      <span>Open source</span>
+    </div>
+  </body>
+</html>
