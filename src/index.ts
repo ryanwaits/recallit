@@ -24,12 +24,23 @@ export {
 export type { DueQuery } from "./db.ts";
 export { countCards, getDueCardIds, rebuildIndex, removeFromIndex, upsertIndex } from "./db.ts";
 export { evaluateAnswer, normalize, tokenize } from "./evaluate.ts";
-export type { InstallOptions, InstallResult } from "./install.ts";
-export { assertEngineSatisfied, installPack } from "./install.ts";
+export type { InstallOptions, InstallResult, ReinstallPlan } from "./install.ts";
+export { assertEngineSatisfied, installPack, planReinstall } from "./install.ts";
 export type { MineInput, MineResult } from "./mining.ts";
 export { knownTokens, MiningError, mineCard } from "./mining.ts";
 export type { LoadedPack, PackCard, PackManifest } from "./pack.ts";
 export { loadPack, PACK_SCHEMA_VERSION, parsePackManifest } from "./pack.ts";
+export type {
+  PackAuthorOptions,
+  PackAuthorResult,
+  PreparedSource,
+  SourceKind,
+} from "./packgen/author.ts";
+export { prepareSource, runPackAuthor, runPackEditor, slugFromSource } from "./packgen/author.ts";
+export type { CardVerdict, GateResult, WriteVerdict } from "./packgen/gate.ts";
+export { gateCards, writePack } from "./packgen/gate.ts";
+export type { Mode, ModeResolution, ModeSignal } from "./packgen/mode.ts";
+export { resolveMode } from "./packgen/mode.ts";
 export type { Progress } from "./progress.ts";
 export { dayKey, getProgress, markActive, reviewedToday } from "./progress.ts";
 export type { QualityResult } from "./quality.ts";
