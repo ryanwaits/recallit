@@ -7,10 +7,12 @@
 import { join } from "node:path";
 import type { ServerWebSocket } from "bun";
 import { type AnswerProvider, createReviewSession, type RunResult, runSession } from "./agent.ts";
+import { countCards } from "./db.ts";
+import { installPack } from "./install.ts";
 import { cardAttemptFile } from "./paths.ts";
 import { getProgress } from "./progress.ts";
 import { updateCard } from "./store.ts";
-import { getActiveTopic, readTopicConfig } from "./topic.ts";
+import { getActiveTopic, listTopics, readTopicConfig } from "./topic.ts";
 import type { RecallCard } from "./types.ts";
 import type { SttProvider, TtsProvider } from "./voice/types.ts";
 
@@ -180,13 +182,53 @@ export function startServer(deps: ServerDeps) {
     async fetch(req, server) {
       const url = new URL(req.url);
       if (url.pathname === "/ws") {
-        if (server.upgrade(req, { data: { topicId: "", pendingResolve: null } })) return;
+        // Let the SPA choose the deck per connection (?topicId=…) instead of the
+        // process-global active topic; open() falls back to active when omitted.
+        const topicId = url.searchParams.get("topicId") ?? "";
+        if (server.upgrade(req, { data: { topicId, pendingResolve: null } })) return;
         return new Response("upgrade failed", { status: 400 });
       }
       if (url.pathname === "/api/progress") {
-        const topicId = (await getActiveTopic()) ?? "default";
+        const topicId = url.searchParams.get("topicId") || (await getActiveTopic()) || "default";
         const cfg = await readTopicConfig(topicId);
         return Response.json(await getProgress(topicId, cfg?.goalMetric));
+      }
+      if (url.pathname === "/api/packs") {
+        // List installed topics for the gallery. Reads existing exports only.
+        const active = await getActiveTopic();
+        const packs = await Promise.all(
+          (await listTopics()).map(async (id) => {
+            const cfg = await readTopicConfig(id);
+            const { total, due } = countCards(id);
+            return {
+              id,
+              name: cfg?.name ?? id,
+              modality: cfg?.modality ?? "text",
+              goalMetric: cfg?.goalMetric,
+              cards: total,
+              due,
+              active: id === active,
+            };
+          }),
+        );
+        return Response.json({ packs });
+      }
+      if (url.pathname === "/api/packs/install" && req.method === "POST") {
+        // One-tap install wrapping installPack. Disable on shared/public deploys
+        // with RECALLIT_NO_INSTALL=1 (installing arbitrary sources runs git/npm).
+        if (process.env.RECALLIT_NO_INSTALL)
+          return new Response("install disabled", { status: 403 });
+        const body = (await req.json().catch(() => ({}))) as { source?: string };
+        if (!body.source) return Response.json({ error: "missing source" }, { status: 400 });
+        try {
+          const res = await installPack(body.source, { activate: true });
+          return Response.json(res);
+        } catch (e) {
+          return Response.json(
+            { error: e instanceof Error ? e.message : String(e) },
+            { status: 400 },
+          );
+        }
       }
       if (url.pathname.startsWith("/media/")) {
         // Serve a card's stored audio (native.mp3) for shadowing playback.
@@ -218,7 +260,8 @@ export function startServer(deps: ServerDeps) {
     },
     websocket: {
       async open(ws) {
-        ws.data.topicId = (await getActiveTopic()) ?? "default";
+        // Honor a per-connection topicId (from /ws?topicId=…); fall back to active.
+        ws.data.topicId = ws.data.topicId || (await getActiveTopic()) || "default";
         // Resolve the topic's voice + language once per connection so every turn
         // speaks/transcribes in the configured language (topic.json meta).
         const cfg = await readTopicConfig(ws.data.topicId);
