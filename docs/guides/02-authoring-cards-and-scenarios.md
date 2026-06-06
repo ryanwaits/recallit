@@ -163,7 +163,7 @@ Advisory heuristics (`checkCardQuality`, `quality.ts:13-27`). Flags: missing `fr
 - **Grader is lexical** (`evaluate.ts`): strips diacritics + lowercases, so `sí/si`, `papá/papa`, `ñ/n`, `¿/¡` all collapse → wrong-accent grades Good; valid paraphrases grade Again. No semantic match. (Acceptable for the comprehension review loop.)
 - **i+1 is morphology-blind**: token = exact normalized word. Spanish conjugations/inflections (`hago` vs `hacer`, clitics `dámelo`) count as new tokens → can wrongly reject legit i+1 cards or pass dupes. No lemmatization.
 - **`meta`/`media` not settable via the agent's `create_card`/`update_card`** — set them in the pack's `cards.json` (`meta`, `audio`) or hand-edit `item.md` + `rebuildIndex`.
-- **Roleplay voice input is card-bound** — the browser runs the full daily regimen, but `await_user_response` needs a `card_id`, so free-conversation roleplay has no clean spoken-turn primitive (known follow-up: a card-less `converse` turn).
+- **Roleplay uses the card-less `converse` turn** (shipped) for free-conversation spoken practice; those turns aren't graded or scheduled (production practice, not review).
 
 **Fixed since first draft:**
 - ✅ `voiceId` is wired (server reads `meta.voiceId`); ✅ `native.mp3` is served (`/media`) + played in shadowing; ✅ `context.md` is per-topic.

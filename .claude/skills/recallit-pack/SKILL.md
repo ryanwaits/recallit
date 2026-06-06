@@ -125,16 +125,19 @@ bun run cli daily --topic <id>       # study it
 
 ## Editing / enhancing a pack (`/recallit-pack edit <id>`)
 
-`cards.json` is the source of truth. To tweak: `Read` `packs/<id>/cards.json` + `.author/source.txt`, apply the natural-language instruction (add N from a section, fix a card, split, merge) by editing `cards.json`, then re-gate and re-install:
+**Preferred — the live editor verb** (handles the whole loop and chooses the right install strategy):
 
 ```bash
-bun run cli pack write packs/<id>          # re-gates the whole set (substring + quality + dedup)
-bun run cli topic add packs/<id> --force   # re-install
+bun run cli pack edit <id> "<instruction>"     # e.g. "add 10 cards on chapter 5", "fix card 7"
 ```
 
-**Surface this caveat before `--force`:** re-installing does a full rebuild and **resets the FSRS review schedule/history for this topic** (v1 limitation; non-destructive enhance is a planned engine change). Ask the user to confirm: *"This resets your review progress for '<id>'. Proceed?"*
+It re-reads `cards.json` + `.author/source.txt`, applies the instruction, re-gates the full set, then:
+- **additive edits** (only new cards) → **merge**: new cards are added and existing cards keep their **FSRS review history** (no reset).
+- **changed/removed cards** → a force rebuild that **RESETS** the schedule; it asks you to confirm first (skip with `--auto`).
 
-`pack write` dedups by `normalize(front)` across the whole set, so adding cards won't introduce an exact-duplicate `front` (it catches exact dupes, not paraphrases).
+`--dry-run` writes the updated `cards.json` without re-installing. `pack write` dedups by `normalize(front)` (exact dupes only, not paraphrases).
+
+**Manual fallback** (full control): hand-`Edit` `cards.json`, then `bun run cli pack write packs/<id>` to re-gate, then `bun run cli topic add packs/<id> --force` (note: `--force` resets FSRS).
 
 ## Honest about the guarantee
 

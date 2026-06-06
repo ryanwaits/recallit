@@ -98,7 +98,7 @@ To add a provider: implement the 1-method interface, inject into `startServer({s
 ## Gotchas
 
 **Still true:**
-- **Roleplay voice input is card-bound.** `serve` runs the full daily regimen (default `run` is `mode:"daily"`), so shadowing + review work over the browser. But `await_user_response` requires a `card_id` (speaks its front), so the **roleplay** phase has no clean primitive for free-conversation spoken turns. Known follow-up: a card-less `converse` turn.
+- **Roleplay turns aren't graded.** Roleplay now collects free-conversation spoken turns via the card-less **`converse`** tool (`session.converseProvider`, wired in `cli.ts` + `server.ts`) — the earlier "no converse primitive" gap shipped. But `converse` turns are *production practice*, not scheduled review: they don't grade or touch FSRS (only `present_card`→`grade_card` does).
 - **Grader is lexical only** (`evaluate.ts`): strips diacritics/ñ/punctuation; valid paraphrases grade Again. Acceptable for the comprehension review loop (front=Spanish → back=English); semantic match deferred.
 - **`mine_card` is morphology-blind** — token = accent-stripped word; conjugations count as unknown, can wrongly reject valid i+1 cards.
 - **`update_card` tool exposes only front/back/context** (`agent.ts`) — cannot edit tags/type/meta via the agent (set them in the pack); editing `front` does trigger `native.mp3` regen.

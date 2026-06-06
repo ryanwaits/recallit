@@ -101,6 +101,6 @@ ls data/topics/spanish-mx-rgv/cards/*/native.mp3 | wc -l   # expect 41 if audio 
 - ✅ **Streak honors local time** — set `RECALLIT_TZ=America/Chicago` for RGV; day boundaries match the wall clock (UTC if unset).
 
 **Still true:**
-- **Roleplay voice input is card-bound.** The browser session *does* run the full daily regimen (shadowing→review→roleplay→reflect — `serve`'s default `run` is `mode:"daily"`), and shadowing + review work over voice. The gap: `await_user_response` requires a `card_id` and speaks that card's front, so the **roleplay** phase has no clean primitive for free-conversation spoken turns. Known follow-up: a card-less `converse` turn.
+- **Roleplay turns aren't graded.** The browser runs the full daily regimen (shadowing→review→roleplay→reflect — `serve`'s default `run` is `mode:"daily"`). Roleplay collects free-conversation spoken turns via the card-less **`converse`** tool (shipped — wired in `cli.ts`/`server.ts`); but those turns are production practice, not scheduled review (they don't grade or touch FSRS).
 - **Grading is lexical** (Levenshtein + Jaccard; diacritics/ñ/¿¡ normalized away) — fine for the comprehension review loop, but valid paraphrases grade `Again`. Semantic match is deferred (`evaluate.ts`).
 - **Mining is morphology-blind** — Spanish conjugations/inflections count as distinct tokens, so a known lemma in a new surface form can wrongly fail the 1-new-thing rule (`mining.ts`).
