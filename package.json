@@ -48,6 +48,7 @@
     "cli": "bun run src/cli.ts",
     "serve": "bun run src/server.ts",
     "serve:local": "bun run scripts/serve-local.ts",
+    "serve:marketing": "bun run scripts/serve-marketing.ts",
     "seed:spanish": "bun run src/cli.ts topic add packs/spanish-mx-rgv --force"
   },
   "dependencies": {
