@@ -4,58 +4,187 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>recallit</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&family=Newsreader:ital,opsz@1,18&display=swap"
+      rel="stylesheet"
+    />
     <style>
-      :root { color-scheme: light dark; }
-      body { font: 16px/1.5 system-ui, sans-serif; max-width: 40rem; margin: 2rem auto; padding: 0 1rem; }
-      h1 { font-size: 1.25rem; }
-      #log { display: flex; flex-direction: column; gap: .5rem; margin: 1rem 0; }
-      .msg { padding: .5rem .75rem; border-radius: .5rem; background: color-mix(in srgb, currentColor 8%, transparent); }
-      .prompt { font-weight: 600; }
-      .you { opacity: .8; }
-      #talk { width: 100%; padding: 1rem; font-size: 1rem; border-radius: .75rem; border: 1px solid currentColor; background: transparent; cursor: pointer; touch-action: none; }
-      #talk.recording { background: crimson; color: white; }
-      #talk:disabled { opacity: .4; cursor: not-allowed; }
-      form { display: flex; gap: .5rem; margin-top: .5rem; }
-      input { flex: 1; padding: .5rem; }
-      .hint { opacity: .6; font-size: .85rem; }
-      #progress { display: flex; gap: 1rem; flex-wrap: wrap; margin: .5rem 0 1rem; font-size: .9rem; }
-      #progress .stat { padding: .35rem .6rem; border-radius: .5rem; background: color-mix(in srgb, currentColor 8%, transparent); }
-      #progress .stat b { font-variant-numeric: tabular-nums; }
-      #progress .danger { background: color-mix(in srgb, crimson 25%, transparent); }
+      :root {
+        --paper: oklch(96% 0.02 70); --paper-2: oklch(94% 0.026 70); --paper-3: oklch(91% 0.03 70);
+        --rule: oklch(82% 0.022 70); --ink: oklch(22% 0.015 50); --ink-2: oklch(30% 0.018 55);
+        --muted: oklch(45% 0.024 55); --accent: oklch(68% 0.13 18); --accent-2: oklch(58% 0.15 18);
+        --accent-soft: oklch(91% 0.045 18); --on-ink: oklch(93% 0.018 70); --focus: oklch(50% 0.16 18);
+        --font: "Geist", ui-sans-serif, system-ui, sans-serif;
+        --mono: "Geist Mono", ui-monospace, monospace;
+        --serif: "Newsreader", ui-serif, Georgia, serif;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0; background: var(--paper); color: var(--ink);
+        font: 16px/1.5 var(--font); -webkit-font-smoothing: antialiased;
+      }
+      .wrap { max-width: 52rem; margin: 0 auto; padding: 0 1.25rem; }
+      .nav {
+        position: sticky; top: 0; z-index: 10; background: var(--paper);
+        border-bottom: 0.5px solid var(--rule);
+      }
+      .nav__in { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 0.75rem 0; }
+      .brand { display: inline-flex; align-items: center; gap: 0.5rem; font-weight: 700; font-size: 1.25rem; letter-spacing: -0.02em; }
+      .dot { width: 0.7em; height: 0.7em; border-radius: 999px; background: var(--accent); box-shadow: 0 0 0 4px color-mix(in oklab, var(--accent) 22%, transparent); }
+      .label { font: 500 0.75rem/1 var(--mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+
+      .btn {
+        display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem;
+        min-height: 44px; padding: 0 1.1rem; border-radius: 999px; border: 1.5px solid var(--rule);
+        background: var(--paper); color: var(--ink); font: 600 1rem var(--font); cursor: pointer;
+        text-decoration: none; transition: background-color 0.2s, border-color 0.2s;
+      }
+      .btn--primary { background: var(--accent); border-color: transparent; }
+      .btn:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+      @media (hover: hover) { .btn:hover { border-color: var(--ink); } .btn--primary:hover { background: var(--accent-2); color: var(--paper); } }
+
+      main { padding-block: 2rem 4rem; }
+      h1 { font-size: clamp(1.8rem, 4vw, 2.6rem); letter-spacing: -0.025em; margin: 0 0 0.25rem; }
+      h1 em { font-family: var(--serif); font-style: italic; font-weight: 500; color: var(--accent-2); }
+      .sub { color: var(--ink-2); margin: 0 0 1.75rem; }
+      [hidden] { display: none !important; }
+
+      /* Gallery */
+      .gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr)); gap: 1rem; }
+      .pack {
+        text-align: left; display: grid; gap: 0.5rem; padding: 1.25rem; cursor: pointer;
+        background: var(--paper-3); border: 1px solid var(--rule); border-radius: 14px;
+        font: inherit; color: inherit; transition: transform 0.2s, box-shadow 0.2s;
+      }
+      @media (hover: hover) { .pack:hover { transform: translateY(-3px); box-shadow: 0 10px 28px -12px oklch(45% 0.1 18 / 0.16); } }
+      .pack:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+      .pack__name { font-weight: 600; font-size: 1.1rem; letter-spacing: -0.01em; }
+      .pack__meta { color: var(--ink-2); font-size: 0.9rem; }
+      .pack__due { color: var(--accent-2); font-weight: 600; }
+      .pack__active { align-self: start; font: 500 0.7rem/1 var(--mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent-2); }
+      .empty { padding: 2rem; border: 1px dashed var(--rule); border-radius: 14px; color: var(--ink-2); }
+      .empty code { font-family: var(--mono); background: var(--paper-3); padding: 0.1em 0.4em; border-radius: 6px; }
+
+      /* Session */
+      .progress { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 0 0 1rem; }
+      .stat { padding: 0.35rem 0.7rem; border-radius: 999px; background: var(--paper-3); border: 0.5px solid var(--rule); font-size: 0.9rem; color: var(--ink-2); }
+      .stat b { color: var(--ink); font-variant-numeric: tabular-nums; }
+      .stat--danger { background: var(--accent-soft); border-color: var(--accent); color: var(--accent-2); }
+      #log { display: flex; flex-direction: column; gap: 0.6rem; margin: 1rem 0; }
+      .msg { padding: 0.6rem 0.85rem; border-radius: 12px; background: var(--paper-2); border: 0.5px solid var(--rule); }
+      .msg.prompt { background: var(--paper-3); }
+      .msg.prompt strong { color: var(--ink); }
+      .msg.you { background: var(--accent-soft); border-color: transparent; color: var(--ink); }
+      .msg code { font-family: var(--mono); font-size: 0.92em; }
+      #talk {
+        width: 100%; min-height: 56px; padding: 1rem; border-radius: 12px; border: 1.5px solid var(--ink);
+        background: var(--paper); color: var(--ink); font: 600 1rem var(--font); cursor: pointer; touch-action: none;
+      }
+      #talk.recording { background: var(--accent-2); color: var(--paper); border-color: transparent; }
+      #talk:disabled { opacity: 0.4; cursor: not-allowed; }
+      .row { display: flex; gap: 0.5rem; margin-top: 0.6rem; }
+      #textInput { flex: 1; padding: 0.6rem 0.8rem; border-radius: 10px; border: 1px solid var(--rule); background: var(--paper); color: var(--ink); font: inherit; }
+      #textInput:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
+      .hint { color: var(--muted); font-size: 0.85rem; margin: 0.75rem 0 0; }
     </style>
   </head>
   <body>
-    <h1>recallit</h1>
-    <p class="hint">Hold the button (or press and hold Space) to answer aloud. The tutor speaks each prompt.</p>
-    <div id="progress"></div>
-    <div id="log"></div>
-    <button id="talk" disabled>Hold to speak</button>
-    <form id="textForm">
-      <input id="textInput" placeholder="…or type your answer" autocomplete="off" />
-      <button type="submit">Send</button>
-    </form>
-    <button id="stop" style="margin-top:.5rem">End session</button>
+    <header class="nav">
+      <div class="wrap nav__in">
+        <span class="brand"><span class="dot" aria-hidden="true"></span>recallit</span>
+        <button id="back" class="btn" hidden>← Packs</button>
+      </div>
+    </header>
+
+    <main class="wrap">
+      <!-- Gallery -->
+      <section id="gallery">
+        <h1>Your <em>packs.</em></h1>
+        <p class="sub">Pick a deck to practice. Each one schedules itself with FSRS-6 and comes back before you'd forget.</p>
+        <div id="packs" class="gallery" aria-live="polite"></div>
+      </section>
+
+      <!-- Session -->
+      <section id="session" hidden>
+        <h1 id="sessionName">Practice</h1>
+        <div id="progress" class="progress"></div>
+        <div id="log"></div>
+        <button id="talk" disabled>Hold to speak</button>
+        <form id="textForm" class="row">
+          <input id="textInput" placeholder="…or type your answer" autocomplete="off" />
+          <button class="btn" type="submit">Send</button>
+        </form>
+        <p class="hint">Hold the button (or press and hold Space) to answer aloud. The tutor speaks each prompt. An unclear recording is re-asked, never silently graded.</p>
+        <button id="stop" class="btn" style="margin-top: 0.75rem">End session</button>
+      </section>
+    </main>
 
     <script>
-      const log = document.getElementById("log");
-      const talk = document.getElementById("talk");
-      const textForm = document.getElementById("textForm");
-      const textInput = document.getElementById("textInput");
-      const stopBtn = document.getElementById("stop");
+      const $ = (id) => document.getElementById(id);
+      const galleryView = $("gallery"), sessionView = $("session"), backBtn = $("back");
+      const log = $("log"), talk = $("talk"), textForm = $("textForm"), textInput = $("textInput"), stopBtn = $("stop");
 
-      let ws, currentCardId = null, recorder, chunks = [], mediaStream = null;
+      let ws, currentCardId = null, currentTopicId = null, recorder, chunks = [], mediaStream = null;
 
-      // Acquire the mic once and keep it warm, so press-to-talk records instantly
-      // instead of re-requesting the stream (and re-prompting) on every turn.
-      async function ensureMic() {
-        if (!mediaStream || !mediaStream.active) {
-          mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      // ── Gallery ────────────────────────────────────────────────────
+      async function loadPacks() {
+        const host = $("packs");
+        try {
+          const { packs } = await (await fetch("/api/packs")).json();
+          if (!packs.length) {
+            host.innerHTML = `<div class="empty">No packs installed yet. Add one from your terminal: <code>recallit topic add &lt;source&gt;</code> or <code>recallit pack &lt;source&gt;</code>.</div>`;
+            return;
+          }
+          host.innerHTML = "";
+          for (const p of packs) {
+            const btn = document.createElement("button");
+            btn.className = "pack";
+            btn.innerHTML =
+              (p.active ? `<span class="pack__active">active</span>` : "") +
+              `<span class="pack__name"></span>` +
+              `<span class="pack__meta">${p.cards} cards · ${p.modality}` +
+              (p.due ? ` · <span class="pack__due">${p.due} due</span>` : ` · 0 due`) +
+              `</span>`;
+            btn.querySelector(".pack__name").textContent = p.name; // never inject untrusted text as HTML
+            btn.addEventListener("click", () => openSession(p));
+            host.appendChild(btn);
+          }
+        } catch {
+          host.innerHTML = `<div class="empty">Couldn't reach the server.</div>`;
         }
-        return mediaStream;
       }
 
-      // Minimal markdown → HTML for tutor prompts/captions (the agent speaks in
-      // markdown). HTML-escaped first; user transcripts are rendered as plain text.
+      // ── View switching ─────────────────────────────────────────────
+      function showGallery() {
+        if (ws) { try { ws.close(); } catch {} ws = null; }
+        sessionView.hidden = true; backBtn.hidden = true; galleryView.hidden = false;
+        log.innerHTML = ""; talk.disabled = true;
+        loadPacks();
+      }
+      function openSession(pack) {
+        currentTopicId = pack.id;
+        $("sessionName").textContent = pack.name;
+        galleryView.hidden = true; sessionView.hidden = false; backBtn.hidden = false;
+        log.innerHTML = "";
+        refreshProgress();
+        connect();
+      }
+      backBtn.addEventListener("click", showGallery);
+
+      // ── Progress ───────────────────────────────────────────────────
+      async function refreshProgress() {
+        try {
+          const p = await (await fetch(`/api/progress?topicId=${encodeURIComponent(currentTopicId)}`)).json();
+          const stats = [["due", p.dueNow], ["done today", p.reviewedToday], ["streak", `${p.streak}🔥`]];
+          let html = stats.map(([k, v]) => `<span class="stat">${k}: <b>${v}</b></span>`).join("");
+          if (p.dangerZone) html += `<span class="stat stat--danger">streak at risk — practice today</span>`;
+          $("progress").innerHTML = html;
+        } catch {}
+      }
+
+      // ── Tutor markdown → HTML (escaped first; transcripts stay plain text) ──
       function mdToHtml(text) {
         const esc = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
         return esc
@@ -63,40 +192,19 @@
           .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
           .replace(/\*([^*]+)\*/g, "<em>$1</em>")
           .replace(/^\s*#{1,6}\s*(.+)$/gm, "<strong>$1</strong>")
-          .replace(/^\s*---\s*$/gm, "<hr>")
           .replace(/\n/g, "<br>");
       }
-
-      async function refreshProgress() {
-        try {
-          const p = await (await fetch("/api/progress")).json();
-          const stats = [
-            ["due", p.dueNow],
-            ["done today", p.reviewedToday],
-            ["streak", `${p.streak}🔥`],
-            [p.goalMetric || "goal", p.reviewedToday],
-          ];
-          const el = document.getElementById("progress");
-          el.innerHTML = stats
-            .map(([k, v]) => `<span class="stat">${k}: <b>${v}</b></span>`)
-            .join("");
-          if (p.dangerZone) {
-            el.innerHTML += `<span class="stat danger">streak at risk — practice today!</span>`;
-          }
-        } catch {}
-      }
-
       function add(text, cls) {
         const div = document.createElement("div");
         div.className = "msg " + (cls || "");
-        if (cls === "you") div.textContent = text; // learner transcript — never as markup
-        else div.innerHTML = mdToHtml(text);        // tutor prompt/caption — render markdown
-        log.appendChild(div);
-        div.scrollIntoView();
+        if (cls === "you") div.textContent = text; else div.innerHTML = mdToHtml(text);
+        log.appendChild(div); div.scrollIntoView();
       }
 
+      // ── WebSocket session (same protocol as before, now per-topic) ──
       function connect() {
-        ws = new WebSocket(`ws://${location.host}/ws`);
+        const proto = location.protocol === "https:" ? "wss" : "ws";
+        ws = new WebSocket(`${proto}://${location.host}/ws?topicId=${encodeURIComponent(currentTopicId)}`);
         ws.onmessage = (ev) => {
           const m = JSON.parse(ev.data);
           if (m.type === "say") {
@@ -104,72 +212,63 @@
             if (m.mediaUrl) new Audio(m.mediaUrl).play().catch(() => {});
             else if (m.audioBase64) playAudio(m.audioBase64);
           } else if (m.type === "listen") {
-            currentCardId = m.cardId;
-            talk.disabled = false;
-            ensureMic().catch(() => {}); // warm the mic so the next press records instantly
+            currentCardId = m.cardId; talk.disabled = false; ensureMic().catch(() => {});
           } else if (m.type === "transcript") {
             add("you: " + (m.text || "(unintelligible)"), "you");
           } else if (m.type === "caption") {
             add(m.text);
           } else if (m.type === "done") {
-            add("✅ Session complete. " + (m.summary || ""), "prompt");
-            talk.disabled = true;
-            refreshProgress();
+            add("✅ Session complete. " + (m.summary || ""), "prompt"); talk.disabled = true; refreshProgress();
           } else if (m.type === "error") {
             add("⚠️ " + m.text);
           }
         };
-        ws.onclose = () => add("(disconnected)");
+        ws.onclose = () => { if (!sessionView.hidden) add("(disconnected)"); };
       }
-
       function playAudio(b64) {
         const bytes = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
         const url = URL.createObjectURL(new Blob([bytes], { type: "audio/mpeg" }));
         new Audio(url).play().catch(() => {});
       }
 
+      // ── Mic + push-to-talk (warm stream; instant record) ───────────
+      async function ensureMic() {
+        if (!mediaStream || !mediaStream.active) mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        return mediaStream;
+      }
       async function startRecording() {
         if (talk.disabled || recorder?.state === "recording") return;
-        const stream = await ensureMic(); // reuses the warm stream — no per-press latency
+        const stream = await ensureMic();
         chunks = [];
         recorder = new MediaRecorder(stream, { mimeType: "audio/webm" });
         recorder.ondataavailable = (e) => chunks.push(e.data);
         recorder.onstop = async () => {
-          // Keep the stream warm for the next turn (do NOT stop tracks here).
           const blob = new Blob(chunks, { type: "audio/webm" });
           const b64 = btoa(String.fromCharCode(...new Uint8Array(await blob.arrayBuffer())));
           ws.send(JSON.stringify({ type: "audio", cardId: currentCardId, mime: "audio/webm", dataBase64: b64 }));
           talk.disabled = true;
         };
-        recorder.start();
-        talk.classList.add("recording");
-        talk.textContent = "Release to send";
+        recorder.start(); talk.classList.add("recording"); talk.textContent = "Release to send";
       }
-
       function stopRecording() {
         if (recorder?.state === "recording") recorder.stop();
-        talk.classList.remove("recording");
-        talk.textContent = "Hold to speak";
+        talk.classList.remove("recording"); talk.textContent = "Hold to speak";
       }
-
       talk.addEventListener("pointerdown", startRecording);
       talk.addEventListener("pointerup", stopRecording);
       talk.addEventListener("pointerleave", stopRecording);
-      document.addEventListener("keydown", (e) => { if (e.code === "Space") { e.preventDefault(); startRecording(); } });
+      document.addEventListener("keydown", (e) => { if (e.code === "Space" && !sessionView.hidden) { e.preventDefault(); startRecording(); } });
       document.addEventListener("keyup", (e) => { if (e.code === "Space") stopRecording(); });
 
       textForm.addEventListener("submit", (e) => {
         e.preventDefault();
         if (!textInput.value || talk.disabled) return;
         ws.send(JSON.stringify({ type: "text", cardId: currentCardId, text: textInput.value }));
-        add("you: " + textInput.value, "you");
-        textInput.value = "";
-        talk.disabled = true;
+        add("you: " + textInput.value, "you"); textInput.value = ""; talk.disabled = true;
       });
-      stopBtn.addEventListener("click", () => ws.send(JSON.stringify({ type: "stop" })));
+      stopBtn.addEventListener("click", () => { if (ws) ws.send(JSON.stringify({ type: "stop" })); });
 
-      refreshProgress();
-      connect();
+      loadPacks();
     </script>
   </body>
 </html>
