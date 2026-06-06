@@ -5,10 +5,11 @@
 import { copyFile, mkdir, rm } from "node:fs/promises";
 import { join } from "node:path";
 import pkg from "../package.json" with { type: "json" };
+import { normalize } from "./evaluate.ts";
 import { loadPack } from "./pack.ts";
 import { cardAttemptFile, scenariosDir, topicDir } from "./paths.ts";
 import { resolvePackSource } from "./resolve.ts";
-import { createCard, updateCard } from "./store.ts";
+import { createCard, listCards, updateCard } from "./store.ts";
 import { createTopic, readTopicConfig, setActiveTopic } from "./topic.ts";
 import type { TopicConfig } from "./types.ts";
 
@@ -21,6 +22,12 @@ export interface InstallOptions {
   force?: boolean;
   /** Copy bundled assets/*.mp3 (default true). */
   audio?: boolean;
+  /**
+   * Non-destructive enhance: if the topic exists, ADD only cards whose front is new
+   * (keyed by normalize(front)) and leave existing cards — and their FSRS schedule —
+   * untouched. Preserves review history. Cannot apply edits to existing cards (use force).
+   */
+  merge?: boolean;
   /** Override the engine version checked against the pack's `engine` range (tests). */
   coreVersion?: string;
 }
@@ -30,6 +37,8 @@ export interface InstallResult {
   cards: number;
   audio: number;
   scenarios: number;
+  /** Cards skipped because they carry meta.status === "needs-review". */
+  heldForReview: number;
 }
 
 /**
@@ -56,11 +65,15 @@ async function installFromDir(source: string, opts: InstallOptions): Promise<Ins
   assertEngineSatisfied(pack.manifest.engine, opts.coreVersion ?? CORE_VERSION);
 
   const existing = await readTopicConfig(id);
+  if (existing && opts.merge) {
+    // Non-destructive: add new cards only, preserve existing cards + their FSRS state.
+    return await mergeIntoTopic(id, source, pack, opts);
+  }
   if (existing) {
     if (!opts.force) {
       throw new Error(`topic "${id}" already exists — re-run with force to overwrite`);
     }
-    // Cards get fresh ids on install, so a re-install must replace, not merge.
+    // Cards get fresh ids on install, so a destructive re-install replaces, not merges.
     await rm(topicDir(id), { recursive: true, force: true });
   }
 
@@ -74,9 +87,14 @@ async function installFromDir(source: string, opts: InstallOptions): Promise<Ins
   };
   await createTopic(config);
 
+  // Engine invariant: cards flagged needs-review (by the honesty/quality gate) never
+  // auto-install. The split is structural — carried in meta.status on disk.
+  const installable = pack.cards.filter((c) => c.meta?.status !== "needs-review");
+  const heldForReview = pack.cards.length - installable.length;
+
   const wantAudio = opts.audio ?? true;
   let audio = 0;
-  for (const pc of pack.cards) {
+  for (const pc of installable) {
     const { audio: audioFile, ...input } = pc;
     const card = await createCard(id, input);
     if (wantAudio && audioFile) {
@@ -101,7 +119,83 @@ async function installFromDir(source: string, opts: InstallOptions): Promise<Ins
   }
 
   if (opts.activate ?? true) await setActiveTopic(id);
-  return { topicId: id, cards: pack.cards.length, audio, scenarios };
+  return { topicId: id, cards: installable.length, audio, scenarios, heldForReview };
+}
+
+/** Add only new cards (by normalized front) into an existing topic; preserve the rest + their FSRS. */
+async function mergeIntoTopic(
+  id: string,
+  source: string,
+  pack: Awaited<ReturnType<typeof loadPack>>,
+  opts: InstallOptions,
+): Promise<InstallResult> {
+  const installable = pack.cards.filter((c) => c.meta?.status !== "needs-review");
+  const heldForReview = pack.cards.length - installable.length;
+  const existingFronts = new Set((await listCards(id)).map((c) => normalize(c.front)));
+
+  const wantAudio = opts.audio ?? true;
+  let added = 0;
+  let audio = 0;
+  for (const pc of installable) {
+    if (existingFronts.has(normalize(pc.front))) continue; // keep the existing card + its schedule
+    const { audio: audioFile, ...input } = pc;
+    const card = await createCard(id, input);
+    added++;
+    if (wantAudio && audioFile) {
+      try {
+        await copyFile(
+          join(source, "assets", audioFile),
+          cardAttemptFile(id, card.id, "native.mp3"),
+        );
+        await updateCard(id, card.id, { media: "native.mp3" });
+        audio++;
+      } catch {
+        // best-effort
+      }
+    }
+  }
+
+  await mkdir(scenariosDir(id), { recursive: true });
+  let scenarios = 0;
+  for (const sid of pack.scenarios) {
+    const dest = join(scenariosDir(id), `${sid}.md`);
+    if (!(await Bun.file(dest).exists())) {
+      await copyFile(join(source, "scenarios", `${sid}.md`), dest);
+      scenarios++;
+    }
+  }
+
+  if (opts.activate ?? true) await setActiveTopic(id);
+  return { topicId: id, cards: added, audio, scenarios, heldForReview };
+}
+
+export interface ReinstallPlan {
+  topicExists: boolean;
+  /** True when every existing card's front still appears in the edited pack (nothing changed/removed). */
+  additive: boolean;
+  added: number;
+  changedOrRemoved: number;
+}
+
+/**
+ * Decide how to re-install an edited pack: a purely additive edit can be merged
+ * non-destructively (preserve FSRS); an edit that changed/removed existing cards
+ * needs a force rebuild (resets FSRS). Compares by normalize(front).
+ */
+export async function planReinstall(id: string, packDir: string): Promise<ReinstallPlan> {
+  if (!(await readTopicConfig(id))) {
+    return { topicExists: false, additive: true, added: 0, changedOrRemoved: 0 };
+  }
+  const pack = await loadPack(packDir);
+  const edited = new Set(
+    pack.cards.filter((c) => c.meta?.status !== "needs-review").map((c) => normalize(c.front)),
+  );
+  const current = new Set((await listCards(id)).map((c) => normalize(c.front)));
+  let added = 0;
+  for (const f of edited) if (!current.has(f)) added++;
+  let changedOrRemoved = 0;
+  for (const f of current) if (!edited.has(f)) changedOrRemoved++;
+  return { topicExists: true, additive: changedOrRemoved === 0, added, changedOrRemoved };
 }
 
 /** Throw unless `version` satisfies the pack's `engine` range. */
