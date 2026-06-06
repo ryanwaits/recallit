@@ -240,6 +240,37 @@ a { color: inherit; }
 .loop__step h3 { font-size: var(--text-lg); letter-spacing: var(--tracking-tight); }
 .loop__step p { color: var(--color-ink-2); line-height: var(--lh-relaxed); }
 
+/* ── Generate filmstrip · recorded real run + verified quote chip ── */
+.gen { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr); gap: var(--space-xl); align-items: start; }
+.term { background: var(--color-ink); border-radius: var(--radius-card); padding: var(--space-lg); box-shadow: var(--shadow-card); overflow: hidden; }
+.term pre {
+  margin: 0; font-family: var(--font-mono); font-size: var(--text-sm); line-height: 1.85;
+  color: var(--color-on-ink); white-space: pre-wrap; word-break: break-word;
+}
+.term .t-cmd { color: var(--color-accent-on-ink); }
+.term .t-dim { color: var(--color-on-ink-2); }
+.term .t-ok { color: var(--color-on-ink); font-weight: 500; }
+.term .t-held { color: var(--color-accent-on-ink); }
+
+.qchip { margin: 0; display: grid; gap: var(--space-sm); }
+.qchip figcaption { color: var(--color-muted); }
+.qchip blockquote {
+  margin: 0; padding: var(--space-md);
+  border: var(--rule-card) solid var(--color-accent);
+  border-radius: var(--radius-card); background: var(--color-accent-soft);
+  font-family: var(--font-serif); font-style: italic; font-size: var(--text-md);
+  line-height: var(--lh-snug); color: var(--color-ink);
+}
+.qchip__card {
+  padding: var(--space-md);
+  border: var(--rule-card) solid var(--color-rule); border-radius: var(--radius-card);
+  background: var(--color-paper); display: grid; gap: var(--space-2xs);
+}
+.qchip__q { font-family: var(--font-display); font-weight: 600; font-size: var(--text-sm); letter-spacing: var(--tracking-tight); }
+.qchip__a { color: var(--color-ink-2); font-size: var(--text-sm); line-height: var(--lh-normal); }
+.qchip__link { font-size: var(--text-sm); }
+.qchip__link a { color: var(--color-accent-2); text-decoration: underline; text-underline-offset: 3px; }
+
 /* ── Section heads ──────────────────────────────────────────────── */
 .section { padding-block: var(--section-gap); }
 .section__head { display: grid; gap: var(--space-sm); max-width: 46ch; margin-bottom: var(--space-xl); }
@@ -349,6 +380,7 @@ a { color: inherit; }
   .cards { grid-template-columns: minmax(0, 1fr); }
   .loop { grid-template-columns: minmax(0, 1fr); gap: var(--space-lg); }
   .loop__step:not(:last-child)::after { content: none; }
+  .gen { grid-template-columns: minmax(0, 1fr); gap: var(--space-lg); }
   .install__inner { grid-template-columns: minmax(0, 1fr); gap: var(--space-xl); }
 }
 @media (max-width: 40rem) {

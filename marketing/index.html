@@ -116,6 +116,38 @@
         </ol>
       </section>
 
+      <section class="wrap section" id="generate">
+        <div class="section__head reveal">
+          <span class="label">Recorded run · real API call</span>
+          <h2>Watch the gate hold the line.</h2>
+          <p>
+            A real <code>recallit pack</code> run over this repo's own README, captured verbatim.
+            Each card must quote the source literally; the one it couldn't verify, it held back.
+          </p>
+        </div>
+        <div class="gen reveal">
+          <div class="term" role="img" aria-label="Recorded terminal output of a recallit pack run over README.md">
+<pre><span class="t-cmd">$ bun run cli pack README.md --dry-run</span>
+<span class="t-dim">authoring from README.md  ·  mode A</span>
+<span class="t-dim">  · Read  · ToolSearch  · save_source  · write_pack</span>
+
+<span class="t-ok">27/28 ready · 1 held · grounding source · $0.1935</span>
+<span class="t-held">  ⚠ "Who decides the FSRS rating?"  [unverified-proper-noun]</span>
+
+<span class="t-dim">wrote packs/readme (not installed)</span></pre>
+          </div>
+          <figure class="qchip">
+            <figcaption class="label">Source-quote chip · verified in README.md</figcaption>
+            <blockquote>"The engine knows nothing about any subject. A topic is a plug-in: config + cards + (later) practice prompts, all data, no code."</blockquote>
+            <div class="qchip__card">
+              <p class="qchip__q">What is recallit's core design philosophy regarding topics?</p>
+              <p class="qchip__a">The engine knows nothing about any subject. A topic is a plug-in: config + cards, all data, no code.</p>
+            </div>
+            <p class="qchip__link"><a href="packs/index.html">See the bundled pack →</a></p>
+          </figure>
+        </div>
+      </section>
+
       <section class="examples">
         <div class="wrap section">
           <div class="section__head reveal">
