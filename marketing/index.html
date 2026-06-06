@@ -229,22 +229,22 @@
       <section class="examples" id="install">
         <div class="wrap section install__inner">
           <div class="reveal">
-            <h2>Run it yourself in three lines.</h2>
-            <p>recallit lives in your terminal and your browser. Install it, add a pack, then start a session and speak.</p>
+            <h2>Run it with one command.</h2>
+            <p>No install: <code>bunx @waits/recallit</code> runs the CLI. Point it at a source to generate an honest pack, then practice in your terminal. For the voiced browser session, clone the repo and <code>bun run serve</code>.</p>
             <div class="install__cta">
               <a class="btn btn--primary" href="https://github.com/ryanwaits/recallit">★ Star on GitHub</a>
               <a class="btn btn--ghost" href="https://github.com/ryanwaits/recallit#readme">Read the docs →</a>
             </div>
           </div>
           <div class="code reveal" aria-label="Install commands">
-<pre><span class="c"># install</span>
-bun install
+<pre><span class="c"># no install — run it with bunx</span>
+bunx @waits/recallit
 
-<span class="c"># add a pack (cards + voice)</span>
-bun run cli <span class="p">topic add</span> packs/spanish-mx-rgv
+<span class="c"># turn a PDF, URL, repo, or topic into a pack</span>
+bunx @waits/recallit <span class="p">pack</span> &lt;source&gt;
 
-<span class="c"># speak with it, at localhost:3000</span>
-bun run <span class="p">serve</span></pre>
+<span class="c"># then practice it (needs ANTHROPIC_API_KEY)</span>
+bunx @waits/recallit <span class="p">daily</span></pre>
           </div>
         </div>
       </section>
