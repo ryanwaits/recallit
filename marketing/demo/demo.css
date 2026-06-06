@@ -1,0 +1,91 @@
+/* recallit demo · study->speak playground. Builds on tokens.css + styles.css. */
+
+.demo { padding-block: var(--space-2xl) var(--space-3xl); display: grid; gap: var(--space-2xl); }
+
+.demo__intro { display: grid; gap: var(--space-md); justify-items: start; max-width: 52ch; }
+.demo__intro h1 { font-size: var(--text-3xl); letter-spacing: var(--tracking-display); }
+.demo__intro h1 em { font-family: var(--font-serif); font-style: italic; font-weight: 500; color: var(--color-accent-2); }
+.demo__intro > .label {
+  padding: var(--space-2xs) var(--space-sm);
+  border: var(--rule-fine) solid var(--color-rule);
+  border-radius: var(--radius-pill);
+  background: var(--color-paper-2);
+}
+.demo__intro p { color: var(--color-ink-2); font-size: var(--text-md); line-height: var(--lh-relaxed); }
+
+/* ── Player · card + readout ─────────────────────────────────────── */
+.player {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-areas: "card readout" "nav readout";
+  gap: var(--space-xl);
+  align-items: start;
+}
+.demo__card { grid-area: card; max-width: 28rem; }
+.player__nav { grid-area: nav; display: flex; align-items: center; justify-content: space-between; gap: var(--space-md); }
+.player__count { white-space: nowrap; }
+.readout { grid-area: readout; align-self: stretch; }
+
+/* The Spanish answer + a way to actually hear it. */
+.demo__ctx { font-size: var(--text-sm); color: var(--color-ink); opacity: 0.75; }
+.demo__audio {
+  align-self: flex-start;
+  display: inline-flex; align-items: center; gap: var(--space-xs);
+  min-height: 40px; padding-inline: var(--space-md);
+  border-radius: var(--radius-pill); border: 1.5px solid color-mix(in oklab, var(--color-ink) 30%, transparent);
+  background: var(--color-ink); color: var(--color-paper);
+  font-family: var(--font-body); font-size: var(--text-sm); font-weight: 600;
+  cursor: pointer;
+  transition: background-color var(--dur-short) var(--ease-out);
+}
+@media (hover: hover) { .demo__audio:hover { background: var(--color-ink-2); } }
+.demo__audio:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
+
+/* ── Readout · the precomputed (not live) grade + schedule ───────── */
+.readout {
+  background: var(--color-paper-2);
+  border: var(--rule-card) solid var(--color-rule);
+  border-radius: var(--radius-card);
+  padding: var(--space-lg);
+  display: grid; gap: var(--space-sm);
+}
+.readout__typed { font-family: var(--font-serif); font-style: italic; font-size: var(--text-lg); color: var(--color-ink); }
+.grade { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-xs) var(--space-sm); }
+.grade__rating {
+  font-family: var(--font-display); font-weight: 700; font-size: var(--text-xl);
+  letter-spacing: var(--tracking-tight);
+}
+.grade__why { font-size: var(--text-sm); color: var(--color-muted); }
+.grade.is-good .grade__rating, .grade.is-easy .grade__rating { color: var(--color-accent-2); }
+.grade.is-hard .grade__rating { color: var(--color-ink-2); }
+.grade.is-again .grade__rating { color: var(--color-muted); }
+
+.readout__next { font-size: var(--text-md); color: var(--color-ink-2); margin-top: var(--space-2xs); }
+.readout__next strong { color: var(--color-ink); font-weight: 600; }
+
+.sched { list-style: none; margin: var(--space-xs) 0 0; padding: 0; display: grid; gap: var(--space-2xs); }
+.sched li {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: var(--space-xs) var(--space-sm);
+  border: var(--rule-hair) solid var(--color-rule);
+  border-radius: var(--radius-input);
+  background: var(--color-paper);
+}
+.sched__k { font-family: var(--font-mono); font-size: var(--text-xs); letter-spacing: var(--tracking-label); text-transform: uppercase; color: var(--color-muted); }
+.sched__v { font-size: var(--text-sm); color: var(--color-ink-2); font-variant-numeric: tabular-nums; }
+.sched li.is-picked {
+  border-color: var(--color-accent);
+  background: var(--color-accent-soft);
+}
+.sched li.is-picked .sched__k { color: var(--color-accent-2); }
+.sched li.is-picked .sched__v { color: var(--color-ink); font-weight: 600; }
+
+.demo__provenance { max-width: 60ch; line-height: var(--lh-normal); text-transform: none; letter-spacing: 0; }
+
+@media (max-width: 52rem) {
+  .player {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: "card" "readout" "nav";
+  }
+  .demo__card { max-width: 26rem; justify-self: center; width: 100%; }
+}

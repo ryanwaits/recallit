@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>recallit · try it in 30 seconds</title>
+    <meta
+      name="description"
+      content="Study a real card, hear a native voice, and watch recallit's own grader and FSRS-6 scheduler run. Real engine output from the bundled Mexican-Spanish pack. No keys, no server."
+    />
+    <link rel="icon" href="../favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&family=Newsreader:ital,opsz@1,18&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../tokens.css" />
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="demo.css" />
+  </head>
+  <body>
+    <header class="nav">
+      <div class="wrap nav__inner">
+        <a class="brand" href="../index.html"><span class="brand__dot" aria-hidden="true"></span>recallit</a>
+        <a class="btn btn--ghost" href="../index.html">← Home</a>
+      </div>
+    </header>
+
+    <main class="wrap demo">
+      <section class="demo__intro reveal">
+        <span class="label">Real engine output · no keys · no server</span>
+        <h1>Study it. Say it. <em>Keep it.</em></h1>
+        <p>
+          Recall the Spanish, tap to hear a native voice, then see recallit's own grader and FSRS-6
+          scheduler do the math. Every grade and interval below is real output from the bundled
+          Mexican-Spanish pack, computed offline and baked to static JSON.
+        </p>
+      </section>
+
+      <section class="player reveal" aria-live="polite">
+        <div
+          class="flip demo__card"
+          tabindex="0"
+          role="button"
+          aria-pressed="false"
+          aria-label="Flashcard. Recall the Spanish, then activate to reveal it."
+        >
+          <div class="flip__inner">
+            <div class="flip__face flip__face--front">
+              <span class="flip__hint">Recall the Spanish</span>
+              <span class="flip__en" data-prompt></span>
+              <span class="flip__hint">Tap to reveal ↻</span>
+            </div>
+            <div class="flip__face flip__face--back">
+              <span class="flip__hint">Answer</span>
+              <span class="flip__es" data-answer></span>
+              <span class="demo__ctx" data-context hidden></span>
+              <button class="demo__audio" type="button" data-audio-btn>
+                <span aria-hidden="true">►</span> Hear it
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="readout" data-readout>
+          <p class="label">Example answer</p>
+          <p class="readout__typed">“<span data-typed></span>”</p>
+          <div class="grade" data-grade>
+            <span class="grade__rating" data-rating></span>
+            <span class="grade__why" data-why></span>
+          </div>
+          <p class="readout__next">
+            Comes back in <strong data-next></strong>
+          </p>
+          <ol class="sched" data-sched aria-label="Next interval recallit would schedule for each answer">
+            <li data-sched-row="Again"><span class="sched__k">Again</span><span class="sched__v"></span></li>
+            <li data-sched-row="Hard"><span class="sched__k">Hard</span><span class="sched__v"></span></li>
+            <li data-sched-row="Good"><span class="sched__k">Good</span><span class="sched__v"></span></li>
+            <li data-sched-row="Easy"><span class="sched__k">Easy</span><span class="sched__v"></span></li>
+          </ol>
+        </div>
+
+        <nav class="player__nav" aria-label="Cards">
+          <button class="btn btn--ghost" type="button" data-prev>← Prev</button>
+          <span class="player__count label" data-count></span>
+          <button class="btn btn--ghost" type="button" data-next>Next →</button>
+        </nav>
+      </section>
+
+      <p class="demo__provenance label" data-provenance></p>
+    </main>
+
+    <script src="data.js"></script>
+    <script>
+      const data = window.RECALLIT_DEMO;
+      const $ = (sel, root = document) => root.querySelector(sel);
+      const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+      // One-shot reveal, mirroring the landing page.
+      for (const el of document.querySelectorAll(".reveal")) el.classList.add("in");
+
+      const fmtDays = (n) => (n <= 0 ? "today" : n === 1 ? "tomorrow" : `${n} days`);
+      const ratingClass = { Easy: "is-easy", Good: "is-good", Hard: "is-hard", Again: "is-again" };
+
+      const card = $(".demo__card");
+      const audio = new Audio();
+      let i = 0;
+
+      function setFlipped(on) {
+        card.classList.toggle("is-flipped", on);
+        card.setAttribute("aria-pressed", String(on));
+      }
+
+      function render() {
+        const c = data.cards[i];
+        $("[data-prompt]").textContent = c.back; // prompt with the English meaning
+        $("[data-answer]").textContent = c.front; // recall the Spanish
+        const ctx = $("[data-context]");
+        if (c.context) { ctx.textContent = c.context; ctx.hidden = false; } else { ctx.hidden = true; }
+
+        $("[data-typed]").textContent = c.sample.typed;
+        const rating = c.sample.rating;
+        $("[data-rating]").textContent = rating;
+        $("[data-why]").textContent = c.sample.reasons[c.sample.reasons.length - 1];
+        $("[data-grade]").className = `grade ${ratingClass[rating]}`;
+        $("[data-next]").textContent = fmtDays(c.sample.nextDays);
+
+        for (const r of ["Again", "Hard", "Good", "Easy"]) {
+          const row = $(`[data-sched-row="${r}"]`);
+          $(".sched__v", row).textContent = fmtDays(c.schedule[r]);
+          row.classList.toggle("is-picked", r === rating);
+        }
+
+        $("[data-count]").textContent = `${i + 1} / ${data.cards.length}`;
+        audio.src = c.audio;
+        audio.load();
+        setFlipped(false);
+      }
+
+      // Flip on tap / keyboard.
+      const toggle = () => setFlipped(!card.classList.contains("is-flipped"));
+      card.addEventListener("click", (e) => {
+        if (e.target.closest("[data-audio-btn]")) return; // the audio button is not a flip target
+        toggle();
+      });
+      card.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggle(); }
+      });
+
+      // Honest audio: play the real native.mp3, surface failure instead of pretending.
+      $("[data-audio-btn]").addEventListener("click", async (e) => {
+        e.stopPropagation();
+        const btn = e.currentTarget;
+        try {
+          audio.currentTime = 0;
+          await audio.play();
+        } catch {
+          btn.textContent = "Audio unavailable";
+        }
+      });
+
+      $("[data-prev]").addEventListener("click", () => { i = (i - 1 + data.cards.length) % data.cards.length; render(); });
+      $("[data-next]").addEventListener("click", () => { i = (i + 1) % data.cards.length; render(); });
+
+      $("[data-provenance]").textContent = data.engine;
+      render();
+    </script>
+  </body>
+</html>
