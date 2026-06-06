@@ -9,3 +9,6 @@ dist/
 # Ignore local/transient Claude state, but track project skills (a product feature).
 .claude/*
 !.claude/skills/
+
+# npm auth (never commit)
+.npmrc
