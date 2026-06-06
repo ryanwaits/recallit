@@ -6,4 +6,6 @@ data/
 .env.local
 .DS_Store
 dist/
-.claude/
+# Ignore local/transient Claude state, but track project skills (a product feature).
+.claude/*
+!.claude/skills/
