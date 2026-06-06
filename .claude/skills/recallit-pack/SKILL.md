@@ -16,12 +16,11 @@ A pack is plain files under `packs/<id>/`:
 ```
 packs/<id>/
   manifest.json        # { schemaVersion:1, engine:">=0.1.0", id, name, modality, meta }
-  cards.json           # the READY cards (an array of card objects) — these get installed
+  cards.json           # all cards; the gate stamps meta.status:"needs-review" on flagged ones
   .author/source.txt   # the grounding corpus of record (raw extracted source text)
-  .author/needs-review.md  # flagged cards + machine reason codes, held for review
 ```
 
-`cards.json` is the single source of truth for a pack. Install = `bun run cli topic add packs/<id>` (materializes a topic via the engine, which builds the index). The pack stays on disk, re-editable.
+`cards.json` is the single source of truth for a pack. The engine owns the honesty split: `bun run cli pack write` stamps `meta.status:"needs-review"` on cards whose quote isn't in the source, and `topic add` installs **only** the ready cards (it skips needs-review automatically). The pack stays on disk, re-editable.
 
 ## Step 0 — resolve the mode (this is the only thing that differs by how you were invoked)
 
@@ -84,7 +83,7 @@ Bias toward fewer, sharper cards over exhaustive coverage. A reasonable article 
 
 ## Step 4 — preview & steer (modes B and C)
 
-Draft **~3 sample cards from the first chunk only**, run the Step-5 gate on just those, and show them:
+Draft **~3 sample cards from the first chunk only**, confirm each one's `sourceQuote` is a literal substring of the source, and show them:
 
 ```
 1. [ready]  Q: What is the two-minute rule?
@@ -95,49 +94,27 @@ Draft **~3 sample cards from the first chunk only**, run the Step-5 gate on just
 
 Then: *"Steer these (e.g. 'fewer definitions', 'focus chapter 3', 'make them recall the why') or say 'go'."* Regenerate on feedback. This gates scope **before** spending effort on the whole source. Skip this step in mode A.
 
-## Step 5 — gate (deterministic substring check — DO run it)
+## Step 5 — write & gate (engine-owned, deterministic — DON'T hand-grade)
 
-After drafting all cards, write them to `packs/<id>/cards.json` and run the honesty gate. It splits cards into **ready** (quote is a literal substring of the corpus) and **needs-review**:
+Write all drafted cards to `packs/<id>/cards.json` (a JSON array; no `status` field yet), then run the engine gate:
 
 ```bash
-bun -e '
-const fs=require("fs");
-const dir=process.argv[1];
-const norm=s=>String(s).replace(/\s+/g," ").trim().toLowerCase();
-const corpus=norm(fs.readFileSync(dir+"/.author/source.txt","utf8"));
-const cards=JSON.parse(fs.readFileSync(dir+"/cards.json","utf8"));
-const ready=[],flagged=[];
-for(const c of cards){
-  const reasons=[];
-  const q=c.meta&&c.meta.sourceQuote;
-  if(!q) reasons.push("missing-sourceQuote");
-  else if(!corpus.includes(norm(q))) reasons.push("quote-not-in-corpus");
-  if(!c.front||!c.back) reasons.push("missing-front-or-back");
-  if(norm(c.front)===norm(c.back)) reasons.push("front-equals-back");
-  if(String(c.back).length>240) reasons.push("answer-unusually-long");
-  (reasons.length?flagged:ready).push({c,reasons});
-}
-console.log(JSON.stringify({ready:ready.length,flagged:flagged.length,
-  flaggedDetail:flagged.map(f=>({front:f.c.front,reasons:f.reasons}))},null,2));
-' packs/<id>
+bun run cli pack write packs/<id>
+# → "23/25 ready, 2 need review (grounding: source)" + each flagged front + reason codes
 ```
 
-(Concept/web-grounded cards also count as needs-review unless their quote is in the corpus you built.)
+`pack write` (engine code, `src/packgen/gate.ts`) re-reads `manifest.json` + `cards.json` + `.author/source.txt`, verifies every `meta.sourceQuote` is a literal substring of the corpus, runs the quality + number/proper-noun checks + dedup, **stamps `meta.status:"needs-review"` (+ `meta.reviewReasons`) on flagged cards**, and rewrites `cards.json`. You cannot talk past it — the gate is code. Reason codes: `quote-not-in-corpus`, `missing-source-quote`, `unverified-number`, `unverified-proper-noun`, `duplicate-front`, `quality:*`.
 
-## Step 6 — split, write, report
+## Step 6 — report
 
-- Keep **ready** cards in `packs/<id>/cards.json` (these install).
-- Move **needs-review** cards (with their reason codes + quotes) into `packs/<id>/.author/needs-review.md`. They are NOT installed in Phase 1 — they wait for `edit`.
-- Report honestly: `N ready, M need review`, the pack path, and the reasons for flagged cards.
-
-> Why hold them out: until the engine enforces the status split (Phase 2), keeping `cards.json` = ready-only is how we honor "needs-review never auto-installs."
+Tell the user honestly: `N ready, M need review`, the pack path, and the flagged fronts + reasons. `bun run cli pack review packs/<id>` lists the flagged cards any time. Flagged cards stay in `cards.json` (tagged) — preserved for `edit`, never installed.
 
 ## Step 7 — install
 
-Modes B/C: confirm first (*"Install these N cards as topic '<id>'?"*). Mode A: install ready cards directly. For web-grounded packs, always show the unverified list + an "attribution-only, not authoritative" note and require an explicit yes.
+Modes B/C: confirm first (*"Install these N cards as topic '<id>'?"*). Mode A: install directly. For `grounding:"web"` packs, always show the unverified list + an "attribution-only, not authoritative" note and require an explicit yes.
 
 ```bash
-bun run cli topic add packs/<id>     # materializes the topic + builds the index
+bun run cli topic add packs/<id>     # installs READY cards only — skips needs-review automatically
 ```
 
 Then point them onward:
@@ -148,15 +125,16 @@ bun run cli daily --topic <id>       # study it
 
 ## Editing / enhancing a pack (`/recallit-pack edit <id>`)
 
-`cards.json` is the source of truth. To tweak: `Read` `packs/<id>/cards.json` + `.author/source.txt`, apply the natural-language instruction (add N from a section, fix a card, split, merge), re-run the Step-5 gate on the changed set, then re-install:
+`cards.json` is the source of truth. To tweak: `Read` `packs/<id>/cards.json` + `.author/source.txt`, apply the natural-language instruction (add N from a section, fix a card, split, merge) by editing `cards.json`, then re-gate and re-install:
 
 ```bash
-bun run cli topic add packs/<id> --force
+bun run cli pack write packs/<id>          # re-gates the whole set (substring + quality + dedup)
+bun run cli topic add packs/<id> --force   # re-install
 ```
 
 **Surface this caveat before `--force`:** re-installing does a full rebuild and **resets the FSRS review schedule/history for this topic** (v1 limitation; non-destructive enhance is a planned engine change). Ask the user to confirm: *"This resets your review progress for '<id>'. Proceed?"*
 
-When adding cards, run the gate against the existing `cards.json` too so you don't add an exact duplicate `front`.
+`pack write` dedups by `normalize(front)` across the whole set, so adding cards won't introduce an exact-duplicate `front` (it catches exact dupes, not paraphrases).
 
 ## Honest about the guarantee
 
