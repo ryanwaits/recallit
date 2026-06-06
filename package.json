@@ -1,9 +1,30 @@
 {
-  "name": "recallit",
+  "name": "@waits/recallit",
   "version": "0.1.0",
-  "private": true,
   "type": "module",
   "description": "Agent-native, topic-agnostic spaced-repetition recall engine",
+  "license": "MIT",
+  "author": "Ryan Waits",
+  "homepage": "https://github.com/ryanwaits/recallit#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ryanwaits/recallit.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ryanwaits/recallit/issues"
+  },
+  "keywords": [
+    "spaced-repetition",
+    "fsrs",
+    "flashcards",
+    "srs",
+    "recall",
+    "bun",
+    "cli",
+    "agent",
+    "claude",
+    "language-learning"
+  ],
   "module": "src/index.ts",
   "//runtime": "Bun-only: the engine imports bun:sqlite (src/db.ts). Consume under Bun.",
   "exports": {
@@ -14,6 +35,9 @@
     "recallit": "./src/cli.ts"
   },
   "files": ["src"],
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "typecheck": "tsc --noEmit",
     "test": "bun test",
