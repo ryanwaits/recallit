@@ -68,6 +68,15 @@
       .empty code { font-family: var(--mono); background: var(--paper-3); padding: 0.1em 0.4em; border-radius: 6px; }
 
       /* Session */
+      .rail { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0 0 1rem; }
+      .rail__step {
+        display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.3rem 0.7rem;
+        border-radius: 999px; font: 500 0.75rem/1 var(--mono); letter-spacing: 0.04em; text-transform: uppercase;
+        border: 0.5px solid var(--rule); background: var(--paper-3); color: var(--muted);
+      }
+      .rail__step.active { border-color: var(--accent); background: var(--accent-soft); color: var(--accent-2); }
+      .rail__step.done { color: var(--ink-2); }
+      .rail__step.done::before { content: "✓ "; color: var(--accent-2); font-weight: 700; }
       .progress { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 0 0 1rem; }
       .stat { padding: 0.35rem 0.7rem; border-radius: 999px; background: var(--paper-3); border: 0.5px solid var(--rule); font-size: 0.9rem; color: var(--ink-2); }
       .stat b { color: var(--ink); font-variant-numeric: tabular-nums; }
@@ -109,6 +118,7 @@
       <!-- Session -->
       <section id="session" hidden>
         <h1 id="sessionName">Practice</h1>
+        <div id="rail" class="rail" aria-label="Session phases"></div>
         <div id="progress" class="progress"></div>
         <div id="log"></div>
         <button id="talk" disabled>Hold to speak</button>
@@ -127,6 +137,19 @@
       const log = $("log"), talk = $("talk"), textForm = $("textForm"), textInput = $("textInput"), stopBtn = $("stop");
 
       let ws, currentCardId = null, currentTopicId = null, recorder, chunks = [], mediaStream = null;
+      let phases = [], phaseIdx = 0;
+
+      // Phase rail: the regimen arrives once ("phases"); each real complete_phase
+      // ("phase") advances it. Steps before the cursor are done, the cursor is active.
+      function renderRail() {
+        const el = $("rail");
+        el.innerHTML = phases
+          .map((p, i) => {
+            const cls = i < phaseIdx ? "done" : i === phaseIdx ? "active" : "";
+            return `<span class="rail__step ${cls}">${p}</span>`;
+          })
+          .join("");
+      }
 
       // ── Gallery ────────────────────────────────────────────────────
       async function loadPacks() {
@@ -167,7 +190,7 @@
         currentTopicId = pack.id;
         $("sessionName").textContent = pack.name;
         galleryView.hidden = true; sessionView.hidden = false; backBtn.hidden = false;
-        log.innerHTML = "";
+        log.innerHTML = ""; phases = []; phaseIdx = 0; renderRail();
         refreshProgress();
         connect();
       }
@@ -215,10 +238,16 @@
             currentCardId = m.cardId; talk.disabled = false; ensureMic().catch(() => {});
           } else if (m.type === "transcript") {
             add("you: " + (m.text || "(unintelligible)"), "you");
+          } else if (m.type === "phases") {
+            phases = m.phases || []; phaseIdx = 0; renderRail();
+          } else if (m.type === "phase") {
+            const i = phases.indexOf(m.phase);
+            phaseIdx = i >= 0 ? i + 1 : phaseIdx + 1; renderRail();
           } else if (m.type === "caption") {
             add(m.text);
           } else if (m.type === "done") {
-            add("✅ Session complete. " + (m.summary || ""), "prompt"); talk.disabled = true; refreshProgress();
+            add("✅ Session complete. " + (m.summary || ""), "prompt"); talk.disabled = true;
+            phaseIdx = phases.length; renderRail(); refreshProgress();
           } else if (m.type === "error") {
             add("⚠️ " + m.text);
           }

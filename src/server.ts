@@ -7,6 +7,7 @@
 import { join } from "node:path";
 import type { ServerWebSocket } from "bun";
 import { type AnswerProvider, createReviewSession, type RunResult, runSession } from "./agent.ts";
+import { dailyPhases } from "./context.ts";
 import { countCards } from "./db.ts";
 import { installPack } from "./install.ts";
 import { cardAttemptFile } from "./paths.ts";
@@ -267,11 +268,22 @@ export function startServer(deps: ServerDeps) {
         const cfg = await readTopicConfig(ws.data.topicId);
         ws.data.voiceId = cfg?.meta?.voiceId as string | undefined;
         ws.data.language = cfg?.meta?.language as string | undefined;
+        // Tell the client the regimen up front so it can render a phase rail; live
+        // progress is forwarded from the agent's real complete_phase tool calls.
+        send(ws, { type: "phases", phases: dailyPhases(cfg?.modality ?? "text") });
         const session = createReviewSession(
           ws.data.topicId,
           makeAnswerProvider(ws, deps.tts),
           (e) => {
             if (e.kind === "assistant_text") send(ws, { type: "caption", text: e.data });
+            else if (
+              e.kind === "tool_use" &&
+              (e.data as { name?: string }).name === "complete_phase"
+            )
+              send(ws, {
+                type: "phase",
+                phase: (e.data as { input?: { phase?: string } }).input?.phase,
+              });
           },
         );
         // When the agent edits a card's front, refresh its native recording so

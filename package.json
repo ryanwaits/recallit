@@ -47,6 +47,7 @@
     "lint:fix": "biome check --write src",
     "cli": "bun run src/cli.ts",
     "serve": "bun run src/server.ts",
+    "serve:local": "bun run scripts/serve-local.ts",
     "seed:spanish": "bun run src/cli.ts topic add packs/spanish-mx-rgv --force"
   },
   "dependencies": {
