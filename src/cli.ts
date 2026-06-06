@@ -1,10 +1,12 @@
 #!/usr/bin/env bun
 import { join } from "node:path";
+import { $ } from "bun";
 import { type AnswerProvider, createReviewSession, runSession } from "./agent.ts";
 // Thin CLI harness over the engine primitives. Proves parity headlessly and is
 // handy for seeding/inspecting topics. The agent (Sprint 2) uses the same functions.
 import { countCards, rebuildIndex } from "./db.ts";
 import { evaluateAnswer } from "./evaluate.ts";
+import { buildPackExport } from "./export.ts";
 import { installPack, planReinstall } from "./install.ts";
 import { runPackAuthor, runPackEditor } from "./packgen/author.ts";
 import { writePack } from "./packgen/gate.ts";
@@ -58,6 +60,44 @@ async function requireActive(explicit?: string): Promise<string> {
   return topic;
 }
 
+/** Run the full multi-phase daily session for `topic`. Shared by `daily` + `quickstart`. */
+async function runDailySession(topic: string, f: Record<string, string>): Promise<void> {
+  const provider: AnswerProvider = async () => prompt("\nYour answer (blank to stop)> ") || null;
+  // Stable per-day id so a killed session resumes the same day.
+  const session = createReviewSession(
+    topic,
+    provider,
+    (e) => {
+      if (e.kind === "assistant_text") console.log(`\n🗣  ${e.data}`);
+      else if (e.kind === "tool_use") console.log(`   · ${(e.data as { name: string }).name}`);
+    },
+    `daily-${dayKey()}`,
+  );
+  session.converseProvider = async (say) => {
+    console.log(`\n🗣  ${say}`);
+    return prompt("> ") || null;
+  };
+  const res = await runSession(session, {
+    mode: "daily",
+    model: f.model,
+    maxTurns: f.maxTurns ? Number(f.maxTurns) : undefined,
+  });
+  console.log(
+    `\n— daily session ${res.stopReason} (${res.numTurns} turns, $${res.costUsd.toFixed(4)})`,
+  );
+}
+
+/** owner/repo from the git origin if it's a GitHub remote, else null. Used for share/export URLs. */
+async function githubSlug(): Promise<string | null> {
+  try {
+    const url = (await $`git remote get-url origin`.quiet().text()).trim();
+    const m = url.match(/github\.com[:/]+([^/]+)\/(.+?)(?:\.git)?$/);
+    return m ? `${m[1]}/${m[2]}` : null;
+  } catch {
+    return null;
+  }
+}
+
 const USAGE = `recallit <command>
 
 topic create <id> --name <n> [--modality text|voice|both] [--goal <metric>]
@@ -79,8 +119,11 @@ rebuild [--topic id]
 stats [--topic id]
 agent [--topic id] [--model m] [--maxTurns n]   (run the interactive agent review loop)
 daily [--topic id] [--model m]                  (run the full multi-phase daily session)
+quickstart <source> [--model m]                 (install a pack, then start today's session)
 pack <source> [--review|--dry-run|--auto] [--scope t] [--style t]   (generate a pack from a PDF/URL/repo/concept)
 pack edit <id> "<instruction>" [--dry-run]      (tweak a pack; additive edits preserve your review history)
+pack share <id>                                 (print the install string + URL to share a pack)
+pack export <id>                                (write a self-contained shareable HTML; opt-in)
 pack write <pack-dir>                           (gate a drafted pack: stamp needs-review, write cards.json)
 pack review <pack-dir>                          (no-LLM: list a pack's needs-review cards + reasons)`;
 
@@ -215,6 +258,39 @@ async function main(argv: string[]): Promise<void> {
             console.log(`left on disk (not re-installed): packs/${id}`);
           }
         }
+      } else if (first === "share") {
+        // Print how someone else installs this repo-local pack (+ a browse URL).
+        const id = pos[1];
+        if (!id) throw new Error("usage: pack share <id>");
+        const dir = join("packs", id);
+        if (!(await Bun.file(join(dir, "manifest.json")).exists()))
+          throw new Error(`no pack at ${dir} — pack share works on a repo-local pack`);
+        const slug = await githubSlug();
+        console.log(`share "${id}":`);
+        if (slug) {
+          console.log(`  install:  recallit topic add github:${slug}/packs/${id}`);
+          console.log(`  browse:   https://github.com/${slug}/tree/HEAD/packs/${id}`);
+        } else {
+          console.log(`  install:  recallit topic add ${dir}`);
+          console.log("  (no github origin found — sharing the local path)");
+        }
+      } else if (first === "export") {
+        // Opt-in: write a single self-contained HTML (cards + base64 audio + install footer).
+        const id = pos[1];
+        if (!id) throw new Error("usage: pack export <id>");
+        const dir = (await Bun.file(join(id, "manifest.json")).exists()) ? id : join("packs", id);
+        if (!(await Bun.file(join(dir, "manifest.json")).exists()))
+          throw new Error(`no pack at ${dir}`);
+        const slug = await githubSlug();
+        const installCmd = slug
+          ? `recallit topic add github:${slug}/packs/${id}`
+          : `recallit topic add ${dir}`;
+        const html = await buildPackExport(dir, installCmd);
+        const out = `${id}.recallit.html`;
+        await Bun.write(out, html);
+        console.log(
+          `exported ${dir} -> ${out} (${Math.round(html.length / 1024)} KB, self-contained)`,
+        );
       } else if (first) {
         // pack <source> — author a pack via the live agent loop, then install per mode.
         const source = first;
@@ -411,30 +487,20 @@ async function main(argv: string[]): Promise<void> {
 
     case "daily": {
       const topic = await requireActive(f.topic);
-      const provider: AnswerProvider = async () =>
-        prompt("\nYour answer (blank to stop)> ") || null;
-      // Stable per-day id so a killed session resumes the same day.
-      const session = createReviewSession(
-        topic,
-        provider,
-        (e) => {
-          if (e.kind === "assistant_text") console.log(`\n🗣  ${e.data}`);
-          else if (e.kind === "tool_use") console.log(`   · ${(e.data as { name: string }).name}`);
-        },
-        `daily-${dayKey()}`,
-      );
-      session.converseProvider = async (say) => {
-        console.log(`\n🗣  ${say}`);
-        return prompt("> ") || null;
-      };
-      const res = await runSession(session, {
-        mode: "daily",
-        model: f.model,
-        maxTurns: f.maxTurns ? Number(f.maxTurns) : undefined,
-      });
+      await runDailySession(topic, f);
+      break;
+    }
+
+    case "quickstart": {
+      // Sugar: the one-command on-ramp = `topic add <source>` then today's session.
+      const source = pos[0];
+      if (!source)
+        throw new Error("usage: quickstart <source>  (install a pack, then run today's session)");
+      const res = await installPack(source, { activate: true, force: f.force !== undefined });
       console.log(
-        `\n— daily session ${res.stopReason} (${res.numTurns} turns, $${res.costUsd.toFixed(4)})`,
+        `installed "${res.topicId}": ${res.cards} cards, ${res.audio} audio${res.heldForReview ? `, ${res.heldForReview} held` : ""} (now active)`,
       );
+      await runDailySession(res.topicId, f);
       break;
     }
 

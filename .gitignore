@@ -12,3 +12,6 @@ dist/
 
 # npm auth (never commit)
 .npmrc
+
+# pack export artifacts
+*.recallit.html
