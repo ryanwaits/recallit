@@ -1,6 +1,6 @@
 {
   "name": "@waits/recallit",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "type": "module",
   "description": "Agent-native, topic-agnostic spaced-repetition recall engine",
   "license": "MIT",
@@ -32,9 +32,11 @@
     "./cli": "./src/cli.ts"
   },
   "bin": {
-    "recallit": "./src/cli.ts"
+    "recallit": "src/cli.ts"
   },
-  "files": ["src"],
+  "files": [
+    "src"
+  ],
   "publishConfig": {
     "access": "public"
   },
