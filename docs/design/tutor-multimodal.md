@@ -31,6 +31,25 @@ These **supersede the more conservative defaults in the synthesis below** (which
 
 **The gating spike is now P1 and runs FIRST.** Measure judgment **variance** — scoped-binary-with-evidence vs holistic rating — on a fixed answer set (including paraphrase pairs) over K repeats and temperatures. Metrics: replay consistency, inter-answer (paraphrase) consistency, evidence-span validity, false-hold rate. The **data picks the architecture**: if scoped-binary clears a measured stability bar → Option C ships; if not → fall back to deterministic Tier-2 coverage for the *grade* and keep the agent's brilliance in the ungraded layer. We do **not** build the examiner-grader until the numbers justify it. (This reframes Phase 1 below; the Tier-2 coverage grader becomes the fallback floor, and `graders/ordered.ts` + the extractor are no longer "Phase 4 maybe" but "shipped iff the spike passes.")
 
+### Spike result (2026-06-07): Option C is VIABLE
+
+110 real judgments (11 answers × 2 styles × 5 repeats), math computed in code (see `grading-variance-spike`, run `wf_b6ba8f5a-112`). Scoped (agent-examiner + code-counted evidenced checkpoints) beat holistic on every brand-critical axis:
+
+| metric | scoped | holistic |
+|---|---|---|
+| replay consistency (same answer, 5 runs → same rating) | **1.00** (zero flicker) | 0.87 (4/11 crossed a band) |
+| exact accuracy vs human gold | **0.91** | 0.73 |
+| within-1-band accuracy | 1.00 | 1.00 |
+| evidence-fabrication rate | **0.00** | n/a |
+
+Directionally: scoped's single miss errs **safe** (under-credits a partial → FSRS just reviews it sooner); holistic's misses include **over-crediting** an answer that was literally missing a required checkpoint — exactly the failure the examiner exists to prevent. `evidence_fabrication_rate = 0` means every "demonstrated" claim cited a span literally present in the learner's answer — the auditability linchpin held.
+
+**Validated thresholds** (fraction-based so any checkpoint count inherits them): `Easy = 1.0`, `Good ≥ 0.75`, `Hard ≥ 0.5`, `Again < 0.5`, with two **hard overrides**: (1) fabricated/unquotable evidence forces that checkpoint *undemonstrated*; (2) a flatly-wrong assertion alongside correct ones **caps the grade at Hard**.
+
+**Honest caveats (these gate broader trust):** single small fixture; `replay = 1.0` is suspiciously clean (stress with borderline answers); **paraphrase consistency was only 2/3 — the real weak spot** (literal evidence-span matching can fail meaning-equivalent phrasings); fabrication = 0 was *not* adversarially stressed; the 50% Hard/Again floor is unvalidated; the human gold has no inter-rater check.
+
+**Next:** build `mapCoverageToRating` + the two overrides as a **pure function now** (the 11-row fixture is its first unit test) — it's deterministic and serves both the fallback floor and the examiner's recount. Gate wiring the **LLM examiner as the live FSRS grade source** behind an expanded adversarial stress test (more packs/checkpoint-counts, a paraphrase + near-miss-citation suite, a second human gold), with scoped shadowing holistic until it clears. Fall back to deterministic-coverage-only if replay drops below ~0.95 or fabrication goes nonzero on the bigger set.
+
 ## The generalized model — the "checkable item"
 
 A superset of today's `RecallCard`, with **zero schema migration** — it rides the existing free-form `meta` dict (`z.record(z.string(), z.unknown())` on `PackCard.meta` (`pack.ts:35`) and `RecallCard.meta` (`types.ts:36`)).
