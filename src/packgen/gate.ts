@@ -7,6 +7,7 @@ import { readFile } from "node:fs/promises";
 import { basename, join } from "node:path";
 import { z } from "zod";
 import { normalize } from "../evaluate.ts";
+import type { RubricCheckpoint } from "../graders/coverage.ts";
 import { type PackCard, PackCardSchema, type PackManifest, PackManifestSchema } from "../pack.ts";
 import { checkCardQuality } from "../quality.ts";
 
@@ -40,8 +41,11 @@ function properNounsIn(text: string): string[] {
 /**
  * Gate a draft set against the source corpus. A card is `ready` only if every check
  * passes; otherwise it lands in needsReview with machine reason codes:
- *   missing-source-quote · quote-not-in-corpus · unverified-number ·
- *   unverified-proper-noun · duplicate-front · quality:<checkCardQuality flag>
+ *   missing-source-quote · quote-not-in-corpus · rubric-empty ·
+ *   rubric-point-not-in-corpus:<id> · unverified-number · unverified-proper-noun ·
+ *   duplicate-front · quality:<checkCardQuality flag>
+ * A checkable item (card.meta.rubric) grounds per-checkpoint instead of via one
+ * top-level quote: every checkpoint's sourceQuote must be in the corpus, else held.
  */
 export function gateCards(cards: PackCard[], corpus: string): GateResult {
   const corpusN = normWS(corpus);
@@ -51,21 +55,38 @@ export function gateCards(cards: PackCard[], corpus: string): GateResult {
 
   for (const card of cards) {
     const reasons: string[] = [];
-    const quote = (card.meta?.sourceQuote as string | undefined)?.trim();
     const context = card.context ?? "";
+    const rubric = card.meta?.rubric as RubricCheckpoint[] | undefined;
 
-    if (!quote) reasons.push("missing-source-quote");
-    else if (!corpusN.includes(normWS(quote))) reasons.push("quote-not-in-corpus");
+    // Grounding: a flashcard cites one meta.sourceQuote; a checkable item cites a
+    // verbatim sourceQuote per rubric checkpoint. Either way every quote must be a
+    // literal substring of the corpus, or the whole card is held (fail-closed).
+    let groundQuote: string;
+    if (rubric) {
+      if (rubric.length === 0) reasons.push("rubric-empty");
+      for (const cp of rubric) {
+        const cq = cp.sourceQuote?.trim();
+        if (!cq || !corpusN.includes(normWS(cq))) {
+          reasons.push(`rubric-point-not-in-corpus:${cp.id}`);
+        }
+      }
+      groundQuote = rubric.map((cp) => cp.sourceQuote ?? "").join(" ");
+    } else {
+      const quote = (card.meta?.sourceQuote as string | undefined)?.trim();
+      if (!quote) reasons.push("missing-source-quote");
+      else if (!corpusN.includes(normWS(quote))) reasons.push("quote-not-in-corpus");
+      groundQuote = quote ?? "";
+    }
 
     const q = checkCardQuality({ front: card.front, back: card.back, context: card.context });
     for (const flag of q.flags) reasons.push(`quality:${flag.replace(/\s+/g, "-")}`);
 
-    // A number / proper-noun in the answer that isn't grounded in quote+context+front
-    // is a likely fabrication. Mitigation, not a guarantee.
-    const ground = normWS(`${quote ?? ""} ${context} ${card.front}`);
+    // A number / proper-noun in the answer not grounded in quote(s)+context+front is a
+    // likely fabrication. Mitigation, not a guarantee.
+    const ground = normWS(`${groundQuote} ${context} ${card.front}`);
     if (numbersIn(card.back).some((n) => !ground.includes(n))) reasons.push("unverified-number");
     const groundNouns = new Set(
-      properNounsIn(`${quote ?? ""} ${context} ${card.front}`).map((w) => w.toLowerCase()),
+      properNounsIn(`${groundQuote} ${context} ${card.front}`).map((w) => w.toLowerCase()),
     );
     if (properNounsIn(card.back).some((n) => !groundNouns.has(n.toLowerCase()))) {
       reasons.push("unverified-proper-noun");
