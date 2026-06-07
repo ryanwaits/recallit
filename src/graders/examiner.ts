@@ -152,9 +152,9 @@ export async function examineAnswer(input: ExamineInput): Promise<ExaminerJudgme
 export const examinerEnabled = (): boolean => process.env.RECALLIT_EXAMINER !== "0";
 
 /**
- * The registered `coverage` grader. With RECALLIT_EXAMINER=1 it grades via the
- * LLM examiner (judgments -> code-verified recount); otherwise it uses the
- * deterministic floor (near-verbatim only — see the doc). If the examiner can't
+ * The registered `coverage` grader. By default it grades via the LLM examiner
+ * (judgments -> code-verified recount); RECALLIT_EXAMINER=0 uses the deterministic
+ * floor instead (near-verbatim only — see the doc). If the examiner can't
  * produce a confident judgment it THROWS rather than silently mis-grade (HOLD).
  */
 export async function examinerCoverageGrader(

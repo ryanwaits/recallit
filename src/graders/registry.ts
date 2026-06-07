@@ -19,7 +19,7 @@ export type Grader = (card: RecallCard, response: string) => EvalResult | Promis
 /** Tier 1 — lexical: today's behavior, verbatim. The default (flashcard) grader. */
 const lexical: Grader = (card, response) => evaluateAnswer(response, card.back);
 
-// coverage: examiner-backed when RECALLIT_EXAMINER=1, else the deterministic floor.
+// coverage: examiner-backed by default; RECALLIT_EXAMINER=0 falls back to the floor.
 const REGISTRY: Record<string, Grader> = { lexical, coverage: examinerCoverageGrader };
 
 /** The grader a card uses; absent meta.grader => the lexical default. */
