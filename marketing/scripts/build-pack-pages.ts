@@ -59,15 +59,19 @@ function packPage(pack: LoadedPack, audioFiles: string[]): string {
   const heldCount = cards.filter(held).length;
   const ready = total - heldCount;
   const voiced = cards.filter((c) => c.audio).length;
+  const checkable = cards.filter((c) => c.meta?.grader === "coverage").length;
   const installCmd = `bun run cli topic add packs/${manifest.id}`;
 
   const stats = [
     `<li><b>${total}</b> cards</li>`,
-    `<li><b>${voiced}</b> voiced</li>`,
+    voiced ? `<li><b>${voiced}</b> voiced</li>` : "",
+    checkable ? `<li><b>${checkable}</b> examiner-graded</li>` : "",
     scenarios.length ? `<li><b>${scenarios.length}</b> scenarios</li>` : "",
     `<li>${esc(typeBreakdown(cards))}</li>`,
     `<li>modality <b>${esc(manifest.modality)}</b></li>`,
-  ].join("\n          ");
+  ]
+    .filter(Boolean)
+    .join("\n          ");
 
   const sampleRows = cards
     .filter((c) => c.audio && audioFiles.includes(c.audio))
@@ -86,16 +90,30 @@ function packPage(pack: LoadedPack, audioFiles: string[]): string {
     )
     .join("");
 
-  const cardTiles = cards
-    .slice(0, 8)
-    .map(
-      (c) => `
+  // Sample the ready cards, checkable items first so a comprehension pack leads
+  // with its tutor structure (the key points), not buried flashcards.
+  const readyCards = cards.filter((c) => !held(c));
+  const sampleCards = [
+    ...readyCards.filter((c) => Array.isArray(c.meta?.rubric)),
+    ...readyCards.filter((c) => !Array.isArray(c.meta?.rubric)),
+  ].slice(0, 8);
+  const cardTiles = sampleCards
+    .map((c) => {
+      const rubric = c.meta?.rubric as { claim: string; required: boolean }[] | undefined;
+      // A checkable item shows the key points the answer must cover (the tutor structure).
+      const points = rubric?.length
+        ? `<ul class="mini__points">${rubric
+            .map((cp) => `<li${cp.required ? "" : ' class="opt"'}>${esc(cp.claim)}</li>`)
+            .join("")}</ul>`
+        : "";
+      return `
             <article class="mini">
-              <span class="mini__tag label">${esc(c.type ?? "card")}</span>
+              <span class="mini__tag label">${esc(rubric?.length ? "checkable" : (c.type ?? "card"))}</span>
               <p class="mini__q">${esc(c.front)}</p>
               <p class="mini__a">${esc(c.back)}</p>
-            </article>`,
-    )
+              ${points}
+            </article>`;
+    })
     .join("");
 
   const heldNote = heldCount

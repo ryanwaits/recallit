@@ -80,3 +80,12 @@
 @media (hover: hover) { .packlist a:hover { transform: translateY(-3px); box-shadow: var(--shadow-card); } }
 .packlist h3 { font-size: var(--text-lg); letter-spacing: var(--tracking-tight); }
 .packlist p { color: var(--color-ink-2); font-size: var(--text-sm); }
+
+/* ── Checkable-item key points (comprehension packs) ─────────────── */
+.mini__points {
+  margin: var(--space-sm) 0 0; padding: 0 0 0 1.05rem;
+  border-top: var(--rule-hair) solid var(--color-rule); padding-top: var(--space-sm);
+  display: grid; gap: var(--space-3xs); color: var(--color-ink-2); font-size: var(--text-sm);
+}
+.mini__points li.opt { color: var(--color-muted); }
+.mini__points li.opt::after { content: " (bonus)"; font-size: 0.8em; opacity: 0.7; }

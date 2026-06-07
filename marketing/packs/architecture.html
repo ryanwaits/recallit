@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>recallit Architecture · recallit pack</title>
+    <meta name="description" content="A recallit pack: recallit Architecture." />
+    <link rel="icon" href="../favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&family=Newsreader:ital,opsz@1,18&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="../tokens.css" />
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="pack.css" />
+  </head>
+  <body>
+    <header class="nav">
+      <div class="wrap nav__inner">
+        <a class="brand" href="../index.html"><span class="brand__dot" aria-hidden="true"></span>recallit</a>
+        <a class="btn btn--ghost" href="../index.html">← Home</a>
+      </div>
+    </header>
+
+    <main class="wrap pack">
+      <section class="pack__head">
+        <span class="label pack__kicker">recallit pack · architecture</span>
+        <h1>recallit Architecture</h1>
+        
+        <div class="badge" aria-label="Cards ready to install">
+          <span class="badge__n">19/24</span>
+          <span class="badge__t">cards install · 5 cards flagged needs-review are held back.</span>
+        </div>
+        <ul class="stats">
+          <li><b>24</b> cards</li>
+          <li><b>3</b> examiner-graded</li>
+          <li>21 card · 3 explain</li>
+          <li>modality <b>text</b></li>
+        </ul>
+      </section>
+
+      
+
+      <section>
+        <h2 class="label">Sample cards</h2>
+        <div class="gallery" style="margin-top: var(--space-md);">
+            <article class="mini">
+              <span class="mini__tag label">checkable</span>
+              <p class="mini__q">Explain why the recallit engine stays topic-agnostic — what architectural choices enforce this?</p>
+              <p class="mini__a">Subject-specific content (cards, scenarios, dialect config) lives entirely in data/ and topic.json, never in src/. The load-bearing rule assigns invariants to code and subject knowledge to prompts+data. No branches in src/ reference a specific subject. This is proven by the World Capitals test running with zero code change.</p>
+              <ul class="mini__points"><li>Subject-specific content lives in data/ config and prompts, not in src/ code</li><li>The load-bearing rule: code owns invariants/sequencing; prompts+data own subject and pedagogy</li><li>Proven by running a World Capitals deck in tests with zero code change</li><li class="opt">Packs extend agnosticism to distribution — subjects ship and version independently of the engine</li></ul>
+            </article>
+            <article class="mini">
+              <span class="mini__tag label">checkable</span>
+              <p class="mini__q">Explain recallit's 'files-as-truth' principle: what it means and how the system enforces it.</p>
+              <p class="mini__a">Files (item.md, topic.json, review_log.jsonl) are the primary, inspectable source of truth. The SQLite index is derived — always rebuildable from files, never the authoritative record. data/ is gitignored as runtime state. The durable form of a subject is a pack (packs/{id}/), tracked in source control separately from the engine.</p>
+              <ul class="mini__points"><li>Files are the source of truth — transparent, inspectable, and agent-editable</li><li>The SQLite index is derived and rebuildable from files — not the authoritative record</li><li>data/ is gitignored because it's runtime state, materialized locally</li><li class="opt">Packs (packs/{id}/) are the durable, shareable form of a subject, separate from the engine</li></ul>
+            </article>
+            <article class="mini">
+              <span class="mini__tag label">card</span>
+              <p class="mini__q">What is recallit-the-platform in one sentence?</p>
+              <p class="mini__a">A topic-agnostic recall engine plus an agent that operates it.</p>
+              
+            </article>
+            <article class="mini">
+              <span class="mini__tag label">card</span>
+              <p class="mini__q">What does 'agent-native' mean in recallit's architecture?</p>
+              <p class="mini__a">The agent has full parity with the user via atomic primitive tools; features are prompts that compose primitives, not bespoke code paths.</p>
+              
+            </article>
+            <article class="mini">
+              <span class="mini__tag label">card</span>
+              <p class="mini__q">What is recallit's 'load-bearing rule'?</p>
+              <p class="mini__a">Code owns invariants and sequencing; prompts + data own the subject and the pedagogy.</p>
+              
+            </article>
+            <article class="mini">
+              <span class="mini__tag label">card</span>
+              <p class="mini__q">Name the two architectural layers in recallit.</p>
+              <p class="mini__a">PLATFORM (code — knows nothing about any subject) and INSTANCE / PACK (data — all the subject-specific content).</p>
+              
+            </article>
+            <article class="mini">
+              <span class="mini__tag label">card</span>
+              <p class="mini__q">Why is `data/` gitignored in recallit?</p>
+              <p class="mini__a">It's the learner's runtime state, materialized locally — not the durable, shareable form of the subject.</p>
+              
+            </article>
+            <article class="mini">
+              <span class="mini__tag label">card</span>
+              <p class="mini__q">What is a recallit 'pack' and where is it tracked?</p>
+              <p class="mini__a">The durable, shareable form of a subject, tracked under packs/{id}/, separate from the engine.</p>
+              
+            </article>
+        </div>
+      </section>
+
+      <section class="pack__install">
+        <h2>Install this pack</h2>
+        <div class="code"><pre>bun run cli topic add packs/architecture</pre></div>
+        <p class="pack__note">Every number above is read directly from this pack's <code>manifest.json</code> and <code>cards.json</code>. recallit installs only cards that pass its checks; anything flagged <code>needs-review</code> is held back, never guessed.</p>
+      </section>
+    </main>
+
+    <script>
+      const audio = new Audio();
+      for (const btn of document.querySelectorAll(".sample__audio")) {
+        btn.addEventListener("click", async () => {
+          try {
+            audio.src = btn.dataset.src;
+            audio.currentTime = 0;
+            await audio.play();
+          } catch {
+            btn.textContent = "Audio unavailable";
+          }
+        });
+      }
+    </script>
+  </body>
+</html>
