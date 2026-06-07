@@ -290,6 +290,8 @@ export function startServer(deps: ServerDeps) {
         // shadowing audio never drifts from the text.
         session.onCardContentChanged = (card) =>
           regenerateCardAudio(ws.data.topicId, card, deps.tts, ws.data.voiceId);
+        // Surface the engine's grade + receipt (coverage breakdown) to the client.
+        session.onGraded = (cardId, grade) => send(ws, { type: "graded", cardId, ...grade });
         // Card-less spoken turns for the roleplay phase.
         session.converseProvider = makeConverseProvider(ws, deps.tts);
         run(session)

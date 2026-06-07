@@ -40,11 +40,8 @@ const server = startServer({
           if (ans === null) break;
           const v = evaluateAnswer(ans, c.back);
           await reviewCard(session.topicId, c.id, v.rating);
-          session.onEvent?.({
-            t: new Date().toISOString(),
-            kind: "assistant_text",
-            data: `Graded **${v.rating}** — ${c.back}`,
-          });
+          // Mirror the real grade_card path so the SPA shows the receipt chip.
+          session.onGraded?.(c.id, { rating: v.rating, reasons: v.reasons });
           answered++;
         }
       }

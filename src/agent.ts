@@ -65,6 +65,11 @@ export interface ReviewSession {
    * engine stays subject/voice-blind; the server supplies the implementation.
    */
   onCardContentChanged?: (card: RecallCard) => Promise<void>;
+  /**
+   * Fired after a card is graded, so the host can surface the engine's grade +
+   * receipt (e.g. the coverage breakdown for a checkable item) to the learner.
+   */
+  onGraded?: (cardId: string, grade: { rating: string; reasons: string[] }) => void;
 }
 
 export function createReviewSession(
@@ -191,7 +196,9 @@ function buildServer(session: ReviewSession, goalMetric: string) {
         { card_id: z.string() },
         async (args) => {
           try {
-            return ok(await gradeTurn(t, session.tracker, args.card_id));
+            const g = await gradeTurn(t, session.tracker, args.card_id);
+            session.onGraded?.(args.card_id, { rating: g.rating, reasons: g.reasons });
+            return ok(g);
           } catch (e) {
             return fail(String(e instanceof Error ? e.message : e));
           }

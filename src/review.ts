@@ -44,7 +44,7 @@ export async function gradeTurn(
   topicId: string,
   tracker: TurnTracker,
   cardId: string,
-): Promise<{ rating: string; due: string; reps: number; lapses: number }> {
+): Promise<{ rating: string; due: string; reps: number; lapses: number; reasons: string[] }> {
   const evaluation = tracker.ratingFor(cardId);
   const outcome = await reviewCard(topicId, cardId, evaluation.rating);
   if (!outcome) throw new TurnError(`card not found: ${cardId}`);
@@ -54,5 +54,6 @@ export async function gradeTurn(
     due: outcome.card.fsrs.due.toISOString(),
     reps: outcome.card.fsrs.reps,
     lapses: outcome.card.fsrs.lapses,
+    reasons: evaluation.reasons, // the grade receipt (coverage breakdown for checkable items)
   };
 }
