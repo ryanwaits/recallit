@@ -1,7 +1,8 @@
-// Tier 2 coverage grading. Locks the variance-spike-VALIDATED mapping (all
-// required -> Good, >=50% -> Hard, else Again; bonus -> Easy; wrong-claim caps at
-// Hard) as a pure function, with the spike's 11-answer fixture (as coverage
-// vectors) as the regression test. See docs/design/tutor-multimodal.md.
+// Tier 2 coverage grading. Locks the mapping (all required -> Good, >=50% -> Hard,
+// else Again; a wrong claim caps at Hard) as a pure function, with the spike's
+// 11-answer fixture as the regression test. Coverage tops out at Good — Easy is a
+// lexical/exact-recall signal, not a coverage one (the bonus->Easy lift was the one
+// paraphrase flicker the stress test found). See docs/design/tutor-multimodal.md.
 import { describe, expect, test } from "bun:test";
 import { newCard } from "../src/card.ts";
 import {
@@ -23,7 +24,8 @@ const FIXTURE: {
   {
     id: "A1-full",
     v: { requiredHit: 4, requiredTotal: 4, bonusHit: 1, bonusTotal: 1 },
-    expect: "Easy",
+    expect: "Good",
+    note: "human gold = Easy; coverage now tops at Good (Easy is lexical-only)",
   },
   {
     id: "A2-para1",
@@ -85,12 +87,12 @@ describe("mapCoverageToRating (validated thresholds)", () => {
     });
   }
 
-  test("all required hit + all bonus -> Easy; all required only -> Good", () => {
+  test("all required -> Good, regardless of bonus coverage (no Easy from coverage)", () => {
     expect(
       mapCoverageToRating({ requiredHit: 3, requiredTotal: 3, bonusHit: 2, bonusTotal: 2 }),
-    ).toBe("Easy");
+    ).toBe("Good");
     expect(
-      mapCoverageToRating({ requiredHit: 3, requiredTotal: 3, bonusHit: 1, bonusTotal: 2 }),
+      mapCoverageToRating({ requiredHit: 3, requiredTotal: 3, bonusHit: 0, bonusTotal: 2 }),
     ).toBe("Good");
     expect(
       mapCoverageToRating({ requiredHit: 3, requiredTotal: 3, bonusHit: 0, bonusTotal: 0 }),
@@ -106,10 +108,10 @@ describe("mapCoverageToRating (validated thresholds)", () => {
     ).toBe("Again");
   });
 
-  test("contradiction override caps an otherwise-Good/Easy at Hard", () => {
+  test("contradiction override caps an otherwise-Good at Hard", () => {
     expect(
       mapCoverageToRating({ requiredHit: 4, requiredTotal: 4, bonusHit: 1, bonusTotal: 1 }),
-    ).toBe("Easy");
+    ).toBe("Good");
     expect(
       mapCoverageToRating({
         requiredHit: 4,
@@ -151,14 +153,16 @@ describe("coverage grader (model-free floor, via the registry)", () => {
     });
   });
 
-  test("end-to-end dispatch: meta.grader=coverage routes through the registry", () => {
-    expect(gradeResponse(card(rubric), "sky is blue and grass is green").rating).toBe("Good");
-    expect(gradeResponse(card(rubric), "the sky is blue today").rating).toBe("Hard"); // 1/2 = 50%
-    expect(gradeResponse(card(rubric), "i have no idea").rating).toBe("Again");
+  test("end-to-end dispatch: meta.grader=coverage routes through the registry (floor, examiner off)", async () => {
+    expect((await gradeResponse(card(rubric), "sky is blue and grass is green")).rating).toBe(
+      "Good",
+    );
+    expect((await gradeResponse(card(rubric), "the sky is blue today")).rating).toBe("Hard"); // 1/2 = 50%
+    expect((await gradeResponse(card(rubric), "i have no idea")).rating).toBe("Again");
   });
 
-  test("a coverage card with no rubric fails closed", () => {
+  test("a coverage card with no rubric fails closed", async () => {
     const bad = newCard({ front: "explain", back: "n/a", meta: { grader: "coverage" } });
-    expect(() => gradeResponse(bad, "anything")).toThrow(/no meta.rubric/);
+    await expect(gradeResponse(bad, "anything")).rejects.toThrow(/no meta.rubric/);
   });
 });

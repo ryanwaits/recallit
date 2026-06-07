@@ -44,16 +44,20 @@ export function mapCoverageToRating(v: CoverageVector): EvalRating {
         ? v.bonusHit / v.bonusTotal
         : 0;
 
+  // Coverage tops out at Good: deterministic/examiner coverage can't reliably tell
+  // "complete" from "effortless", and letting bonus coverage lift Good->Easy was the
+  // one paraphrase flicker the stress test found. Easy stays a lexical/exact-recall
+  // signal (evaluateAnswer); bonus coverage is informational (shown in the receipt).
   let rating: EvalRating;
   if (v.requiredTotal > 0 && v.requiredHit === v.requiredTotal) {
-    rating = v.bonusTotal > 0 && v.bonusHit === v.bonusTotal ? "Easy" : "Good";
+    rating = "Good";
   } else if (reqFrac >= 0.5) {
     rating = "Hard";
   } else {
     rating = "Again";
   }
   // Override: a wrong claim never earns better than Hard, regardless of coverage.
-  if (v.contradiction && (rating === "Easy" || rating === "Good")) rating = "Hard";
+  if (v.contradiction && rating === "Good") rating = "Hard";
   return rating;
 }
 

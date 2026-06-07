@@ -18,32 +18,32 @@ const CASES: [string, string][] = [
 ];
 
 describe("grader registry (Phase 0 — inert seam)", () => {
-  test("default (no meta.grader) is byte-identical to evaluateAnswer", () => {
+  test("default (no meta.grader) is byte-identical to evaluateAnswer", async () => {
     for (const [response, back] of CASES) {
       const card = newCard({ front: "cue", back });
       expect(graderName(card)).toBe("lexical");
-      expect(gradeResponse(card, response)).toEqual(evaluateAnswer(response, back));
+      expect(await gradeResponse(card, response)).toEqual(evaluateAnswer(response, back));
     }
   });
 
-  test("explicit grader:lexical matches the default", () => {
+  test("explicit grader:lexical matches the default", async () => {
     for (const [response, back] of CASES) {
       const card = newCard({ front: "cue", back, meta: { grader: "lexical" } });
-      expect(gradeResponse(card, response)).toEqual(evaluateAnswer(response, back));
+      expect(await gradeResponse(card, response)).toEqual(evaluateAnswer(response, back));
     }
   });
 
-  test("unknown grader name fails closed (throws, never silently degrades)", () => {
+  test("unknown grader name fails closed (rejects, never silently degrades)", async () => {
     const card = newCard({ front: "cue", back: "house", meta: { grader: "vibes" } });
-    expect(() => gradeResponse(card, "house")).toThrow(/unknown grader "vibes"/);
+    await expect(gradeResponse(card, "house")).rejects.toThrow(/unknown grader "vibes"/);
   });
 
-  test("registerGrader dispatches to a newly registered deterministic grader", () => {
+  test("registerGrader dispatches to a newly registered deterministic grader", async () => {
     registerGrader("always-good", () => ({ rating: "Good", score: 1, reasons: ["test"] }));
     const card = newCard({ front: "cue", back: "house", meta: { grader: "always-good" } });
-    expect(gradeResponse(card, "anything").rating).toBe("Good");
+    expect((await gradeResponse(card, "anything")).rating).toBe("Good");
     // A different card still defaults to lexical — registration is additive.
     const plain = newCard({ front: "cue", back: "house" });
-    expect(gradeResponse(plain, "house").rating).toBe("Easy");
+    expect((await gradeResponse(plain, "house")).rating).toBe("Easy");
   });
 });

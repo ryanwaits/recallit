@@ -430,7 +430,7 @@ async function main(argv: string[]): Promise<void> {
         console.log("not found");
         break;
       }
-      const verdict = gradeResponse(card, answer);
+      const verdict = await gradeResponse(card, answer);
       const outcome = await reviewCard(topic, cardId, verdict.rating);
       console.log(`answer="${answer}" -> ${verdict.rating} (${verdict.reasons.join("; ")})`);
       if (outcome) console.log(`next due ${outcome.card.fsrs.due.toISOString()}`);

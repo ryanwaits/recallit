@@ -29,13 +29,13 @@ describe("recountExaminer", () => {
     expect(r.fabricated).toBe(0);
   });
 
-  test("all required + bonus -> Easy", () => {
+  test("all required (+ bonus) -> Good (coverage tops at Good)", () => {
     const r = recountExaminer(rubric, answer, [
       j("a", true, "sky is blue"),
       j("b", true, "grass is green"),
       j("c", true, "out here"),
     ]);
-    expect(r.result.rating).toBe("Easy");
+    expect(r.result.rating).toBe("Good");
   });
 
   test("fabricated evidence (span not in answer) is dropped, not credited", () => {

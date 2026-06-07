@@ -25,11 +25,12 @@ export class TurnTracker {
     return { front: card.front, context: card.context };
   }
 
-  /** Record the learner's response and compute the rating deterministically. */
-  respond(card: RecallCard, response: string): EvalResult {
+  /** Record the learner's response and compute the rating (code-owned). Async
+   * because a grader may call the model (the examiner); the gating is unchanged. */
+  async respond(card: RecallCard, response: string): Promise<EvalResult> {
     const turn = this.require(card.id, ["presented", "responded"], "respond");
     // Dispatch by card.meta.grader; absent => lexical = today's evaluateAnswer.
-    const evaluation = gradeResponse(card, response);
+    const evaluation = await gradeResponse(card, response);
     turn.response = response;
     turn.evaluation = evaluation;
     turn.phase = "responded";

@@ -27,7 +27,7 @@ export async function submitResponse(
   cardId: string,
   answer: string,
 ): Promise<{ recorded: true }> {
-  tracker.respond(await load(topicId, cardId), answer);
+  await tracker.respond(await load(topicId, cardId), answer);
   return { recorded: true };
 }
 

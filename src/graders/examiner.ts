@@ -8,8 +8,13 @@
 // The async LLM call that PRODUCES the judgments lives separately (gated, flagged);
 // this recount is pure + deterministic and is what the stress test measured.
 import { query } from "@anthropic-ai/claude-agent-sdk";
-import type { EvalResult } from "../types.ts";
-import { type CoverageVector, coverageResult, type RubricCheckpoint } from "./coverage.ts";
+import type { EvalResult, RecallCard } from "../types.ts";
+import {
+  type CoverageVector,
+  checkCoverage,
+  coverageResult,
+  type RubricCheckpoint,
+} from "./coverage.ts";
 
 export interface ExaminerJudgment {
   checkpointId: string;
@@ -140,4 +145,31 @@ export async function examineAnswer(input: ExamineInput): Promise<ExaminerJudgme
     return null; // transport/auth/etc. -> HOLD
   }
   return parseJudgments(final || acc);
+}
+
+/** Examiner gating: opt-in via env so the default grade path is unchanged. */
+export const examinerEnabled = (): boolean => process.env.RECALLIT_EXAMINER === "1";
+
+/**
+ * The registered `coverage` grader. With RECALLIT_EXAMINER=1 it grades via the
+ * LLM examiner (judgments -> code-verified recount); otherwise it uses the
+ * deterministic floor (near-verbatim only — see the doc). If the examiner can't
+ * produce a confident judgment it THROWS rather than silently mis-grade (HOLD).
+ */
+export async function examinerCoverageGrader(
+  card: RecallCard,
+  response: string,
+): Promise<EvalResult> {
+  const rubric = card.meta?.rubric as RubricCheckpoint[] | undefined;
+  if (!rubric || rubric.length === 0) {
+    throw new Error(`coverage grader: card ${card.id} has no meta.rubric`);
+  }
+  if (examinerEnabled()) {
+    const judgments = await examineAnswer({ front: card.front, rubric, answer: response });
+    if (!judgments) {
+      throw new Error(`examiner held on card ${card.id}: no confident judgment (not graded)`);
+    }
+    return recountExaminer(rubric, response, judgments).result;
+  }
+  return coverageResult(checkCoverage(rubric, response)); // deterministic floor fallback
 }

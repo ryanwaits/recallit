@@ -10,14 +10,17 @@
 // see docs/design/tutor-multimodal.md.
 import { evaluateAnswer } from "../evaluate.ts";
 import type { EvalResult, RecallCard } from "../types.ts";
-import { coverageGrader } from "./coverage.ts";
+import { examinerCoverageGrader } from "./examiner.ts";
 
-export type Grader = (card: RecallCard, response: string) => EvalResult;
+// A grader may be sync (lexical) or async (the examiner calls the model). The
+// RATING is always code-owned regardless. gradeResponse awaits either.
+export type Grader = (card: RecallCard, response: string) => EvalResult | Promise<EvalResult>;
 
 /** Tier 1 — lexical: today's behavior, verbatim. The default (flashcard) grader. */
 const lexical: Grader = (card, response) => evaluateAnswer(response, card.back);
 
-const REGISTRY: Record<string, Grader> = { lexical, coverage: coverageGrader };
+// coverage: examiner-backed when RECALLIT_EXAMINER=1, else the deterministic floor.
+const REGISTRY: Record<string, Grader> = { lexical, coverage: examinerCoverageGrader };
 
 /** The grader a card uses; absent meta.grader => the lexical default. */
 export function graderName(card: RecallCard): string {
@@ -29,7 +32,7 @@ export function graderName(card: RecallCard): string {
  * The single grading entry point — both the turn machine and the CLI call this,
  * so there is never a second grading path. Throws on an unknown grader name.
  */
-export function gradeResponse(card: RecallCard, response: string): EvalResult {
+export async function gradeResponse(card: RecallCard, response: string): Promise<EvalResult> {
   const name = graderName(card);
   const grader = REGISTRY[name];
   if (!grader) {
@@ -37,7 +40,7 @@ export function gradeResponse(card: RecallCard, response: string): EvalResult {
       `unknown grader "${name}" for card ${card.id} (registered: ${Object.keys(REGISTRY).join(", ")})`,
     );
   }
-  return grader(card, response);
+  return await grader(card, response);
 }
 
 /** Register a deterministic grader. Used by later tiers (coverage/ordered) + tests. */

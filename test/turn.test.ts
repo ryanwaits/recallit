@@ -19,11 +19,11 @@ describe("TurnTracker", () => {
     expect(() => tt.reveal(card())).toThrow(/was not presented/);
   });
 
-  test("present -> respond -> reveal succeeds and rating is engine-computed", () => {
+  test("present -> respond -> reveal succeeds and rating is engine-computed", async () => {
     const tt = new TurnTracker();
     const c = card();
     tt.present(c);
-    const evalResult = tt.respond(c, "house");
+    const evalResult = await tt.respond(c, "house");
     expect(evalResult.rating).toBe("Easy"); // deterministic, exact match
     const revealed = tt.reveal(c);
     expect(revealed.back).toBe("house");
@@ -31,11 +31,11 @@ describe("TurnTracker", () => {
     expect(tt.ratingFor(c.id).rating).toBe("Easy");
   });
 
-  test("a wrong response yields Again, still gated through the same flow", () => {
+  test("a wrong response yields Again, still gated through the same flow", async () => {
     const tt = new TurnTracker();
     const c = card();
     tt.present(c);
-    expect(tt.respond(c, "perro").rating).toBe("Again");
+    expect((await tt.respond(c, "perro")).rating).toBe("Again");
     expect(tt.reveal(c).evaluation.rating).toBe("Again");
   });
 });
