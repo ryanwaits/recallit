@@ -17,6 +17,20 @@ The single generalization: stop hardcoding *"the recall unit is a flashcard grad
 
 One deploy = one user. Topic-agnostic. Reuse ≫ build.
 
+## Decisions (resolved 2026-06-07)
+
+These **supersede the more conservative defaults in the synthesis below** (which deferred all model-assist to Phase 4). The synthesis stands as the exploration record; this block is the chosen direction.
+
+1. **Grading = Option C — agent-as-examiner, grade decomposed into evidenced checkpoints.** The agent runs the rich, contextual, Socratic examination as *ungraded* conversation. What feeds FSRS is **not** a holistic LLM rating — it is, per checkpoint, a scoped judgment: *"demonstrated? yes/no, + a verbatim evidence span quoted from the LEARNER'S answer."* Code re-verifies the span is literally in the answer (anti-fabrication — the gate pointed inward) and **counts** coverage → the 4-cardinal rating via the same deterministic map. The model reasons about *what* to probe and *how* to read a single point; it **never** emits a token into `{Again,Hard,Good,Easy}`. This promotes the synthesis's "deferred model-assisted extractor" to the **primary** free-recall mechanism — still gated on the variance spike (below) and the hard **"unconfident never grades, it HOLDS"** invariant.
+
+2. **Two signals, kept separate.** (a) **FSRS** schedules *discrete recall* — checkpoints, facts, key claims; atomic and stable. (b) A separate **transparent "depth memory"** tracks *understanding* — the agent's user-readable notes on weak spots / misconceptions / what to probe next. It is **not** an FSRS curve and **not** a hidden score; it is inspectable text the learner can read, and it drives Socratic sequencing. Forcing "understanding" into FSRS ratings is explicitly rejected.
+
+3. **Socratic method becomes a first-class phase.** Add a `socratic`/`elaborate` phase to the daily regimen (DATA in `dailyPhases`/`PHASE_GUIDE`, driven by the existing `converse` primitive) — the ungraded examination layer that produces the evidenced judgments and updates the depth memory.
+
+4. **The honest line is unchanged and load-bearing.** Every grade is decomposed + evidenced + auditable: *"the agent examined you and here's exactly which points it checked — the line from your own answer, and the line from the source."* **Never** "the AI decided you understood." This is the wedge; do not trade it away.
+
+**The gating spike is now P1 and runs FIRST.** Measure judgment **variance** — scoped-binary-with-evidence vs holistic rating — on a fixed answer set (including paraphrase pairs) over K repeats and temperatures. Metrics: replay consistency, inter-answer (paraphrase) consistency, evidence-span validity, false-hold rate. The **data picks the architecture**: if scoped-binary clears a measured stability bar → Option C ships; if not → fall back to deterministic Tier-2 coverage for the *grade* and keep the agent's brilliance in the ungraded layer. We do **not** build the examiner-grader until the numbers justify it. (This reframes Phase 1 below; the Tier-2 coverage grader becomes the fallback floor, and `graders/ordered.ts` + the extractor are no longer "Phase 4 maybe" but "shipped iff the spike passes.")
+
 ## The generalized model — the "checkable item"
 
 A superset of today's `RecallCard`, with **zero schema migration** — it rides the existing free-form `meta` dict (`z.record(z.string(), z.unknown())` on `PackCard.meta` (`pack.ts:35`) and `RecallCard.meta` (`types.ts:36`)).
