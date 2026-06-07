@@ -10,13 +10,14 @@
 // see docs/design/tutor-multimodal.md.
 import { evaluateAnswer } from "../evaluate.ts";
 import type { EvalResult, RecallCard } from "../types.ts";
+import { coverageGrader } from "./coverage.ts";
 
 export type Grader = (card: RecallCard, response: string) => EvalResult;
 
 /** Tier 1 — lexical: today's behavior, verbatim. The default (flashcard) grader. */
 const lexical: Grader = (card, response) => evaluateAnswer(response, card.back);
 
-const REGISTRY: Record<string, Grader> = { lexical };
+const REGISTRY: Record<string, Grader> = { lexical, coverage: coverageGrader };
 
 /** The grader a card uses; absent meta.grader => the lexical default. */
 export function graderName(card: RecallCard): string {

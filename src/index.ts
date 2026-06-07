@@ -24,6 +24,13 @@ export {
 export type { DueQuery } from "./db.ts";
 export { countCards, getDueCardIds, rebuildIndex, removeFromIndex, upsertIndex } from "./db.ts";
 export { evaluateAnswer, normalize, tokenize } from "./evaluate.ts";
+export {
+  type CoverageVector,
+  checkCoverage,
+  coverageResult,
+  mapCoverageToRating,
+  type RubricCheckpoint,
+} from "./graders/coverage.ts";
 export { type Grader, gradeResponse, graderName, registerGrader } from "./graders/registry.ts";
 export type { InstallOptions, InstallResult, ReinstallPlan } from "./install.ts";
 export { assertEngineSatisfied, installPack, planReinstall } from "./install.ts";
