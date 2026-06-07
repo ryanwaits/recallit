@@ -79,10 +79,12 @@ export async function appendContextNote(topicId: string, note: string): Promise<
   await appendFile(contextFile(topicId), `- ${new Date().toISOString()}: ${note}\n`);
 }
 
-/** The phases of a daily session, by modality. "reflect" = update_context + log. */
+/** The phases of a daily session, by modality. "reflect" = update_context + log.
+ *  Text (incl. comprehension) gets a Socratic deep-probe between review and reflect;
+ *  voice gets roleplay (its converse-based production phase) instead. */
 export function dailyPhases(modality: Modality): string[] {
   return modality === "text"
-    ? ["review", "reflect"]
+    ? ["review", "socratic", "reflect"]
     : ["shadowing", "review", "roleplay", "reflect"];
 }
 
@@ -90,11 +92,13 @@ const PHASE_GUIDE: Record<string, string> = {
   shadowing:
     "Shadowing — present 3–5 due/recent cards; the learner hears each (audio) and repeats it aloud via await_user_response. Give light pronunciation feedback. This warms up the ear and mouth.",
   review:
-    "Review — run spaced-repetition on due cards: present_card → await_user_response → reveal_answer → grade_card, with brief feedback. (Same gated turn order as a normal review.)",
+    "Review — run spaced-repetition on due cards: present_card → await_user_response → reveal_answer → grade_card, with brief feedback. (Same gated turn order as a normal review.) For a checkable/explain card the answer is a free-recall explanation; the engine's examiner grades coverage — never judge it yourself.",
+  socratic:
+    "Socratic — DEEPEN understanding on the shakiest material; UNGRADED (no card, no FSRS). First read_context for known weak spots and recall which cards just graded Hard/Again. Then via `converse` (speak ONE probing question, get their reply — NOT await_user_response) ask why / how does X relate to Y / give an example / what would happen if…, pushing them to explain in their own words rather than restate. Ground every probe in this pack — never assert anything you can't tie to the source. Correct misconceptions, and call update_context to record each weak spot or breakthrough so future sessions target it. A few focused exchanges, then stop. This populates the transparent depth-memory (notes the learner can read).",
   roleplay:
     "Roleplay — pick a scenario (list_scenarios / read_scenario), hold a short conversation forcing the learner to PRODUCE. Drive each conversational turn with `converse` (speak your line, get their reply) — NOT await_user_response, which is for cards. Correct errors immediately (recast → explicit → metalinguistic) and mine new/missed items with mine_card (one-new-thing rule).",
   reflect:
-    "Reflect — call update_context with 1–2 notes on what went well and weak spots, then call get_progress to report the goal metric and streak.",
+    "Reflect — call update_context with 1–2 notes on what went well and weak spots (the depth-memory the next session reads), then call get_progress to report the goal metric and streak.",
 };
 
 /**

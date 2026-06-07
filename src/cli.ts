@@ -11,6 +11,7 @@ import { installPack, planReinstall } from "./install.ts";
 import { runPackAuthor, runPackEditor } from "./packgen/author.ts";
 import { writePack } from "./packgen/gate.ts";
 import { resolveMode } from "./packgen/mode.ts";
+import { contextFile } from "./paths.ts";
 import { dayKey } from "./progress.ts";
 import { previewSchedule } from "./scheduler.ts";
 import {
@@ -117,6 +118,7 @@ answer <cardId> <spoken/typed answer...> [--topic id]   (evaluate + auto-grade)
 preview <cardId> [--topic id]
 rebuild [--topic id]
 stats [--topic id]
+context [--topic id]                            (print the learner depth-memory: context.md weak-spot notes)
 agent [--topic id] [--model m] [--maxTurns n]   (run the interactive agent review loop)
 daily [--topic id] [--model m]                  (run the full multi-phase daily session)
 quickstart <source> [--model m]                 (install a pack, then start today's session)
@@ -459,6 +461,16 @@ async function main(argv: string[]): Promise<void> {
       const topic = await requireActive(f.topic);
       const { total, due } = countCards(topic);
       console.log(`topic ${topic}: ${total} cards, ${due} due now`);
+      break;
+    }
+
+    case "context": {
+      // The transparent depth-memory: the agent's weak-spot/breakthrough notes.
+      const topic = await requireActive(f.topic);
+      const file = Bun.file(contextFile(topic));
+      console.log(
+        (await file.exists()) ? (await file.text()).trim() || "(empty)" : "(no context.md yet)",
+      );
       break;
     }
 
