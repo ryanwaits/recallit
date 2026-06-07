@@ -27,6 +27,17 @@ The emotional hook (the one true, rare differentiator): **it won't tell you you'
 | **It automatically brings things back on a cadence** | **gap-to-build (gated)** | Spaced repetition is real, but the session is learner-initiated. True periodic re-engagement needs a local scheduler (cron/launchd, one-deploy-one-user, never a SaaS server). **Do not market as shipping.** |
 | **It talks (voice)** | **partial** | `converse` works in text; spoken voice needs a TTS/STT provider wired + keys. "And it can talk, on your keys," not a hero claim. |
 
+## The "Remember" verb (spacing), honestly
+
+Spaced repetition is the third verb, and it's real today, but its scope is precise:
+
+- **What's real and shippable:** recallit decides *what's due when you open it.* The grade you earn sets each item's next interval (do well, it returns later; struggle, it returns sooner), so when you sit down the right cards are waiting, the ones you're about to forget, not the ones you've nailed. Say this plainly: *"the right card at the right time, when you show up."*
+- **What's a gap (gated):** recallit does **not** reach out to you. No notifications, no cron, no cadence that pulls you back. "It reminds you / brings you back on a schedule" must stay a **coming** line until a local scheduler ships.
+
+The one-liner: **recallit knows what to show you; it doesn't yet know how to tap you on the shoulder.**
+
+How it sits in the model: the grade is the hinge. It's code-owned and identical no matter how you practiced (drill or conversation), *and* it's what drives the spacing. So "practice your way" never bends the grade, and the grade is exactly what makes "remember" work. Consumer copy leads "Remember" on the spacing and never says the word FSRS. See [journeys.md](./journeys.md) for two-week walk-throughs that show the spacing playing out across a book, a topic, a language, and a paper.
+
 ## The modality model (why "practice your way" was cheap)
 
 Modality used to control exactly one thing: which phase sequence `dailyPhases(modality)` returns. Everything load-bearing is already modality-blind, the grader registry dispatches on the card and `converse` is one topic-agnostic conversation primitive powering both text-socratic and voice-roleplay. So "let the learner pick how to practice" reduced to "let the learner pick the phase regimen for this run", with **zero** change to the grader, turn machine, or FSRS. That's the shipped regimen.
