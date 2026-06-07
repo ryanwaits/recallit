@@ -19,6 +19,7 @@ import {
   buildSystemPrompt,
   dailyPhases,
   gatherFacts,
+  regimenPhases,
 } from "./context.ts";
 import { mineCard } from "./mining.ts";
 import { scenariosDir, sessionFile } from "./paths.ts";
@@ -410,6 +411,9 @@ export interface RunOptions {
   maxBudgetUsd?: number;
   /** "review" (default) runs the SRS loop; "daily" runs the full multi-phase session. */
   mode?: "review" | "daily";
+  /** Learner-chosen practice regimen for a daily run ("drill" | "converse" | "full");
+   *  overrides the pack's modality default. The grade is identical regardless. */
+  regimen?: string;
 }
 
 export interface RunResult {
@@ -451,7 +455,10 @@ export async function runSession(
   let defaultPrompt: string;
   if (mode === "daily") {
     const cp = await readCheckpoint(session.topicId);
-    const remaining = remainingPhases(dailyPhases(topic.modality), cp, session.id);
+    // Learner-chosen regimen wins over the pack's modality default; resolve it
+    // first, THEN let checkpoint-resume narrow to the not-yet-done phases.
+    const base = regimenPhases(opts.regimen) ?? dailyPhases(topic.modality);
+    const remaining = remainingPhases(base, cp, session.id);
     systemPrompt = buildDailySessionPrompt(facts, remaining);
     defaultPrompt = "Run my full daily session now, phase by phase.";
   } else {

@@ -9,6 +9,9 @@ import {
   buildPracticePrompt,
   buildSystemPrompt,
   gatherFacts,
+  knownPhases,
+  REGIMEN_NAMES,
+  regimenPhases,
   type SessionFacts,
 } from "../src/context.ts";
 import { createTopic } from "../src/topic.ts";
@@ -105,5 +108,31 @@ describe("context.md is per-topic", () => {
     const b = await gatherFacts(B.id, B);
     expect(a.contextNotes).toContain("A weak on past tense");
     expect(b.contextNotes).toBe(""); // B never received A's note
+  });
+});
+
+describe("regimen — learner-chosen modality over a consistent grade", () => {
+  test("named regimens resolve to phases that all have agent guidance", () => {
+    const guided = new Set(knownPhases());
+    for (const name of REGIMEN_NAMES) {
+      const phases = regimenPhases(name);
+      if (name === "full") {
+        expect(phases).toBeUndefined(); // "full" = fall back to the pack's modality default
+        continue;
+      }
+      expect(phases && phases.length).toBeGreaterThan(0);
+      for (const p of phases ?? []) expect(guided.has(p)).toBe(true);
+    }
+  });
+
+  test("drill is graded-recall-only; converse leads with conversation", () => {
+    expect(regimenPhases("drill")).toEqual(["review", "reflect"]);
+    expect(regimenPhases("converse")).toEqual(["socratic", "reflect"]);
+  });
+
+  test("unknown or empty regimen falls back to the modality default (undefined)", () => {
+    expect(regimenPhases("bogus")).toBeUndefined();
+    expect(regimenPhases(undefined)).toBeUndefined();
+    expect(regimenPhases("")).toBeUndefined();
   });
 });

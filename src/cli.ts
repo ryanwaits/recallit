@@ -81,6 +81,7 @@ async function runDailySession(topic: string, f: Record<string, string>): Promis
   const res = await runSession(session, {
     mode: "daily",
     model: f.model,
+    regimen: f.regimen,
     maxTurns: f.maxTurns ? Number(f.maxTurns) : undefined,
   });
   console.log(
@@ -120,7 +121,7 @@ rebuild [--topic id]
 stats [--topic id]
 context [--topic id]                            (print the learner depth-memory: context.md weak-spot notes)
 agent [--topic id] [--model m] [--maxTurns n]   (run the interactive agent review loop)
-daily [--topic id] [--model m]                  (run the full multi-phase daily session)
+daily [--topic id] [--model m] [--regimen drill|converse|full]   (run today's session; pick how you practice)
 quickstart <source> [--model m]                 (install a pack, then start today's session)
 pack <source> [--review|--dry-run|--auto] [--scope t] [--style t]   (generate a pack from a PDF/URL/repo/concept)
 pack edit <id> "<instruction>" [--dry-run]      (tweak a pack; additive edits preserve your review history)

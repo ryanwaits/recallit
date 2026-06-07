@@ -101,6 +101,28 @@ const PHASE_GUIDE: Record<string, string> = {
     "Reflect — call update_context with 1–2 notes on what went well and weak spots (the depth-memory the next session reads), then call get_progress to report the goal metric and streak.",
 };
 
+/** Phase names that have agent guidance (validation + tests). */
+export function knownPhases(): string[] {
+  return Object.keys(PHASE_GUIDE);
+}
+
+// Named practice regimens the learner can pick at session time, composed ONLY of
+// phases that already have a PHASE_GUIDE entry. The grade is identical regardless
+// (grading dispatches on the card, never on the regimen); a regimen only changes
+// HOW the session is presented — a quick graded drill vs a conversation. This is
+// what makes "practice it your way" real without touching grading or FSRS.
+const REGIMENS: Record<string, string[]> = {
+  drill: ["review", "reflect"], // fast graded recall, no conversation
+  converse: ["socratic", "reflect"], // conversation-first deep practice (modality-agnostic via `converse`)
+};
+/** Learner-pickable regimen names ("full" = the pack's modality default). */
+export const REGIMEN_NAMES = ["drill", "converse", "full"];
+/** Phases for a learner-chosen regimen, or undefined to fall back to the pack's modality default. */
+export function regimenPhases(name?: string): string[] | undefined {
+  if (!name || name === "full") return undefined;
+  return REGIMENS[name];
+}
+
 /**
  * Daily-session orchestration prompt. One autonomous run that walks the topic's
  * phases (optionally only the `remaining` ones, for resume). Pure prose over the
