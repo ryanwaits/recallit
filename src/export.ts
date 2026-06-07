@@ -3,6 +3,7 @@
 // and emits ONE standalone file that needs no server, no network, no recallit.
 // Presentation only — it never mutates the pack or the engine.
 import { join } from "node:path";
+import type { RubricCheckpoint } from "./graders/coverage.ts";
 import { loadPack } from "./pack.ts";
 
 const esc = (s: string): string =>
@@ -31,11 +32,20 @@ export async function buildPackExport(dir: string, installCmd: string): Promise<
   for (const c of ready) {
     const uri = c.audio ? await audioDataUri(join(dir, "assets", c.audio)) : null;
     const audioEl = uri ? `<audio controls preload="none" src="${uri}"></audio>` : "";
+    // Checkable items carry a rubric — render its key points as the study guide
+    // (required points first; bonus marked). Each point traces to a source quote.
+    const rubric = c.meta?.rubric as RubricCheckpoint[] | undefined;
+    const pointsEl = rubric?.length
+      ? `<div class="card__points"><span class="card__plabel">Key points to cover</span><ul>${rubric
+          .map((cp) => `<li${cp.required ? "" : ' class="opt"'}>${esc(cp.claim)}</li>`)
+          .join("")}</ul></div>`
+      : "";
     tiles.push(`
       <article class="card">
         <div class="card__front">${esc(c.front)}</div>
         <div class="card__back">${esc(c.back)}</div>
         ${c.context ? `<div class="card__ctx">${esc(c.context)}</div>` : ""}
+        ${pointsEl}
         ${audioEl}
       </article>`);
   }
@@ -66,6 +76,11 @@ export async function buildPackExport(dir: string, installCmd: string): Promise<
   .card__front { font-weight: 600; font-size: 1.1rem; letter-spacing: -.01em; }
   .card__back { color: #5a504a; }
   .card__ctx { color: #8a6a5f; font-size: .85rem; font-style: italic; }
+  .card__points { margin-top: .35rem; padding-top: .5rem; border-top: 1px solid #efe6da; }
+  .card__plabel { font: 600 .7rem/1 ui-monospace, monospace; letter-spacing: .06em; text-transform: uppercase; color: #b85563; }
+  .card__points ul { margin: .35rem 0 0; padding-left: 1.1rem; color: #5a504a; font-size: .92rem; display: grid; gap: .25rem; }
+  .card__points li.opt { color: #8a6a5f; }
+  .card__points li.opt::after { content: " (bonus)"; font-size: .8em; color: #b08; opacity: .6; }
   audio { width: 100%; margin-top: .25rem; }
   .note { color: #8a6a5f; font-size: .9rem; }
   footer { margin-top: 2.5rem; padding-top: 1.5rem; border-top: 1px solid #e3d8cb; display: grid; gap: .75rem; }
