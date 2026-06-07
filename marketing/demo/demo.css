@@ -80,6 +80,47 @@
 .sched li.is-picked .sched__k { color: var(--color-accent-2); }
 .sched li.is-picked .sched__v { color: var(--color-ink); font-weight: 600; }
 
+/* ── Comprehension tutor · the honest grade (recorded examiner output) ── */
+.tutor { display: grid; gap: var(--space-md); margin-bottom: var(--space-2xl); }
+.tutor__q { font-size: var(--text-xl); letter-spacing: var(--tracking-tight); max-width: 50ch; }
+.tutor__tabs { display: flex; flex-wrap: wrap; gap: var(--space-xs); }
+.tutor__tab {
+  min-height: 40px; padding-inline: var(--space-md);
+  border: 1.5px solid var(--color-rule); border-radius: var(--radius-pill);
+  background: var(--color-paper); color: var(--color-ink-2);
+  font: 600 var(--text-sm) / 1 var(--font-body); cursor: pointer;
+  transition: border-color var(--dur-short) var(--ease-out), background-color var(--dur-short) var(--ease-out);
+}
+.tutor__tab.is-active { border-color: var(--color-accent); background: var(--color-accent-soft); color: var(--color-accent-2); }
+.tutor__tab:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
+.tutor__answer {
+  margin: 0; padding: var(--space-md) var(--space-lg);
+  border-radius: var(--radius-card); background: var(--color-paper-2);
+  border: var(--rule-card) solid var(--color-rule);
+  font-family: var(--font-serif); font-style: italic; font-size: var(--text-md);
+  line-height: var(--lh-relaxed); color: var(--color-ink);
+}
+.tutor__checks { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-xs); }
+.tutor__check {
+  display: flex; gap: var(--space-sm); align-items: start;
+  padding: var(--space-sm) var(--space-md);
+  border: var(--rule-hair) solid var(--color-rule); border-radius: var(--radius-input);
+  background: var(--color-paper);
+}
+.tutor__check.hit { border-color: color-mix(in oklab, var(--color-accent) 45%, var(--color-rule)); }
+.tutor__mark { font-weight: 700; line-height: 1.5; flex: none; }
+.tutor__check.hit .tutor__mark { color: var(--color-accent-2); }
+.tutor__check.miss .tutor__mark { color: var(--color-muted); }
+.tutor__claim { font-weight: 600; color: var(--color-ink); font-size: var(--text-sm); }
+.tutor__opt { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--color-muted); }
+.tutor__cite { font-size: var(--text-sm); color: var(--color-ink-2); }
+.tutor__cite--miss { color: var(--color-muted); }
+.tutor__note { max-width: 60ch; text-transform: none; letter-spacing: 0; line-height: var(--lh-normal); }
+
+.demo__split { border-top: var(--rule-hair) solid var(--color-rule); padding-top: var(--space-xl); margin-bottom: var(--space-lg); display: grid; gap: var(--space-sm); max-width: 52ch; }
+.demo__split h2 { font-size: var(--text-2xl); letter-spacing: var(--tracking-display); }
+.demo__split p { color: var(--color-ink-2); line-height: var(--lh-relaxed); }
+
 .demo__provenance { max-width: 60ch; line-height: var(--lh-normal); text-transform: none; letter-spacing: 0; }
 
 @media (max-width: 52rem) {

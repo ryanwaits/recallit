@@ -29,12 +29,35 @@
 
     <main class="wrap demo">
       <section class="demo__intro reveal">
-        <span class="label">Real engine output · no keys · no server</span>
-        <h1>Study it. Say it. <em>Keep it.</em></h1>
+        <span class="label">Real recallit output · no keys, no server</span>
+        <h1>Recall it. Get graded <em>honestly.</em></h1>
         <p>
-          Recall the Spanish, tap to hear a native voice, then see recallit's own grader and FSRS-6
-          scheduler do the math. Every grade and interval below is real output from the bundled
-          Mexican-Spanish pack, computed offline and baked to static JSON.
+          A real comprehension card from the bundled "learn recallit" pack. Answer in your own
+          words; recallit checks each point against the source and grades by rule. Below is the
+          examiner's own judgment, recorded and re-verified by code. No keys.
+        </p>
+      </section>
+
+      <section class="tutor reveal" aria-live="polite">
+        <h2 class="tutor__q" data-tq></h2>
+        <div class="tutor__tabs" role="tablist" aria-label="Example answers">
+          <button class="tutor__tab is-active" type="button" data-ans="0"></button>
+          <button class="tutor__tab" type="button" data-ans="1"></button>
+        </div>
+        <blockquote class="tutor__answer">“<span data-tanswer></span>”</blockquote>
+        <div class="grade tutor__grade" data-tgrade>
+          <span class="grade__rating" data-trating></span>
+          <span class="grade__why" data-treceipt></span>
+        </div>
+        <ul class="tutor__checks" data-tchecks aria-label="How each source point was covered"></ul>
+        <p class="tutor__note label" data-tnote></p>
+      </section>
+
+      <section class="wrap demo__split reveal">
+        <h2>And it does language, out loud.</h2>
+        <p>
+          The same engine on a voice pack: recall the phrase, hear a native voice, and watch the
+          lexical grade and FSRS schedule. Real baked output from the Mexican-Spanish pack.
         </p>
       </section>
 
@@ -91,6 +114,7 @@
       <p class="demo__provenance label" data-provenance></p>
     </main>
 
+    <script src="tutor.js"></script>
     <script src="data.js"></script>
     <script>
       const data = window.RECALLIT_DEMO;
@@ -165,6 +189,38 @@
 
       $("[data-provenance]").textContent = data.engine;
       render();
+
+      // ── Comprehension tutor (recorded examiner output) ──────────────
+      const tutor = window.RECALLIT_TUTOR;
+      if (tutor) {
+        $("[data-tq]").textContent = tutor.question;
+        $("[data-tnote]").textContent = tutor.note;
+        const tabs = [...document.querySelectorAll(".tutor__tab")];
+        tabs.forEach((b, k) => {
+          b.textContent = tutor.answers[k]?.label ?? "";
+          b.addEventListener("click", () => renderTutor(k));
+        });
+        function renderTutor(k) {
+          const a = tutor.answers[k];
+          tabs.forEach((b, j) => b.classList.toggle("is-active", j === k));
+          $("[data-tanswer]").textContent = a.text;
+          $("[data-trating]").textContent = a.rating;
+          $("[data-treceipt]").textContent = a.receipt;
+          $("[data-tgrade]").className = `grade tutor__grade ${ratingClass[a.rating] ?? ""}`;
+          $("[data-tchecks]").innerHTML = a.checkpoints
+            .map((cp) => {
+              const mark = cp.hit ? "✓" : "✗";
+              const cls = cp.hit ? "hit" : "miss";
+              const cite = cp.hit
+                ? `<span class="tutor__cite">cites: “${cp.sourceQuote}”</span>`
+                : `<span class="tutor__cite tutor__cite--miss">not covered · source: “${cp.sourceQuote}”</span>`;
+              const tag = cp.required ? "" : ` <span class="tutor__opt">(bonus)</span>`;
+              return `<li class="tutor__check ${cls}"><span class="tutor__mark">${mark}</span><span><span class="tutor__claim">${cp.claim}</span>${tag}<br>${cite}</span></li>`;
+            })
+            .join("");
+        }
+        renderTutor(0);
+      }
     </script>
   </body>
 </html>
