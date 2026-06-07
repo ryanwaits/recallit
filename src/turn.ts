@@ -3,7 +3,7 @@
 // graded) until the learner has produced a response. The agent advances turns
 // through these methods but cannot skip the response step, and the rating is
 // always the engine-computed one — the agent never picks it.
-import { evaluateAnswer } from "./evaluate.ts";
+import { gradeResponse } from "./graders/registry.ts";
 import type { EvalResult, RecallCard } from "./types.ts";
 
 export type TurnPhase = "presented" | "responded" | "revealed" | "graded";
@@ -28,7 +28,8 @@ export class TurnTracker {
   /** Record the learner's response and compute the rating deterministically. */
   respond(card: RecallCard, response: string): EvalResult {
     const turn = this.require(card.id, ["presented", "responded"], "respond");
-    const evaluation = evaluateAnswer(response, card.back);
+    // Dispatch by card.meta.grader; absent => lexical = today's evaluateAnswer.
+    const evaluation = gradeResponse(card, response);
     turn.response = response;
     turn.evaluation = evaluation;
     turn.phase = "responded";

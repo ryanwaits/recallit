@@ -5,8 +5,8 @@ import { type AnswerProvider, createReviewSession, runSession } from "./agent.ts
 // Thin CLI harness over the engine primitives. Proves parity headlessly and is
 // handy for seeding/inspecting topics. The agent (Sprint 2) uses the same functions.
 import { countCards, rebuildIndex } from "./db.ts";
-import { evaluateAnswer } from "./evaluate.ts";
 import { buildPackExport } from "./export.ts";
+import { gradeResponse } from "./graders/registry.ts";
 import { installPack, planReinstall } from "./install.ts";
 import { runPackAuthor, runPackEditor } from "./packgen/author.ts";
 import { writePack } from "./packgen/gate.ts";
@@ -430,7 +430,7 @@ async function main(argv: string[]): Promise<void> {
         console.log("not found");
         break;
       }
-      const verdict = evaluateAnswer(answer, card.back);
+      const verdict = gradeResponse(card, answer);
       const outcome = await reviewCard(topic, cardId, verdict.rating);
       console.log(`answer="${answer}" -> ${verdict.rating} (${verdict.reasons.join("; ")})`);
       if (outcome) console.log(`next due ${outcome.card.fsrs.due.toISOString()}`);
