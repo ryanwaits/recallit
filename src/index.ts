@@ -32,8 +32,10 @@ export {
   type RubricCheckpoint,
 } from "./graders/coverage.ts";
 export {
+  type ExamineInput,
   type ExaminerJudgment,
   type ExaminerRecount,
+  examineAnswer,
   recountExaminer,
 } from "./graders/examiner.ts";
 export { type Grader, gradeResponse, graderName, registerGrader } from "./graders/registry.ts";
