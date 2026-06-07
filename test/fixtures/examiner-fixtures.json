@@ -1,0 +1,71 @@
+{
+  "_note": "Fixtures for the examiner stress test (docs/design/tutor-multimodal.md). Each card: a source-grounded rubric + adversarial answers (paraphrase clusters that must agree; near-miss bait that must NOT be credited; partial/wrong). Used by the re-runnable harness so the stress test is reproducible, not ephemeral. gold = human reference rating.",
+  "fixtures": [
+    {
+      "id": "seasons",
+      "front": "Explain what causes Earth's seasons.",
+      "rubric": [
+        { "id": "tilt-cause", "claim": "Seasons are caused by the tilt of Earth's axis", "required": true, "sourceQuote": "the tilt of its axis" },
+        { "id": "angle", "claim": "The tilt makes sunlight hit a hemisphere at different / more direct angles", "required": true, "sourceQuote": "receive sunlight at different angles" },
+        { "id": "toward-summer", "claim": "A hemisphere tilted toward the Sun gets summer (away = winter)", "required": true, "sourceQuote": "tilted toward the Sun it gets more direct sunlight and longer days, producing summer" },
+        { "id": "not-distance", "claim": "Seasons are NOT caused by Earth's distance from the Sun", "required": true, "sourceQuote": "not caused by changes in Earth's distance from the Sun" },
+        { "id": "tilt-amount", "claim": "The tilt is about 23.5 degrees", "required": false, "sourceQuote": "about 23.5 degrees" }
+      ],
+      "answers": [
+        { "id": "full-1", "cluster": "full", "gold": "Good", "text": "Seasons come from Earth's axial tilt: a hemisphere tilted toward the Sun gets more direct light and summer, tilted away gets winter; it's not about distance from the Sun." },
+        { "id": "full-2", "cluster": "full", "gold": "Good", "text": "Because Earth's axis leans, each hemisphere alternately faces toward or away from the Sun; facing toward brings more direct sunlight and summer, away brings winter. Distance from the Sun isn't the cause." },
+        { "id": "full-3", "cluster": "full", "gold": "Good", "text": "The tilt of the Earth makes sunlight strike a hemisphere more directly when it leans sunward (summer) and less directly when it leans away (winter). It has nothing to do with how close we are to the Sun." },
+        { "id": "bait", "bait": true, "gold": "Again", "text": "Seasons are all about the Earth's relationship with the Sun and the way our planet moves through space over the course of the year, which is ultimately why the weather changes so much." },
+        { "id": "wrong", "gold": "Again", "text": "Seasons happen because the Earth gets closer to the Sun in summer and farther away in winter." }
+      ]
+    },
+    {
+      "id": "pg-mechanisms",
+      "front": "Explain the two mechanisms by which trying to make writing sound good helps get the ideas right.",
+      "rubric": [
+        { "id": "unconscious-fix", "claim": "Rewriting for sound fixes ideas unconsciously — you can't rewrite awkwardly in a way that makes ideas less true, so any change is an improvement", "required": true, "sourceQuote": "If you have to rewrite an awkward passage, you'll never do it in a way that makes it less true." },
+        { "id": "writer-first-reader", "claim": "The writer is the essay's first reader, so easier-to-read prose helps the writer consciously detect when something feels wrong", "required": true, "sourceQuote": "Because the writer is the first reader." },
+        { "id": "two-ways-summary", "claim": "The two mechanisms together: sound shakes the bin of ideas (unconscious) AND makes mistakes easier to see (conscious)", "required": false, "sourceQuote": "Trying to make writing sound good makes you fix mistakes unconsciously, and also helps you fix them consciously" }
+      ],
+      "answers": [
+        { "id": "full-1", "cluster": "full", "gold": "Good", "text": "Two ways. First, when you rewrite an awkward sentence you can't make the idea less true, so fixing the sound unconsciously improves the ideas. Second, smoother writing is easier to read, and since the writer is their own first reader, readability makes it easier to consciously notice when something feels wrong." },
+        { "id": "full-2", "cluster": "full", "gold": "Good", "text": "One: improving how a passage sounds also nudges the ideas toward truth, because you'd never rewrite it into something falser. Two: since the author is the first person reading it, easier-reading prose lets them consciously catch mistakes." },
+        { "id": "full-3", "cluster": "full", "gold": "Good", "text": "Making prose flow fixes ideas in two ways — unconsciously, because any rewrite of an awkward bit can only make it truer, and consciously, because the writer reads their own work and readable text makes problems easier to spot." },
+        { "id": "bait", "bait": true, "gold": "Again", "text": "Paul Graham talks a lot about how good writing and good ideas are connected, and he gives several vivid analogies throughout the essay to drive the point home about sound and truth." },
+        { "id": "partial", "gold": "Hard", "text": "If you rewrite an awkward passage you can't make it less true, so fixing how it sounds also improves the ideas." }
+      ]
+    },
+    {
+      "id": "pg-exceptions",
+      "front": "When does the principle — that sounding good implies getting ideas right — NOT apply?",
+      "rubric": [
+        { "id": "develop-only", "claim": "The principle only holds for writing that develops ideas, not writing that describes pre-existing ones", "required": true, "sourceQuote": "It's only when you're writing to develop ideas that there's such a close connection between the two senses of doing it well." },
+        { "id": "textbook-example", "claim": "Textbooks and popular surveys are examples where writing can be bad despite good ideas", "required": true, "sourceQuote": "The writing in textbooks and popular surveys can be bad for the same reason: the author isn't developing the ideas, merely describing other people's." },
+        { "id": "experiment-paper", "claim": "Papers about experiments or built things are another case — ideas live more in the work than the writing", "required": false, "sourceQuote": "if you build something, or conduct an experiment, and then write a paper about it. In such cases the ideas often live more in the work than the writing" }
+      ],
+      "answers": [
+        { "id": "full-1", "cluster": "full", "gold": "Good", "text": "It only applies when the writing is actually developing the ideas, not just describing ones that already exist. Textbooks are the example — they can be badly written even though the ideas are fine, because the author is only relaying other people's ideas." },
+        { "id": "full-2", "cluster": "full", "gold": "Good", "text": "The principle holds for writing that works out ideas; it fails when you're merely describing pre-formed ideas. Popular surveys and textbooks show this — fine ideas but poor prose." },
+        { "id": "full-3", "cluster": "full", "gold": "Good", "text": "When prose only reports ideas that came from somewhere else, sounding good and being right come apart. The clearest case is a textbook: the writing can be weak while the content is solid." },
+        { "id": "bait", "bait": true, "gold": "Again", "text": "There are definitely some interesting exceptions and edge cases to this principle that the author is careful to acknowledge later on in the piece." },
+        { "id": "wrong", "gold": "Again", "text": "It always applies, with no exceptions — good sound always means good ideas, in every kind of writing." }
+      ]
+    },
+    {
+      "id": "pg-liars",
+      "front": "How does the essay answer the objection that a skilled liar can write beautifully and falsely, and what does it reveal about the real claim?",
+      "rubric": [
+        { "id": "method-acting", "claim": "Beautiful false writing requires the liar to almost believe it — presenting an internally consistent train of thought", "required": true, "sourceQuote": "The way to write something beautiful and false is to begin by making yourself almost believe it." },
+        { "id": "internally-consistent", "claim": "The refined claim: better-sounding writing is more likely to be internally consistent, not necessarily true", "required": true, "sourceQuote": "Better sounding writing is more likely to be internally consistent." },
+        { "id": "honest-convergence", "claim": "For honest writers, internal consistency and truth converge — so the principle still holds for them", "required": true, "sourceQuote": "If the writer is honest, internal consistency and truth converge." }
+      ],
+      "answers": [
+        { "id": "full-1", "cluster": "full", "gold": "Good", "text": "A skilled liar writes something beautiful and false by almost believing it (method acting), so the train of thought is still internally consistent. That refines the claim: sounding good signals internal consistency, not truth — but for an honest writer consistency and truth converge, so it still holds." },
+        { "id": "full-2", "cluster": "full", "gold": "Good", "text": "Liars manage it by making themselves nearly believe the falsehood, producing internally consistent prose. So good sound really tracks internal consistency rather than truth; with an honest writer the two line up." },
+        { "id": "full-3", "cluster": "full", "gold": "Good", "text": "By method-acting their way into almost believing it, a liar keeps the writing internally consistent though false. The real claim is therefore about internal consistency, which converges with truth when the writer is honest." },
+        { "id": "bait", "bait": true, "gold": "Again", "text": "The author raises the liar objection as a clever counterargument and handles it quite gracefully, which shows he has really thought through the possible objections to his thesis." },
+        { "id": "partial", "gold": "Hard", "text": "A liar can write beautifully by almost believing the lie, so the writing comes out internally consistent." }
+      ]
+    }
+  ]
+}

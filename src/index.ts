@@ -31,6 +31,11 @@ export {
   mapCoverageToRating,
   type RubricCheckpoint,
 } from "./graders/coverage.ts";
+export {
+  type ExaminerJudgment,
+  type ExaminerRecount,
+  recountExaminer,
+} from "./graders/examiner.ts";
 export { type Grader, gradeResponse, graderName, registerGrader } from "./graders/registry.ts";
 export type { InstallOptions, InstallResult, ReinstallPlan } from "./install.ts";
 export { assertEngineSatisfied, installPack, planReinstall } from "./install.ts";
