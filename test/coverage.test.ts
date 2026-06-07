@@ -3,7 +3,7 @@
 // 11-answer fixture as the regression test. Coverage tops out at Good — Easy is a
 // lexical/exact-recall signal, not a coverage one (the bonus->Easy lift was the one
 // paraphrase flicker the stress test found). See docs/design/tutor-multimodal.md.
-import { describe, expect, test } from "bun:test";
+import { afterAll, beforeAll, describe, expect, test } from "bun:test";
 import { newCard } from "../src/card.ts";
 import {
   checkCoverage,
@@ -135,6 +135,16 @@ describe("mapCoverageToRating (validated thresholds)", () => {
 });
 
 describe("coverage grader (model-free floor, via the registry)", () => {
+  // Examiner is ON by default; force it OFF so these stay deterministic (no LLM).
+  const prev = process.env.RECALLIT_EXAMINER;
+  beforeAll(() => {
+    process.env.RECALLIT_EXAMINER = "0";
+  });
+  afterAll(() => {
+    if (prev === undefined) delete process.env.RECALLIT_EXAMINER;
+    else process.env.RECALLIT_EXAMINER = prev;
+  });
+
   const rubric: RubricCheckpoint[] = [
     { id: "a", claim: "sky is blue", required: true },
     { id: "b", claim: "grass is green", required: true },

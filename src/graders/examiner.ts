@@ -147,8 +147,9 @@ export async function examineAnswer(input: ExamineInput): Promise<ExaminerJudgme
   return parseJudgments(final || acc);
 }
 
-/** Examiner gating: opt-in via env so the default grade path is unchanged. */
-export const examinerEnabled = (): boolean => process.env.RECALLIT_EXAMINER === "1";
+/** Examiner gating: ON by default (the floor can't grade free-recall); opt OUT
+ * with RECALLIT_EXAMINER=0 for offline/deterministic-only runs (CI, the floor). */
+export const examinerEnabled = (): boolean => process.env.RECALLIT_EXAMINER !== "0";
 
 /**
  * The registered `coverage` grader. With RECALLIT_EXAMINER=1 it grades via the
