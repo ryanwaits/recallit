@@ -50,6 +50,33 @@ Directionally: scoped's single miss errs **safe** (under-credits a partial → F
 
 **Next:** build `mapCoverageToRating` + the two overrides as a **pure function now** (the 11-row fixture is its first unit test) — it's deterministic and serves both the fallback floor and the examiner's recount. Gate wiring the **LLM examiner as the live FSRS grade source** behind an expanded adversarial stress test (more packs/checkpoint-counts, a paraphrase + near-miss-citation suite, a second human gold), with scoped shadowing holistic until it clears. Fall back to deterministic-coverage-only if replay drops below ~0.95 or fabrication goes nonzero on the bigger set.
 
+### From the first real generation (PG essay, 2025): the floor's limit + the examiner-grader design
+
+Authoring on a real essay (`pack https://paulgraham.com/goodwriting.html`) produced 3 well-grounded rubric/explain cards (the gate accepted them). Grading the **exemplar** answer through the **model-free `checkCoverage` floor** scored it `Again` (0/2 required) — the claims aren't literal substrings of real prose. So, made explicit:
+
+- **The deterministic floor is near-verbatim recall ONLY** (a term/definition where the answer text ≈ the claim). It is **not** a free-recall comprehension grader and must never be sold as one. An `explain`/`coverage` card graded by the floor alone will harshly under-credit real answers — a footgun until the examiner is wired.
+- **The LLM examiner is load-bearing for comprehension**, not optional. "Fall back to deterministic coverage" is a weak floor, useful only for near-verbatim items.
+
+**Examiner-grader execution design (gated on the stress test):** the examiner is an *async* LLM call, but `Grader` is sync (`turn.ts respond()`), and the rating must stay code-owned (`tracker.ratingFor`). So the examiner does NOT become a sync grader. Instead: during the agent's turn it produces, per checkpoint, `{demonstrated, evidence = verbatim span of the learner's answer}`; **code re-verifies each span is literally in the answer (the gate pointed inward) and recounts via the pure `mapCoverageToRating` we already shipped** → an `EvalResult` that flows through the existing `ratingFor` slot (the agent still cannot pick the rating). Implementation when (b) passes: either make `respond()` await an async grader (turn gating unchanged, only the grader call becomes awaitable) or have the agent submit the evidenced judgments via a tool that feeds the same evaluation slot. Either way the recount + thresholds are the code we already have.
+
+**Gate refinements applied (2025):** `checkCardQuality` length heuristic is now flashcard-only (`longAnswerOk` for checkable items) so explain exemplars aren't flagged; the gate still correctly held an agent-inserted ungrounded proper noun ("PG"). Open author-side nudge: tell the author not to refer to the source's author by name/initials unless quoted.
+
+### Examiner stress test (b): PASSED — ship behind a flag
+
+100 real examiner judgments across 4 cards (the synthetic seasons rubric + the 3 real PG rubrics), stressed with paraphrase clusters + near-miss-citation bait. Verdict: **examiner-ready-as-live-grade-source**.
+
+| metric | result | bar |
+|---|---|---|
+| mean replay consistency | **0.98** | ≥ ~0.95 ✓ |
+| exact accuracy vs gold | 0.90 (within-1-band 1.00) | — |
+| paraphrase-cluster consistency | **3/4** (up from the spike's 2/3) | — |
+| evidence-fabrication rate (under bait) | **0.00** | == 0 ✓ |
+| bait false-credit | **0 / 4 answers (0 / 20 runs)** | == 0 ✓ |
+
+The two brand-critical axes are clean: **zero fabrication even under adversarial near-miss bait**, and **not one bait answer got any required checkpoint credited** — the over-crediting failure that sinks a holistic LLM-judge. The one imperfection is a single paraphrase cluster splitting **Good↔Easy** — a *spacing* flicker (caused by the bonus-all → Easy lift in `mapCoverageToRating`), never a pass/fail or credit/no-credit flicker. **Tune:** don't let bonus coverage alone flip Good→Easy.
+
+**Integrity caveat (from the verdict agent, kept honest):** these two workflows validated the *approach* — they simulated the examiner via judging prompts; the actual `examinerGrader` + a re-runnable harness + the fixtures do **not** exist in the repo yet (only the deterministic floor does). The numbers green-light *building* the examiner, not flipping it on in prod. So the build order is: (1) implement the examiner grader behind a flag, with the deterministic floor as the "unconfident → HOLDS" fallback; (2) **commit the fixtures + a reproducible harness** so this is re-executable, not ephemeral; (3) shadow-mode it against the floor and log divergences before it drives FSRS; (4) tune the bonus→Easy lift; (5) expand fixtures + a second human gold before unflagging widely.
+
 ## The generalized model — the "checkable item"
 
 A superset of today's `RecallCard`, with **zero schema migration** — it rides the existing free-form `meta` dict (`z.record(z.string(), z.unknown())` on `PackCard.meta` (`pack.ts:35`) and `RecallCard.meta` (`types.ts:36`)).
