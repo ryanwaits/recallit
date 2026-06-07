@@ -8,7 +8,7 @@ import { countCards, rebuildIndex } from "./db.ts";
 import { buildPackExport } from "./export.ts";
 import { gradeResponse } from "./graders/registry.ts";
 import { installPack, planReinstall } from "./install.ts";
-import { runPackAuthor, runPackEditor } from "./packgen/author.ts";
+import { prepareSource, runPackAuthor, runPackEditor } from "./packgen/author.ts";
 import { writePack } from "./packgen/gate.ts";
 import { resolveMode } from "./packgen/mode.ts";
 import { contextFile } from "./paths.ts";
@@ -122,7 +122,7 @@ stats [--topic id]
 context [--topic id]                            (print the learner depth-memory: context.md weak-spot notes)
 agent [--topic id] [--model m] [--maxTurns n]   (run the interactive agent review loop)
 daily [--topic id] [--model m] [--regimen drill|converse|full]   (run today's session; pick how you practice)
-quickstart <source> [--model m]                 (install a pack, then start today's session)
+quickstart <topic|source> [--model m]           (build or install a pack, then start today's session)
 pack <source> [--review|--dry-run|--auto] [--scope t] [--style t]   (generate a pack from a PDF/URL/repo/concept)
 pack edit <id> "<instruction>" [--dry-run]      (tweak a pack; additive edits preserve your review history)
 pack share <id>                                 (print the install string + URL to share a pack)
@@ -505,15 +505,76 @@ async function main(argv: string[]): Promise<void> {
     }
 
     case "quickstart": {
-      // Sugar: the one-command on-ramp = `topic add <source>` then today's session.
+      // The one-command on-ramp: just say what you want to learn. If it's already a
+      // pack (installed topic / local pack dir / ref) we install + study; otherwise we
+      // BUILD it from the concept/file/URL, then study. One verb: describe -> practice.
       const source = pos[0];
       if (!source)
-        throw new Error("usage: quickstart <source>  (install a pack, then run today's session)");
-      const res = await installPack(source, { activate: true, force: f.force !== undefined });
+        throw new Error(
+          'usage: quickstart <topic|source>  (build or install a pack, then study)\n       e.g. quickstart "World War 2"   |   quickstart packs/architecture',
+        );
+
+      // Already an installed topic -> just study it.
+      if ((await listTopics()).includes(source)) {
+        await runDailySession(source, f);
+        break;
+      }
+      // A real pack to install (local pack dir or a ref) -> install + study.
+      const isLocalPack = await Bun.file(join(source, "manifest.json")).exists();
+      const looksLikeRef =
+        source.endsWith(".tgz") ||
+        source.endsWith(".tar.gz") ||
+        /^(github:|git\+|npm:)/.test(source);
+      if (isLocalPack || looksLikeRef) {
+        const res = await installPack(source, { activate: true, force: f.force !== undefined });
+        console.log(
+          `installed "${res.topicId}": ${res.cards} cards, ${res.audio} audio${res.heldForReview ? `, ${res.heldForReview} held` : ""} (now active)`,
+        );
+        await runDailySession(res.topicId, f);
+        break;
+      }
+
+      // Otherwise: BUILD a pack from the source/concept, then study it.
+      const prep = await prepareSource(source);
+      // Guard: never burn ~$1 web-researching a typo'd pack ref. A real file/URL is fine
+      // (prepareSource classifies those); only a "concept" that smells like a path/ref is suspect.
+      if (prep.kind === "concept" && /[\\/]|^\.|\.[a-z0-9]{1,5}$/i.test(source)) {
+        throw new Error(
+          `"${source}" is not an installable pack or a readable source. Use a topic id, a local pack dir, a github:/npm: ref, a file, a URL, or a plain concept like "World War 2".`,
+        );
+      }
+      const { mode } = resolveMode("A", {
+        flags: { auto: f.auto !== undefined, review: f.review !== undefined },
+      });
       console.log(
-        `installed "${res.topicId}": ${res.cards} cards, ${res.audio} audio${res.heldForReview ? `, ${res.heldForReview} held` : ""} (now active)`,
+        `no pack "${source}" yet — building one (mode ${mode}). This uses your ANTHROPIC_API_KEY and costs ~$1.`,
       );
-      await runDailySession(res.topicId, f);
+      const built = await runPackAuthor(source, {
+        scope: f.scope,
+        style: f.style,
+        model: f.model,
+        maxBudgetUsd: f["max-budget"] ? Number(f["max-budget"]) : undefined,
+        onEvent: (e) => {
+          if (e.kind === "assistant_text") console.log(`\n🗣  ${e.data}`);
+          else if (e.kind === "tool_use") console.log(`   · ${(e.data as { name: string }).name}`);
+        },
+      });
+      const v = built.verdict;
+      if (!v || v.ready === 0) {
+        console.error(
+          `\nno ready cards built from "${source}" (stop: ${built.stopReason}, $${built.costUsd.toFixed(4)}) — nothing to study`,
+        );
+        process.exit(2);
+      }
+      if (v.grounding === "web")
+        console.log(
+          "\n⚠ web-grounded pack — attribution-only, not authoritative; verify before relying on it.",
+        );
+      const r = await installPack(built.packDir, { activate: true, force: f.force !== undefined });
+      console.log(
+        `built + installed "${r.topicId}": ${r.cards} ready cards${r.heldForReview ? `, ${r.heldForReview} held for review` : ""} ($${built.costUsd.toFixed(4)}, now active)`,
+      );
+      await runDailySession(r.topicId, f);
       break;
     }
 
