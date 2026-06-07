@@ -1,0 +1,360 @@
+[
+  {
+    "front": "What is recallit-the-platform in one sentence?",
+    "back": "A topic-agnostic recall engine plus an agent that operates it.",
+    "tags": [
+      "two-layers",
+      "overview"
+    ],
+    "meta": {
+      "sourceQuote": "**recallit-the-platform** is a topic-agnostic *recall engine* plus an agent that operates it."
+    }
+  },
+  {
+    "front": "Name the two principles that drive every architecture decision in recallit.",
+    "back": "Agent-native and Topic-agnostic.",
+    "tags": [
+      "principles",
+      "needs-review"
+    ],
+    "meta": {
+      "sourceQuote": "Two principles drive every decision:",
+      "status": "needs-review",
+      "reviewReasons": [
+        "unverified-proper-noun"
+      ]
+    }
+  },
+  {
+    "front": "What does 'agent-native' mean in recallit's architecture?",
+    "back": "The agent has full parity with the user via atomic primitive tools; features are prompts that compose primitives, not bespoke code paths.",
+    "tags": [
+      "principles",
+      "agent-native"
+    ],
+    "meta": {
+      "sourceQuote": "the agent has full parity with the user via atomic primitive tools; features (review, daily session, roleplay) are *prompts that compose primitives*, not bespoke code paths."
+    }
+  },
+  {
+    "front": "What does 'topic-agnostic' mean in recallit, and what is its ultimate test?",
+    "back": "Everything subject-specific lives in data/ config + prompts. Ultimate test: plug a brand-new topic with config + prose only, zero code change.",
+    "tags": [
+      "principles",
+      "topic-agnostic",
+      "needs-review"
+    ],
+    "meta": {
+      "sourceQuote": "everything subject-specific (language, dialect, what to say) lives in `data/` config + prompts. The ultimate test: plug a brand-new topic with config + prose only, zero code change.",
+      "status": "needs-review",
+      "reviewReasons": [
+        "unverified-proper-noun"
+      ]
+    }
+  },
+  {
+    "front": "What is recallit's 'load-bearing rule'?",
+    "back": "Code owns invariants and sequencing; prompts + data own the subject and the pedagogy.",
+    "tags": [
+      "two-layers",
+      "principles"
+    ],
+    "meta": {
+      "sourceQuote": "code owns invariants and sequencing; prompts + data own the subject and the pedagogy."
+    }
+  },
+  {
+    "front": "Name the two architectural layers in recallit.",
+    "back": "PLATFORM (code — knows nothing about any subject) and INSTANCE / PACK (data — all the subject-specific content).",
+    "tags": [
+      "two-layers"
+    ],
+    "meta": {
+      "sourceQuote": "PLATFORM  (code — knows nothing about any subject)"
+    }
+  },
+  {
+    "front": "Which four invariants live in code on the platform layer?",
+    "back": "FSRS scheduling (scheduler.ts), deterministic grading (evaluate.ts), turn gating (turn.ts), one-new-thing mining (mining.ts).",
+    "tags": [
+      "two-layers",
+      "fsrs",
+      "needs-review"
+    ],
+    "meta": {
+      "sourceQuote": "• FSRS scheduling       (scheduler.ts)\n        │  • deterministic grading (evaluate.ts)\n        │  • turn gating           (turn.ts)\n        │  • one-new-thing mining  (mining.ts)",
+      "status": "needs-review",
+      "reviewReasons": [
+        "quote-not-in-corpus"
+      ]
+    }
+  },
+  {
+    "front": "What is the source of truth in recallit's data layer, and what role does the SQLite index play?",
+    "back": "Files are the source of truth. The SQLite index is derived — it makes due-queries O(due) instead of scanning every card, and is rebuildable from files at any time.",
+    "tags": [
+      "files-as-truth",
+      "needs-review"
+    ],
+    "meta": {
+      "sourceQuote": "Files are the **source of truth** (transparent, inspectable, agent-editable). A derived SQLite index makes due-queries `O(due)` instead of scanning every card; it is rebuildable from the files at any time.",
+      "status": "needs-review",
+      "reviewReasons": [
+        "unverified-proper-noun"
+      ]
+    }
+  },
+  {
+    "front": "Why is `data/` gitignored in recallit?",
+    "back": "It's the learner's runtime state, materialized locally — not the durable, shareable form of the subject.",
+    "tags": [
+      "files-as-truth",
+      "packs"
+    ],
+    "meta": {
+      "sourceQuote": "`data/` is **gitignored** — it's the learner's runtime state, materialized locally."
+    }
+  },
+  {
+    "front": "What is a recallit 'pack' and where is it tracked?",
+    "back": "The durable, shareable form of a subject, tracked under packs/{id}/, separate from the engine.",
+    "tags": [
+      "packs"
+    ],
+    "meta": {
+      "sourceQuote": "The *durable, shareable* form of a subject is a **pack**: tracked source under `packs/{id}/`, separate from the engine."
+    }
+  },
+  {
+    "front": "What command installs a topic pack, and what three things does it do?",
+    "back": "recallit topic add <source> — validates the manifest, checks the engine range, and projects the pack into data/topics/{id}/ through createCard.",
+    "tags": [
+      "packs"
+    ],
+    "meta": {
+      "sourceQuote": "installed via `recallit topic add <source>` (`src/install.ts`), which validates the manifest, checks the `engine` range, and projects the pack into `data/topics/{id}/` through `createCard`"
+    }
+  },
+  {
+    "front": "Why doesn't a pack ship index.sqlite?",
+    "back": "The index is derived at install time via createCard; it's always rebuildable from the item.md files.",
+    "tags": [
+      "packs",
+      "files-as-truth"
+    ],
+    "meta": {
+      "sourceQuote": "pack files never ship the index"
+    }
+  },
+  {
+    "front": "What four source types can `recallit topic add` resolve?",
+    "back": "Local dir, .tgz tarball, git repo (github:owner/repo or git+<url>), or npm:<spec>.",
+    "tags": [
+      "packs"
+    ],
+    "meta": {
+      "sourceQuote": "a local dir, a `.tgz`, a git repo (`github:owner/repo[/subdir][#ref]`, `git+<url>`), or `npm:<spec>`"
+    }
+  },
+  {
+    "front": "What happens if you try to re-install a pack whose id is already installed?",
+    "back": "It errors unless --force is passed.",
+    "tags": [
+      "packs"
+    ],
+    "meta": {
+      "sourceQuote": "Re-installing an id errors unless `--force`."
+    }
+  },
+  {
+    "front": "What generic field names does a card's frontmatter use, and where does language-specific data live?",
+    "back": "front, back, context, type, tags, meta — language-specific data goes in meta (e.g. dialect: mx-rgv) and in topic.json.",
+    "tags": [
+      "topic-agnostic",
+      "files-as-truth"
+    ],
+    "meta": {
+      "sourceQuote": "A card's frontmatter has generic field names only (`front`, `back`, `context`, `type`, `tags`, `meta`) — no language-specific fields. Spanish lives in `meta` (`dialect: mx-rgv`) and in `topic.json`."
+    }
+  },
+  {
+    "front": "How is a 'review session' implemented in recallit?",
+    "back": "As a prompt that loops: get_due_cards → present_card → await_user_response → reveal_answer → grade_card.",
+    "tags": [
+      "agent-native"
+    ],
+    "meta": {
+      "sourceQuote": "**Review session** = prompt: loop `get_due_cards → present_card → await_user_response → reveal_answer → grade_card`."
+    }
+  },
+  {
+    "front": "What prevents the answer from leaking before the learner attempts it?",
+    "back": "turn.ts gates reveal — present_card returns FRONT only; reveal_answer is only callable after await_user_response.",
+    "tags": [
+      "fsrs",
+      "two-layers"
+    ],
+    "meta": {
+      "sourceQuote": "present_card        → returns FRONT only          [turn.ts: reveal is gated]"
+    }
+  },
+  {
+    "front": "In recallit, how do you change a feature's behavior?",
+    "back": "Edit prompts, not code.",
+    "tags": [
+      "agent-native",
+      "principles"
+    ],
+    "meta": {
+      "sourceQuote": "To change behavior you edit prompts, not refactor code."
+    }
+  },
+  {
+    "front": "What is 'the proof' that recallit is truly topic-agnostic?",
+    "back": "The same engine, agent, turn loop, and grader run a World Capitals deck in the test suite with zero code change — only a different topic.json + cards.",
+    "tags": [
+      "topic-agnostic"
+    ],
+    "meta": {
+      "sourceQuote": "The same engine, agent, turn loop, and grader run a non-language deck (World Capitals) in the test suite with **zero code change** — only a different `topic.json` + cards."
+    }
+  },
+  {
+    "front": "Which module owns FSRS scheduling, and what two functions does it expose?",
+    "back": "scheduler.ts — gradeCard and previewSchedule (pure).",
+    "tags": [
+      "fsrs"
+    ],
+    "meta": {
+      "sourceQuote": "`src/scheduler.ts` | FSRS wrapper: `gradeCard`, `previewSchedule` (pure)"
+    }
+  },
+  {
+    "front": "What does parity mean in recallit's agent-native context?",
+    "back": "Anything the CLI/UI can do, the agent can do — via the same in-process MCP tools.",
+    "tags": [
+      "agent-native"
+    ],
+    "meta": {
+      "sourceQuote": "Parity means anything the CLI/UI can do, the agent can do."
+    }
+  },
+  {
+    "type": "explain",
+    "front": "Explain why the recallit engine stays topic-agnostic — what architectural choices enforce this?",
+    "back": "Subject-specific content (cards, scenarios, dialect config) lives entirely in data/ and topic.json, never in src/. The load-bearing rule assigns invariants to code and subject knowledge to prompts+data. No branches in src/ reference a specific subject. This is proven by the World Capitals test running with zero code change.",
+    "tags": [
+      "topic-agnostic",
+      "principles"
+    ],
+    "meta": {
+      "grader": "coverage",
+      "rubric": [
+        {
+          "id": "data-not-src",
+          "claim": "Subject-specific content lives in data/ config and prompts, not in src/ code",
+          "required": true,
+          "sourceQuote": "anything Spanish-specific is either data (`topic.json`, cards) or prose the agent reads (scenarios, prompts), never a branch in `src/`."
+        },
+        {
+          "id": "load-bearing-rule",
+          "claim": "The load-bearing rule: code owns invariants/sequencing; prompts+data own subject and pedagogy",
+          "required": true,
+          "sourceQuote": "code owns invariants and sequencing; prompts + data own the subject and the pedagogy."
+        },
+        {
+          "id": "world-capitals-proof",
+          "claim": "Proven by running a World Capitals deck in tests with zero code change",
+          "required": true,
+          "sourceQuote": "The same engine, agent, turn loop, and grader run a non-language deck (World Capitals) in the test suite with **zero code change** — only a different `topic.json` + cards."
+        },
+        {
+          "id": "packs-distribution",
+          "claim": "Packs extend agnosticism to distribution — subjects ship and version independently of the engine",
+          "required": false,
+          "sourceQuote": "This is the agnostic principle extended to distribution: subjects ship and version independently of the engine."
+        }
+      ]
+    }
+  },
+  {
+    "type": "explain",
+    "front": "Explain the agent-native principle: what it means, how it's implemented, and why it matters.",
+    "back": "Agent-native means the agent has full parity with the CLI/UI via in-process MCP tools — it can call every primitive. Features like review sessions and daily sessions are prompts composing these tools, not bespoke code. To change behavior you edit prompts, not code.",
+    "tags": [
+      "agent-native",
+      "principles",
+      "needs-review"
+    ],
+    "meta": {
+      "grader": "coverage",
+      "rubric": [
+        {
+          "id": "parity",
+          "claim": "Agent has full parity with the user — anything CLI/UI can do, the agent can do, via the same tools",
+          "required": true,
+          "sourceQuote": "Parity means anything the CLI/UI can do, the agent can do."
+        },
+        {
+          "id": "features-are-prompts",
+          "claim": "Features are prompts composing primitive tools, not bespoke code paths",
+          "required": true,
+          "sourceQuote": "features (review, daily session, roleplay) are *prompts that compose primitives*, not bespoke code paths."
+        },
+        {
+          "id": "edit-prompts",
+          "claim": "Changing behavior means editing prompts, not refactoring code",
+          "required": true,
+          "sourceQuote": "To change behavior you edit prompts, not refactor code."
+        },
+        {
+          "id": "mcp-tools",
+          "claim": "Primitives are exposed as in-process MCP tools via src/agent.ts",
+          "required": false,
+          "sourceQuote": "The engine's public functions are exposed to the agent as in-process MCP tools (`src/agent.ts`)."
+        }
+      ],
+      "status": "needs-review",
+      "reviewReasons": [
+        "unverified-proper-noun"
+      ]
+    }
+  },
+  {
+    "type": "explain",
+    "front": "Explain recallit's 'files-as-truth' principle: what it means and how the system enforces it.",
+    "back": "Files (item.md, topic.json, review_log.jsonl) are the primary, inspectable source of truth. The SQLite index is derived — always rebuildable from files, never the authoritative record. data/ is gitignored as runtime state. The durable form of a subject is a pack (packs/{id}/), tracked in source control separately from the engine.",
+    "tags": [
+      "files-as-truth"
+    ],
+    "meta": {
+      "grader": "coverage",
+      "rubric": [
+        {
+          "id": "files-primary",
+          "claim": "Files are the source of truth — transparent, inspectable, and agent-editable",
+          "required": true,
+          "sourceQuote": "Files are the **source of truth** (transparent, inspectable, agent-editable)."
+        },
+        {
+          "id": "sqlite-derived",
+          "claim": "The SQLite index is derived and rebuildable from files — not the authoritative record",
+          "required": true,
+          "sourceQuote": "A derived SQLite index makes due-queries `O(due)` instead of scanning every card; it is rebuildable from the files at any time."
+        },
+        {
+          "id": "data-gitignored",
+          "claim": "data/ is gitignored because it's runtime state, materialized locally",
+          "required": true,
+          "sourceQuote": "`data/` is **gitignored** — it's the learner's runtime state, materialized locally."
+        },
+        {
+          "id": "packs-durable",
+          "claim": "Packs (packs/{id}/) are the durable, shareable form of a subject, separate from the engine",
+          "required": false,
+          "sourceQuote": "The *durable, shareable* form of a subject is a **pack**: tracked source under `packs/{id}/`, separate from the engine."
+        }
+      ]
+    }
+  }
+]

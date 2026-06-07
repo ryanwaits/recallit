@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "engine": ">=0.1.0",
+  "id": "architecture",
+  "name": "recallit Architecture",
+  "modality": "text",
+  "meta": {
+    "source": {
+      "kind": "file",
+      "ref": "ARCHITECTURE.md"
+    },
+    "grounding": "source"
+  }
+}
