@@ -55,6 +55,31 @@ describe("gateCards · rubric (checkable items)", () => {
     expect(needsReview[0]?.reasons).not.toContain("rubric-point-not-in-corpus:sky");
   });
 
+  test("a long exemplar back on a checkable item is NOT flagged answer-unusually-long", () => {
+    const longBack =
+      "the sky is blue and this is a grounded exemplar answer that is intentionally quite long. ".repeat(
+        4,
+      ); // > 240 chars, lowercase (no proper-noun/number flags)
+    const { ready, needsReview } = gateCards(
+      [
+        {
+          front: "Explain the key facts",
+          back: longBack,
+          meta: {
+            grader: "coverage",
+            rubric: [
+              { id: "sky", claim: "sky is blue", required: true, sourceQuote: "The sky is blue" },
+            ],
+          },
+        },
+      ],
+      corpus,
+    );
+    const reasons = [...(needsReview[0]?.reasons ?? [])];
+    expect(reasons).not.toContain("quality:answer-unusually-long");
+    expect(ready.length).toBe(1);
+  });
+
   test("an empty rubric is flagged", () => {
     const { needsReview } = gateCards([rubricCard([])], corpus);
     expect(needsReview[0]?.reasons).toContain("rubric-empty");

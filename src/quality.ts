@@ -14,6 +14,9 @@ export function checkCardQuality(input: {
   front: string;
   back: string;
   context?: string;
+  /** Checkable items (explain/coverage cards) carry a full exemplar answer, so the
+   * length heuristic is flashcard-only — set true to skip it. */
+  longAnswerOk?: boolean;
 }): QualityResult {
   const flags: string[] = [];
   if (!input.front.trim()) flags.push("missing front");
@@ -22,6 +25,6 @@ export function checkCardQuality(input: {
     flags.push("front equals back");
   }
   if (PLACEHOLDER.test(input.front) || PLACEHOLDER.test(input.back)) flags.push("placeholder text");
-  if (input.back.length > 240) flags.push("answer unusually long");
+  if (!input.longAnswerOk && input.back.length > 240) flags.push("answer unusually long");
   return { ok: flags.length === 0, flags };
 }

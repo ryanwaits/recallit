@@ -20,4 +20,12 @@ describe("checkCardQuality", () => {
   test("flags placeholder text", () => {
     expect(checkCardQuality({ front: "x", back: "TODO" }).flags).toContain("placeholder text");
   });
+
+  test("the length heuristic is flashcard-only (longAnswerOk skips it)", () => {
+    const long = "x".repeat(300);
+    expect(checkCardQuality({ front: "q", back: long }).flags).toContain("answer unusually long");
+    expect(checkCardQuality({ front: "q", back: long, longAnswerOk: true }).flags).not.toContain(
+      "answer unusually long",
+    );
+  });
 });

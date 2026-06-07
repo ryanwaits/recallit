@@ -78,7 +78,13 @@ export function gateCards(cards: PackCard[], corpus: string): GateResult {
       groundQuote = quote ?? "";
     }
 
-    const q = checkCardQuality({ front: card.front, back: card.back, context: card.context });
+    // Checkable items carry a full exemplar answer, so skip the length heuristic.
+    const q = checkCardQuality({
+      front: card.front,
+      back: card.back,
+      context: card.context,
+      longAnswerOk: rubric !== undefined,
+    });
     for (const flag of q.flags) reasons.push(`quality:${flag.replace(/\s+/g, "-")}`);
 
     // A number / proper-noun in the answer not grounded in quote(s)+context+front is a
