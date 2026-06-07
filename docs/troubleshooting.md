@@ -1,0 +1,19 @@
+# Troubleshooting — when it breaks
+
+The common failure modes in one place. recallit fails **closed and loud** by design: it would rather throw or hold a card than silently grade something wrong.
+
+| Symptom | Cause | Fix |
+|---|---|---|
+| A comprehension card errors mid-session ("examiner held … not graded") | The LLM examiner couldn't produce a confident, parseable judgment (transport error, bad output). By design it **HOLDS** rather than silently mis-grade. | Retry the turn, or give a clean typed answer, or skip the card. For offline/deterministic runs set `RECALLIT_EXAMINER=0` to use the floor. (Graceful in-session held-card handling is owed — today a hold throws.) |
+| `pack write` fails: "no .author/source.txt corpus" | The honesty gate needs the ingested source text to verify every quote; it wasn't saved (the author must `save_source` before `write_pack`). | Re-run `recallit pack <source>` so ingestion runs first; don't call `pack write` on a dir that was never ingested. |
+| Grading throws: `unknown grader "<x>"` | A card's `meta.grader` names a grader not in the registry. Fails closed — it never silently falls back to "the agent decides." | Use a registered grader (`lexical`, `coverage`) or `registerGrader(...)` it. Fix the card's `meta.grader`. |
+| Re-installing a pack reset all my review history | A clean re-install (`topic add <dir> --force`) **resets the FSRS schedule**. | For incremental, history-preserving updates use `pack edit <id>` (additive merge keeps FSRS). Only `--force` for a deliberate reset. |
+| `POST /api/packs/install` returns 403 on my own deploy | `RECALLIT_NO_INSTALL` is set. Note it's **string-truthy** — even `"0"` blocks (any non-empty value). | Unset the variable entirely to allow installs. Keep it set on any public/shared sandbox so deep-links can't trigger arbitrary `git`/`npm` installs. |
+| CLI flag value ignored / parsed as a positional | The arg parser takes `--flag value` (a flag consumes the next non-`--` token). Putting a value before its flag, or two bare values, misparses. | Put `--flags` before bare positionals, each flag immediately followed by its value: `recallit pack <source> --max-budget 0.5 --dry-run`. |
+| A generated card I expected is "needs-review", not installed | The gate held it: its `sourceQuote` (or a rubric checkpoint's) isn't a literal substring of the source, or an unverified number/proper-noun, or a quality flag. | `recallit pack review <dir>` lists each held card + reason code. Edit the card to quote the source verbatim, then `pack write`. Held cards never auto-install. |
+| Voice answer graded `Again` even though I spoke correctly | A failed transcription is retried **once**; a still-empty/garbled transcript is then graded `Again` (never silently skipped). Or grading is lexical and your wording differs from the target. | Speak clearly for the retry; check the topic's STT language (`meta.language`). Lexical grading wants the target phrase; valid paraphrases grade low — that's expected for language recall. |
+| `bun run cli`/`bunx` errors about `bun:sqlite` under Node | recallit is **Bun-only** (the engine imports `bun:sqlite`). | Run under Bun (`bun`, `bunx`), not `node`/`npx`. |
+| `/release` skill expects changesets | The harness `release` skill assumes a changeset monorepo; this repo has **no changesets** (manual version bump + `npm publish`). | Bump `package.json` version by hand and publish; ignore the changeset path. |
+| Lost my data / want to move devices | Cards are files under `RECALLIT_DATA_DIR` (default `./data`). The SQLite index is **derived** and rebuildable. | Back up / sync the data dir with your own git/Dropbox; `recallit rebuild` regenerates the index from files. There is no cloud sync (by design). |
+
+See [internals.md](./internals.md) for *why* these behaviors exist (the honesty contract) and [dx.md](./dx.md) for the seams.
