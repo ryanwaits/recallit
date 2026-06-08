@@ -440,6 +440,9 @@ export interface RunOptions {
   /** Learner-chosen practice regimen for a daily run ("drill" | "converse" | "full");
    *  overrides the pack's modality default. The grade is identical regardless. */
   regimen?: string;
+  /** Extra prose constraints appended to the system prompt (from a tutor manifest's
+   *  agent.guardrails). Shapes tone/scope only — never grading, which stays code-owned. */
+  guardrails?: string[];
 }
 
 export interface RunResult {
@@ -494,6 +497,9 @@ export async function runSession(
   } else {
     systemPrompt = buildSystemPrompt(facts);
     defaultPrompt = "Begin my review session now. Review the due cards one at a time.";
+  }
+  if (opts.guardrails?.length) {
+    systemPrompt += `\n\n## Additional constraints\n${opts.guardrails.map((g) => `- ${g}`).join("\n")}`;
   }
   const server = buildServer(session, goalMetric);
 

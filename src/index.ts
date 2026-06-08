@@ -89,6 +89,14 @@ export {
   setActiveTopic,
   updateTopicConfig,
 } from "./topic.ts";
+export {
+  buildTutorSession,
+  loadManifest,
+  mergeAgentOptions,
+  type RunTutorOptions,
+  runTutor,
+  type TutorIO,
+} from "./tutor.ts";
 export type {
   AgentConfig,
   CourseConfig,
