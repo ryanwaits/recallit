@@ -1,40 +1,40 @@
-/* Hallmark · tokens — "Margin" (warm editorial tutor · cream paper · terracotta · the cited line) */
+/* Hallmark · tokens — "Margin" (clean light · near-white paper · ink pills · one vermilion mark) */
 :root {
   /* ── colour (OKLCH) ─────────────────────────────────────────── */
-  /* canvas: warm cream paper, tinted up the stack */
-  --color-paper:      oklch(97.0% 0.014 75);  /* base cream */
-  --color-paper-2:    oklch(94.8% 0.020 72);  /* tinted band */
-  --color-paper-3:    oklch(92.5% 0.024 70);  /* card / hover surface */
-  --color-paper-sunk: oklch(90.0% 0.026 68);  /* inset / well (mockup frames) */
-  /* rules / borders — warm, never gray */
-  --color-rule:       oklch(85% 0.018 72);    /* hairline */
-  --color-rule-2:     oklch(74% 0.022 70);    /* prominent border */
+  /* canvas: near-white, a faint warmth so it isn't sterile (reads white, not cream) */
+  --color-paper:      oklch(99.0% 0.004 80);  /* page */
+  --color-paper-2:    oklch(97.4% 0.005 80);  /* faint band */
+  --color-paper-3:    oklch(96.2% 0.006 80);  /* card / inset surface */
+  --color-paper-sunk: oklch(94.6% 0.006 80);  /* well / mockup frame */
+  /* rules / borders — light grey hairlines */
+  --color-rule:       oklch(90.5% 0.006 80);  /* hairline */
+  --color-rule-2:     oklch(85.0% 0.007 80);  /* prominent border */
   /* ink scale — warm near-black, never #000 */
-  --color-muted:      oklch(48% 0.022 58);    /* small text, ≥4.5:1 on cream */
-  --color-neutral:    oklch(38% 0.020 56);    /* secondary body */
-  --color-ink-2:      oklch(29% 0.018 54);    /* sub-heads */
-  --color-ink:        oklch(21% 0.016 52);    /* headlines / body, warm charcoal */
-  /* on dark surfaces (card backs, code) */
-  --color-on-ink:     oklch(94% 0.016 75);
-  --color-on-ink-2:   oklch(73% 0.016 72);    /* muted-on-dark ≥4.5:1 */
-  --color-accent-on-ink: oklch(74% 0.120 50); /* brightened clay on dark */
-  /* ACCENT: terracotta / clay — action + brand */
-  --color-accent:     oklch(60% 0.135 45);    /* terracotta — primary fill */
-  --color-accent-2:   oklch(52% 0.150 42);    /* deeper, hover */
-  --color-accent-soft: oklch(92% 0.045 50);   /* pale clay tint, one feature tile */
-  --color-accent-ink: oklch(97% 0.014 75);    /* cream text on terracotta fill */
-  --color-focus:      oklch(48% 0.160 45);    /* focus ring, ≥3:1 on cream */
+  --color-muted:      oklch(52% 0.010 70);    /* small text, ≥4.5:1 on white */
+  --color-neutral:    oklch(43% 0.012 65);    /* secondary body */
+  --color-ink-2:      oklch(31% 0.012 60);    /* sub-heads */
+  --color-ink:        oklch(20% 0.010 55);    /* headlines / body + primary pill fill */
+  /* on dark surfaces (code, ink pills) */
+  --color-on-ink:     oklch(97% 0.006 80);
+  --color-on-ink-2:   oklch(74% 0.008 80);    /* muted-on-dark ≥4.5:1 */
+  --color-accent-on-ink: oklch(74% 0.150 36); /* brightened vermilion on dark */
+  /* ACCENT: vermilion — the honest mark. Used sparingly (kicker, links, the ✓, brand dot). */
+  --color-accent:     oklch(55% 0.190 33);    /* vermilion */
+  --color-accent-2:   oklch(48% 0.200 32);    /* deeper, hover / small text */
+  --color-accent-soft: oklch(94% 0.040 38);   /* pale red wash */
+  --color-accent-ink: oklch(99% 0.004 80);    /* white text on a vermilion fill */
+  --color-focus:      oklch(50% 0.190 33);    /* focus ring, ≥3:1 on white */
   /* the cited line — the signature motif (amber highlighter on verbatim source) */
-  --color-cite-wash:  oklch(91% 0.090 95);    /* warm amber marker swipe */
-  --color-cite-edge:  oklch(80% 0.110 92);    /* underline / left margin-mark */
-  --color-cite-ink:   oklch(34% 0.060 75);    /* the quoted text on the wash */
+  --color-cite-wash:  oklch(92% 0.085 95);    /* warm amber marker swipe */
+  --color-cite-edge:  oklch(80% 0.110 92);    /* underline */
+  --color-cite-ink:   oklch(32% 0.050 72);    /* the quoted text on the wash */
 
   /* ── type ───────────────────────────────────────────────────── */
-  --font-display: "Fraunces", ui-serif, Georgia, "Times New Roman", serif;
+  --font-display: "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
   --font-body:    "Hanken Grotesk", ui-sans-serif, system-ui, sans-serif;
-  --font-serif:   "Fraunces", ui-serif, Georgia, serif;  /* italic asides */
+  --font-serif:   "Hanken Grotesk", ui-sans-serif, sans-serif;  /* colored emphasis, not italic */
   --font-mono:    "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
-  --display-weight: 900;
+  --display-weight: 700;
 
   --text-xs:   0.75rem;
   --text-sm:   0.875rem;
@@ -44,16 +44,16 @@
   --text-xl:   1.75rem;
   --text-2xl:  2.25rem;
   --text-3xl:  2.75rem;
-  --text-display:   clamp(3rem, 6vw + 0.5rem, 5.5rem);
+  --text-display:   clamp(2.75rem, 5.5vw + 0.5rem, 5rem);
   --text-display-s: clamp(2rem, 3vw + 0.5rem, 3rem);
 
-  --lh-tight:   1.0;
+  --lh-tight:   1.02;
   --lh-snug:    1.12;
   --lh-normal:  1.5;
   --lh-relaxed: 1.6;
-  --tracking-display: -0.02em;
-  --tracking-tight:   -0.012em;
-  --tracking-label:    0.14em;
+  --tracking-display: -0.025em;
+  --tracking-tight:   -0.015em;
+  --tracking-label:    0.10em;
 
   /* ── space (4 pt scale) ─────────────────────────────────────── */
   --space-3xs: 0.125rem;
@@ -71,17 +71,17 @@
   --page-max:    76rem;
   --page-gutter: clamp(1.25rem, 4vw, 3rem);
   --measure:     60ch;
-  --rule-hair:   0.5px;
+  --rule-hair:   1px;
   --rule-fine:   1px;
 
   /* ── shape ──────────────────────────────────────────────────── */
-  --radius-card:  18px;
+  --radius-card:  16px;
   --radius-pill:  999px;
   --radius-input: 12px;
   --radius-chip:  8px;
   --rule-card:    1px;
-  --shadow-card:  0 8px 24px -14px oklch(40% 0.06 50 / 0.18);
-  --shadow-lift:  0 18px 40px -18px oklch(40% 0.06 50 / 0.24);
+  --shadow-card:  0 1px 3px oklch(20% 0.01 60 / 0.10), 0 10px 30px -18px oklch(20% 0.01 60 / 0.12);
+  --shadow-lift:  0 2px 6px oklch(20% 0.01 60 / 0.10), 0 20px 44px -22px oklch(20% 0.01 60 / 0.18);
 
   /* ── motion ─────────────────────────────────────────────────── */
   --ease-out:    cubic-bezier(0.16, 1, 0.3, 1);
