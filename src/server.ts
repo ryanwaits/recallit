@@ -7,7 +7,7 @@
 import { join } from "node:path";
 import type { ServerWebSocket } from "bun";
 import { type AnswerProvider, createReviewSession, type RunResult, runSession } from "./agent.ts";
-import { dailyPhases } from "./context.ts";
+import { coursePhases } from "./context.ts";
 import { countCards } from "./db.ts";
 import { installPack } from "./install.ts";
 import { cardAttemptFile } from "./paths.ts";
@@ -293,7 +293,7 @@ export function startServer(deps: ServerDeps) {
         ws.data.language = cfg?.meta?.language as string | undefined;
         // Tell the client the regimen up front so it can render a phase rail; live
         // progress is forwarded from the agent's real complete_phase tool calls.
-        send(ws, { type: "phases", phases: dailyPhases(cfg?.modality ?? "text") });
+        send(ws, { type: "phases", phases: coursePhases(cfg) });
         const session = createReviewSession(
           ws.data.topicId,
           makeAnswerProvider(ws, deps.tts),

@@ -3,9 +3,9 @@
 // modality, the learner regimen override stays allowed, and "done" is retention.
 // An unknown style name must FAIL CLOSED (never silently improvise a course).
 import { describe, expect, test } from "bun:test";
-import { dailyPhases } from "../src/context.ts";
+import { coursePhases, dailyPhases, resolveDailyPhases } from "../src/context.ts";
 import { DEFAULT_STYLE, getStyle, registerStyle, styleName } from "../src/styles/registry.ts";
-import type { Modality } from "../src/types.ts";
+import type { Modality, TopicConfig } from "../src/types.ts";
 
 const MODALITIES: Modality[] = ["text", "voice", "both"];
 
@@ -39,5 +39,39 @@ describe("style registry (Sprint 1 — inert seam)", () => {
       done: { kind: "scenarios", all: true },
     });
     expect(getStyle("test-only").id).toBe("test-only");
+  });
+});
+
+describe("regimen override validation (resolveDailyPhases)", () => {
+  const topic = (style?: string): TopicConfig => ({
+    id: "t",
+    name: "T",
+    modality: "text",
+    style,
+    meta: {},
+  });
+
+  test("recallit honors drill/converse and falls back to its own regimen", () => {
+    expect(resolveDailyPhases(topic("recallit"), "drill")).toEqual(["review", "reflect"]);
+    expect(resolveDailyPhases(topic(), "full")).toEqual(dailyPhases("text"));
+    expect(resolveDailyPhases(topic())).toEqual(dailyPhases("text"));
+  });
+
+  test("a style that disallows overrides rejects a --regimen override", () => {
+    registerStyle("strict", {
+      id: "strict",
+      name: "Strict",
+      regimen: () => ["read", "assess"],
+      allowsRegimenOverride: false,
+      done: { kind: "assessment", pass: 0.8 },
+    });
+    expect(resolveDailyPhases(topic("strict"))).toEqual(["read", "assess"]);
+    expect(() => resolveDailyPhases(topic("strict"), "drill")).toThrow(/does not allow/);
+    // "full"/absent means "the style's own phases", not an override — always fine.
+    expect(resolveDailyPhases(topic("strict"), "full")).toEqual(["read", "assess"]);
+  });
+
+  test("coursePhases is null-tolerant for display", () => {
+    expect(coursePhases(null)).toEqual(dailyPhases("text"));
   });
 });

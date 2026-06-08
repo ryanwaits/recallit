@@ -18,9 +18,8 @@ import {
   buildDailySessionPrompt,
   buildSystemPrompt,
   buildTalkPrompt,
-  dailyPhases,
   gatherFacts,
-  regimenPhases,
+  resolveDailyPhases,
 } from "./context.ts";
 import { captureCard, mineCard } from "./mining.ts";
 import { scenariosDir, sessionFile } from "./paths.ts";
@@ -484,7 +483,7 @@ export async function runSession(
     const cp = await readCheckpoint(session.topicId);
     // Learner-chosen regimen wins over the pack's modality default; resolve it
     // first, THEN let checkpoint-resume narrow to the not-yet-done phases.
-    const base = regimenPhases(opts.regimen) ?? dailyPhases(topic.modality);
+    const base = resolveDailyPhases(topic, opts.regimen);
     const remaining = remainingPhases(base, cp, session.id);
     systemPrompt = buildDailySessionPrompt(facts, remaining);
     defaultPrompt = "Run my full daily session now, phase by phase.";

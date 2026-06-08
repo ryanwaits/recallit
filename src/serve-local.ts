@@ -4,7 +4,7 @@
 // and grades typed answers with the real engine — no LLM, no spend. It walks the
 // topic's phases so the phase rail advances live. Spoken answers won't transcribe
 // here (STT is stubbed); type your answers to see grading.
-import { dailyPhases } from "./context.ts";
+import { coursePhases } from "./context.ts";
 import { evaluateAnswer } from "./evaluate.ts";
 import { startServer } from "./server.ts";
 import { getDueCards, reviewCard } from "./store.ts";
@@ -24,7 +24,7 @@ export function startKeylessServer(opts: { port?: number } = {}) {
     // No-LLM driver: walk the real regimen, run a real graded review over due cards.
     run: async (session) => {
       const cfg = await readTopicConfig(session.topicId);
-      const phases = dailyPhases(cfg?.modality ?? "text");
+      const phases = coursePhases(cfg);
       const due = await getDueCards(session.topicId, { limit: 6 });
       let answered = 0;
       for (const phase of phases) {

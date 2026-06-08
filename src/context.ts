@@ -4,6 +4,7 @@
 import { appendFile } from "node:fs/promises";
 import { countCards } from "./db.ts";
 import { contextFile } from "./paths.ts";
+import { getStyle, styleName } from "./styles/registry.ts";
 import type { Modality, TopicConfig } from "./types.ts";
 
 export interface SessionFacts {
@@ -123,13 +124,39 @@ export function regimenPhases(name?: string): string[] | undefined {
   return REGIMENS[name];
 }
 
+/** The phases a session runs for a course — its style's regimen for the modality.
+ *  Null-tolerant for display (e.g. the SPA phase rail before a config is loaded). */
+export function coursePhases(topic: { style?: string; modality?: Modality } | null): string[] {
+  return getStyle(styleName(topic ?? {})).regimen(topic?.modality ?? "text");
+}
+
+/**
+ * The base daily phases for a run: the learner's --regimen if the style permits an
+ * override, otherwise the style's own regimen. Throws if a learner tries to override
+ * a style that disallows it — overriding must never skip a style's required phases
+ * (e.g. a compliance assessment).
+ */
+export function resolveDailyPhases(topic: TopicConfig, regimen?: string): string[] {
+  const override = regimenPhases(regimen); // undefined for "full"/absent/unknown
+  if (override) {
+    const style = getStyle(styleName(topic));
+    if (!style.allowsRegimenOverride) {
+      throw new Error(
+        `the "${style.id}" style does not allow a --regimen override (it would skip required phases)`,
+      );
+    }
+    return override;
+  }
+  return coursePhases(topic);
+}
+
 /**
  * Daily-session orchestration prompt. One autonomous run that walks the topic's
  * phases (optionally only the `remaining` ones, for resume). Pure prose over the
  * existing tools — no bespoke code per the agent-native principle.
  */
 export function buildDailySessionPrompt(facts: SessionFacts, remaining?: string[]): string {
-  const phases = remaining ?? dailyPhases(facts.topic.modality);
+  const phases = remaining ?? coursePhases(facts.topic);
   // Reuse the identity + facts header (everything before the review-specific section).
   const base = buildSystemPrompt(facts).split("\n## CRITICAL")[0] ?? "";
   const lines = [

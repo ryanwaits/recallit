@@ -40,9 +40,9 @@ export interface StyleDefinition {
   graders?: { phase: string; grader: string }[];
 }
 
-/** The recallit style = today's spaced-retention behavior, verbatim. The phase
- *  arrays here are the canonical source for context.dailyPhases (which delegates
- *  to this), so there is one definition, not two. */
+/** The recallit style = today's spaced-retention behavior, verbatim. These phase
+ *  arrays mirror context.dailyPhases; a test (test/styles.test.ts) asserts they
+ *  stay in sync, so the seam is provably inert. */
 const recallit: StyleDefinition = {
   id: "recallit",
   name: "Spaced retention",
