@@ -22,7 +22,7 @@ An honest, source-grounded tutor. You describe what you want to learn, recallit 
 - Confident but never hype. Show receipts, not adjectives.
 
 ## Anti-references
-- The friendly-but-generic white-minimal AI study tool (pdftolesson.com): we adopt its clean, light, geometric clarity (near-white, bold sans, black pills, soft cards) and make it ours with a single vermilion "mark" accent and the cited-line motif. We reject its rainbow-gradient delight and cartoon mascots.
+- Generic AI study tools (e.g. pdftolesson.com): we want warmth and craft, not white-minimal sameness or rainbow/mascot delight. The current visual system is the Hallmark "Bubble" theme (cream + mint-green + Plus Jakarta Sans + green highlighter), mapped onto our tokens; see DESIGN.md.
 - Generic SaaS slop: purple gradients on white, Inter/Roboto, the hero-metric stat row, identical icon-card grids.
 - Flashcard apps that gamify and flatter (gold stars, streaks-as-dopamine). Our "delight" is a *receipt*, the proof of an honest grade.
 

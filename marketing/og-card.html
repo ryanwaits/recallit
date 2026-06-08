@@ -6,32 +6,31 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
       rel="stylesheet"
     />
     <style>
       :root {
-        --paper: oklch(99.0% 0.004 80);
-        --paper-3: oklch(96.2% 0.006 80);
-        --rule: oklch(90.5% 0.006 80);
-        --rule-2: oklch(85.0% 0.007 80);
-        --muted: oklch(52% 0.010 70);
-        --ink-2: oklch(31% 0.012 60);
-        --ink: oklch(20% 0.010 55);
-        --accent: oklch(55% 0.190 33);
-        --accent-2: oklch(48% 0.200 32);
-        --accent-ink: oklch(99% 0.004 80);
-        --cite-wash: oklch(92% 0.085 95);
-        --cite-edge: oklch(80% 0.110 92);
-        --cite-ink: oklch(32% 0.050 72);
+        --paper: oklch(97.0% 0.012 95);
+        --paper-3: oklch(93.6% 0.016 92);
+        --rule: oklch(88.0% 0.012 95);
+        --rule-2: oklch(82.0% 0.013 95);
+        --muted: oklch(48% 0.012 250);
+        --ink-2: oklch(30% 0.012 250);
+        --ink: oklch(20% 0.012 250);
+        --accent: oklch(80% 0.160 150);
+        --accent-2: oklch(52% 0.130 150);
+        --accent-ink: oklch(22% 0.012 250);
+        --cite-wash: oklch(86% 0.130 150);
+        --cite-edge: oklch(72% 0.160 150);
+        --cite-ink: oklch(26% 0.030 200);
       }
       * { box-sizing: border-box; margin: 0; }
       html, body { width: 1200px; height: 630px; }
       body {
         background: var(--paper);
         color: var(--ink);
-        font-family: "Hanken Grotesk", system-ui, sans-serif;
-        font-optical-sizing: auto;
+        font-family: "Plus Jakarta Sans", system-ui, sans-serif;
         padding: 76px 80px;
         display: grid;
         grid-template-columns: 1.2fr 0.8fr;
@@ -42,19 +41,22 @@
       .brand {
         grid-column: 1 / 2;
         display: inline-flex; align-items: center; gap: 14px;
-        font-family: "Bricolage Grotesque", sans-serif; font-weight: 700; font-size: 30px; letter-spacing: -0.02em;
+        font-weight: 700; font-size: 30px; letter-spacing: -0.02em;
       }
       .brand .dot {
         width: 20px; height: 20px; border-radius: 999px;
         background: var(--accent);
-        box-shadow: 0 0 0 7px color-mix(in oklab, var(--accent) 18%, transparent);
+        box-shadow: 0 0 0 7px color-mix(in oklab, var(--accent) 26%, transparent);
       }
       .copy { grid-column: 1 / 2; grid-row: 2 / 3; align-self: center; }
       h1 {
-        font-family: "Bricolage Grotesque", sans-serif; font-weight: 800; font-size: 88px; line-height: 1.0;
-        letter-spacing: -0.03em; max-width: 12ch;
+        font-weight: 800; font-size: 88px; line-height: 1.0;
+        letter-spacing: -0.035em; max-width: 12ch;
       }
-      h1 em { font-style: normal; color: var(--accent); }
+      h1 em {
+        font-style: normal;
+        background: linear-gradient(var(--cite-wash), var(--cite-wash)) no-repeat 0 90% / 100% 0.3em;
+      }
       .sub {
         margin-top: 28px; font-size: 28px; line-height: 1.45;
         color: var(--ink-2); max-width: 24ch;
@@ -73,8 +75,8 @@
         width: 360px;
         background: var(--paper-3); color: var(--ink);
         border: 1px solid var(--rule-2);
-        border-radius: 16px; padding: 30px;
-        box-shadow: 0 26px 56px -26px oklch(20% 0.01 60 / 0.28);
+        border-radius: 22px; padding: 30px;
+        box-shadow: 0 26px 56px -26px oklch(20% 0.01 250 / 0.26);
         transform: rotate(2deg);
         display: flex; flex-direction: column; gap: 14px;
       }
@@ -85,9 +87,9 @@
       .card .a { font-family: "JetBrains Mono", monospace; font-size: 30px; color: var(--ink); }
       .card .receipt { display: flex; align-items: center; gap: 10px; font-size: 18px; color: var(--ink-2); }
       .card .check {
-        display: inline-grid; place-items: center; width: 26px; height: 26px;
+        display: inline-grid; place-items: center; width: 28px; height: 28px;
         border-radius: 999px; background: var(--accent); color: var(--accent-ink);
-        font-size: 15px; font-weight: 700;
+        font-size: 16px; font-weight: 700;
       }
       .card .src {
         margin-top: 4px; padding-top: 16px; border-top: 1px solid var(--rule);

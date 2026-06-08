@@ -1,38 +1,38 @@
-/* Hallmark · tokens — "Margin" (clean light · near-white paper · ink pills · one vermilion mark) */
+/* Hallmark · tokens — "Bubble" (hum-07: warm cream · cool ink · mint-green pills · highlighter delight) */
 :root {
   /* ── colour (OKLCH) ─────────────────────────────────────────── */
-  /* canvas: near-white, a faint warmth so it isn't sterile (reads white, not cream) */
-  --color-paper:      oklch(99.0% 0.004 80);  /* page */
-  --color-paper-2:    oklch(97.4% 0.005 80);  /* faint band */
-  --color-paper-3:    oklch(96.2% 0.006 80);  /* card / inset surface */
-  --color-paper-sunk: oklch(94.6% 0.006 80);  /* well / mockup frame */
-  /* rules / borders — light grey hairlines */
-  --color-rule:       oklch(90.5% 0.006 80);  /* hairline */
-  --color-rule-2:     oklch(85.0% 0.007 80);  /* prominent border */
-  /* ink scale — warm near-black, never #000 */
-  --color-muted:      oklch(52% 0.010 70);    /* small text, ≥4.5:1 on white */
-  --color-neutral:    oklch(43% 0.012 65);    /* secondary body */
-  --color-ink-2:      oklch(31% 0.012 60);    /* sub-heads */
-  --color-ink:        oklch(20% 0.010 55);    /* headlines / body + primary pill fill */
-  /* on dark surfaces (code, ink pills) */
-  --color-on-ink:     oklch(97% 0.006 80);
-  --color-on-ink-2:   oklch(74% 0.008 80);    /* muted-on-dark ≥4.5:1 */
-  --color-accent-on-ink: oklch(74% 0.150 36); /* brightened vermilion on dark */
-  /* ACCENT: vermilion — the honest mark. Used sparingly (kicker, links, the ✓, brand dot). */
-  --color-accent:     oklch(55% 0.190 33);    /* vermilion */
-  --color-accent-2:   oklch(48% 0.200 32);    /* deeper, hover / small text */
-  --color-accent-soft: oklch(94% 0.040 38);   /* pale red wash */
-  --color-accent-ink: oklch(99% 0.004 80);    /* white text on a vermilion fill */
-  --color-focus:      oklch(50% 0.190 33);    /* focus ring, ≥3:1 on white */
-  /* the cited line — the signature motif (amber highlighter on verbatim source) */
-  --color-cite-wash:  oklch(92% 0.085 95);    /* warm amber marker swipe */
-  --color-cite-edge:  oklch(80% 0.110 92);    /* underline */
-  --color-cite-ink:   oklch(32% 0.050 72);    /* the quoted text on the wash */
+  /* canvas: warm cream paper (Bubble) */
+  --color-paper:      oklch(97.0% 0.012 95);  /* page */
+  --color-paper-2:    oklch(95.2% 0.014 95);  /* faint band */
+  --color-paper-3:    oklch(93.6% 0.016 92);  /* card / inset surface */
+  --color-paper-sunk: oklch(91.6% 0.016 92);  /* well / mockup frame */
+  /* rules / borders */
+  --color-rule:       oklch(88.0% 0.012 95);  /* hairline */
+  --color-rule-2:     oklch(82.0% 0.013 95);  /* prominent border */
+  /* ink scale — cool-tinted near-black (Bubble), never #000 */
+  --color-muted:      oklch(48% 0.012 250);   /* small text, ≥4.5:1 on cream */
+  --color-neutral:    oklch(40% 0.013 250);   /* secondary body */
+  --color-ink-2:      oklch(30% 0.012 250);   /* sub-heads */
+  --color-ink:        oklch(20% 0.012 250);   /* headlines / body */
+  /* on dark surfaces (code, term) */
+  --color-on-ink:     oklch(96% 0.010 95);
+  --color-on-ink-2:   oklch(74% 0.010 250);   /* muted-on-dark ≥4.5:1 */
+  --color-accent-on-ink: oklch(82% 0.160 150);/* green on dark */
+  /* ACCENT: mint / spring green (Bubble) */
+  --color-accent:     oklch(80% 0.160 150);   /* bright green — pill fill */
+  --color-accent-2:   oklch(52% 0.130 150);   /* deep green — text / links / hover */
+  --color-accent-soft: oklch(93% 0.055 150);  /* pale green wash */
+  --color-accent-ink: oklch(22% 0.012 250);   /* dark ink text on a green fill */
+  --color-focus:      oklch(55% 0.150 150);   /* green focus ring, ≥3:1 on cream */
+  /* the cited line — the signature motif, the green highlighter (Bubble's marker delight) */
+  --color-cite-wash:  oklch(86% 0.130 150);   /* green marker swipe */
+  --color-cite-edge:  oklch(72% 0.160 150);   /* green underline */
+  --color-cite-ink:   oklch(26% 0.030 200);   /* the quoted text on the wash */
 
   /* ── type ───────────────────────────────────────────────────── */
-  --font-display: "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
-  --font-body:    "Hanken Grotesk", ui-sans-serif, system-ui, sans-serif;
-  --font-serif:   "Hanken Grotesk", ui-sans-serif, sans-serif;  /* colored emphasis, not italic */
+  --font-display: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-body:    "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-serif:   "Plus Jakarta Sans", ui-sans-serif, sans-serif;  /* emphasis = highlighter, not italic */
   --font-mono:    "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
   --display-weight: 700;
 
@@ -51,7 +51,7 @@
   --lh-snug:    1.12;
   --lh-normal:  1.5;
   --lh-relaxed: 1.6;
-  --tracking-display: -0.025em;
+  --tracking-display: -0.03em;
   --tracking-tight:   -0.015em;
   --tracking-label:    0.10em;
 
@@ -74,14 +74,14 @@
   --rule-hair:   1px;
   --rule-fine:   1px;
 
-  /* ── shape ──────────────────────────────────────────────────── */
-  --radius-card:  16px;
+  /* ── shape (bubbly · generous radii) ────────────────────────── */
+  --radius-card:  22px;
   --radius-pill:  999px;
-  --radius-input: 12px;
-  --radius-chip:  8px;
+  --radius-input: 16px;
+  --radius-chip:  999px;
   --rule-card:    1px;
-  --shadow-card:  0 1px 3px oklch(20% 0.01 60 / 0.10), 0 10px 30px -18px oklch(20% 0.01 60 / 0.12);
-  --shadow-lift:  0 2px 6px oklch(20% 0.01 60 / 0.10), 0 20px 44px -22px oklch(20% 0.01 60 / 0.18);
+  --shadow-card:  0 1px 3px oklch(20% 0.01 250 / 0.08), 0 12px 32px -18px oklch(20% 0.01 250 / 0.12);
+  --shadow-lift:  0 2px 6px oklch(20% 0.01 250 / 0.10), 0 22px 48px -22px oklch(20% 0.01 250 / 0.18);
 
   /* ── motion ─────────────────────────────────────────────────── */
   --ease-out:    cubic-bezier(0.16, 1, 0.3, 1);
