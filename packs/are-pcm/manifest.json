@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "engine": ">=0.1.0",
+  "id": "are-pcm",
+  "name": "ARE 5.0 Practice Management: Scenario & Judgment",
+  "modality": "text",
+  "recallStyle": "Reason through realistic practice scenarios to the right action and the principle behind it; the examiner grades your reasoning against source-grounded checkpoints.",
+  "meta": {
+    "exam": "ARE 5.0",
+    "division": "PcM (Practice Management)",
+    "cardKind": "scenario/judgment (decode, trap, principle-selection)",
+    "grounding": "source",
+    "sources": "NCARB Model Law & Model Regulations + Model Rules of Conduct + ARE 5.0 Guidelines (PcM); public delivery-method & business-structure references. Short verbatim excerpts cited per checkpoint for educational grounding."
+  }
+}

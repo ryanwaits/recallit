@@ -1,0 +1,775 @@
+[
+  {
+    "type": "explain",
+    "front": "TRAP (S1 — Standard of Care): A developer-client is pushing to fast-track a commercial building and wants to skip a structural peer review to meet a tight certificate-of-occupancy deadline. The PM says, 'We have great engineers — we don't need extra oversight.' The client implies the fee is at risk if the architect raises objections. What is the trap, and what must the architect do?",
+    "back": "The trap is allowing schedule and fee pressure to erode the standard of care. The architect's primary duty is to protect the public's health, safety, and welfare — this duty is not waivable by a client. The standard of care requires applying the knowledge and skill ordinarily applied by architects in good standing in the same locality. Skipping a peer review that prudent architects in the locality would perform is a departure from that standard, regardless of the fee at stake. The architect must insist on the review even if the client resists; client interest does not override public protection. Capitulating exposes the firm to discipline for failing to conform to the accepted minimum standard of care.",
+    "tags": [
+      "s1",
+      "standard-of-care",
+      "trap",
+      "client-pressure",
+      "ethics"
+    ],
+    "meta": {
+      "grader": "coverage",
+      "rubric": [
+        {
+          "id": "primary-duty",
+          "claim": "The architect's primary duty runs to public health, safety, and welfare — not to the client's schedule or fee.",
+          "required": true,
+          "sourceQuote": "an architect's primary duty is to protect the public's health, safety, and welfare"
+        },
+        {
+          "id": "soc-benchmark",
+          "claim": "The standard of care is the knowledge and skill ordinarily applied by architects in good standing in the same locality — client pressure cannot lower it.",
+          "required": true,
+          "sourceQuote": "shall apply the knowledge and skill ordinarily applied by architects in good standing, practicing in the same locality"
+        },
+        {
+          "id": "client-override",
+          "claim": "Architects may be compelled to insist on positions that are not in their clients' interest to protect the public.",
+          "required": true,
+          "sourceQuote": "architects may be compelled to insist on positions that are not in their clients' interest in order to protect the health, safety, and welfare of the public"
+        },
+        {
+          "id": "discipline-risk",
+          "claim": "Failing to meet the standard of care is a ground for discipline under the Model Law.",
+          "required": false,
+          "sourceQuote": "Failure to conform to the accepted minimum standard of care;"
+        }
+      ]
+    }
+  },
+  {
+    "type": "explain",
+    "front": "DECODE (S1 — Competence): A mid-size firm is offered a lucrative acute-care hospital project. The firm has designed clinics but never a full hospital with complex MEP, fire protection, and infection-control systems. A partner argues the fee is too good to pass up and says, 'We'll learn on the job.' What is the situation really testing, and what is the deciding factor?",
+    "back": "The situation tests the competence gate in Rule 1.3. The deciding factor is not the fee or the learning opportunity — it is whether the architect, together with the consultants they can assemble, has the necessary knowledge and skill in the specific technical areas involved. If that combined team cannot be assembled, the firm must decline or limit its scope to areas of competence. Competence is defined by the Model Law as the knowledge, experience, and skill required for the practice of architecture in accordance with the accepted standard of care. Taking a project beyond current competence without the right team risks both public safety and professional discipline.",
+    "tags": [
+      "s1",
+      "competence",
+      "decode",
+      "rule-1.3"
+    ],
+    "meta": {
+      "grader": "coverage",
+      "rubric": [
+        {
+          "id": "competence-gate",
+          "claim": "The architect may only take the project if, together with engaged consultants, the team has the necessary knowledge and skill in each specific technical area.",
+          "required": true,
+          "sourceQuote": "An architect shall perform professional services only when the architect, together with those whom the architect may engage, has the necessary knowledge and skill in the specific technical areas involved"
+        },
+        {
+          "id": "competence-definition",
+          "claim": "Competence is the knowledge, experience, and skill required for the practice of architecture in accordance with the accepted standard of care.",
+          "required": true,
+          "sourceQuote": "Competence - The knowledge, experience, and skill required by an Architect for the Practice of Architecture in accordance with the accepted standard of care"
+        },
+        {
+          "id": "public-duty",
+          "claim": "The underlying reason the competence gate exists is protection of public health, safety, and welfare.",
+          "required": false,
+          "sourceQuote": "an architect's primary duty is to protect the public's health, safety, and welfare"
+        }
+      ]
+    }
+  },
+  {
+    "type": "explain",
+    "front": "PRINCIPLE-SELECTION (S1 — Rule 3.5): During schematic design, a developer-client decides to reduce egress stair widths below the minimum required by the adopted building code, overriding the architect's documented objection. The architect believes the deviation will materially endanger building occupants. Which principle applies, and what exact sequence of actions is required?",
+    "back": "Rule 3.5 — the duty when a client decision violates building law and will materially and adversely affect public health and safety — applies here, not just general professional judgment. The sequence is mandatory and three-part: (1) refuse to consent to the decision; (2) report the decision to the official charged with enforcement of building laws and regulations; (3) if the client continues despite the architect's objection, terminate services unless the matter can be resolved by other means. This principle is chosen over a general 'advise and move on' approach because the situation rises to a material threat to public safety, triggering affirmative reporting and potential termination duties.",
+    "tags": [
+      "s1",
+      "ethics",
+      "rule-3.5",
+      "principle-selection",
+      "public-safety",
+      "reporting"
+    ],
+    "meta": {
+      "grader": "coverage",
+      "rubric": [
+        {
+          "id": "refuse",
+          "claim": "The first required step is to refuse to consent to the decision.",
+          "required": true,
+          "sourceQuote": "refuse to consent to the decision"
+        },
+        {
+          "id": "report",
+          "claim": "The second required step is to report the decision to the official charged with enforcement of building laws and regulations.",
+          "required": true,
+          "sourceQuote": "report the decision to the official charged with enforcement of building laws and regulations"
+        },
+        {
+          "id": "terminate",
+          "claim": "If the client continues, the architect must terminate services unless the matter can be resolved by other means.",
+          "required": true,
+          "sourceQuote": "terminate the provision of services with reference to the project unless the architect is able to cause the matter to be resolved by other means"
+        },
+        {
+          "id": "not-construction-safety",
+          "claim": "This is a design-phase code violation — distinct from site safety during construction, which is the contractor's obligation and is explicitly excluded from this duty.",
+          "required": false,
+          "sourceQuote": "The rule specifically intends to exclude matters of safety during the course of construction that are the obligation of the contractor"
+        }
+      ]
+    }
+  },
+  {
+    "type": "explain",
+    "front": "TRAP (S1 — Misrepresentation): To win a civic center RFP, a firm's marketing director proposes listing a large civic project completed by a partner at her previous firm — presenting it as this firm's work. The partner says she was 'essentially the project architect' and the firm would be 'embarrassed' not to include it. What is the trap and why is the argument wrong?",
+    "back": "The trap is misrepresenting the firm's qualifications and overstating its credit. Rule 3.3 prohibits misrepresenting the firm's qualifications, capabilities, and experience. Rule 3.4 prohibits overstating the scope of the architect's responsibility in claiming credit for work. A project completed by a partner at a prior firm is not this firm's project. Using it as if it were is both a false statement (Rule 3.1) and a misrepresentation of credit (Rule 3.4). The personal embarrassment argument is irrelevant — ethics rules are not waived by competitive pressure.",
+    "tags": [
+      "s1",
+      "ethics",
+      "misrepresentation",
+      "trap",
+      "rule-3.3",
+      "rule-3.4"
+    ],
+    "meta": {
+      "grader": "coverage",
+      "rubric": [
+        {
+          "id": "misrep-quals",
+          "claim": "An architect shall not misrepresent the firm's qualifications, capabilities, and experience.",
+          "required": true,
+          "sourceQuote": "An architect shall not misrepresent the architect's qualifications, capabilities, and experience or that of the architect's firm"
+        },
+        {
+          "id": "overstate-credit",
+          "claim": "An architect shall not overstate the scope of responsibility in connection with work for which the firm is claiming credit.",
+          "required": true,
+          "sourceQuote": "An architect shall not misrepresent or overstate the scope of the architect's responsibility in connection with work for which the architect or the architect's firm is claiming credit"
+        },
+        {
+          "id": "no-false-statements",
+          "claim": "Presenting another firm's project as your own is a false statement under Rule 3.1.",
+          "required": false,
+          "sourceQuote": "An architect shall not make statements that are misleading, deceptive, or false"
+        }
+      ]
+    }
+  },
+  {
+    "type": "explain",
+    "front": "DECODE (S1 — Rule 3.9): While reviewing submittals on a project, you discover that drawings from a competing firm bear a licensed architect's seal, but you have strong reason to believe that architect had no involvement in the work — the submittals appear to have been sealed by someone who did not prepare or oversee them. Your firm is under contract pressure to process submittals quickly. What does the situation really test?",
+    "back": "The situation tests whether the candidate knows that reporting known violations of the practice laws is a mandatory professional duty, not a discretionary or political choice. Rule 3.9 imposes an affirmative obligation on any architect with knowledge of a violation to report it to the Board. The submission deadline and competitive sensitivities are distractors. The suspected violation — sealing work not under responsible control — is a serious breach of the sealing rule (Rule 5.1), which directly threatens public safety.",
+    "tags": [
+      "s1",
+      "ethics",
+      "decode",
+      "rule-3.9",
+      "reporting",
+      "sealing"
+    ],
+    "meta": {
+      "grader": "coverage",
+      "rubric": [
+        {
+          "id": "report-duty-mandatory",
+          "claim": "Reporting a known violation to the Board is a mandatory professional duty, not optional.",
+          "required": true,
+          "sourceQuote": "An architect possessing knowledge of a violation of the jurisdiction's laws or rules governing the practice of architecture by another shall report such knowledge to the Board. It is the professional duty of the architect to do so"
+        },
+        {
+          "id": "sealing-rule",
+          "claim": "The underlying violation being detected is sealing technical submissions not prepared under the architect's responsible control.",
+          "required": true,
+          "sourceQuote": "An architect shall sign and seal only those technical submissions that were prepared under the architect's responsible control"
+        }
+      ]
+    }
+  },
+  {
+    "type": "explain",
+    "front": "TRAP (S1 — Rule 4.6): A principal at an architecture firm is found by an administrative tribunal to have subjected a junior architect to a sustained pattern of gender-based harassment. The principal argues that the conduct was personal behavior, not professional practice, so the licensing board has no jurisdiction. What is the trap in this argument?",
+    "back": "The trap is the false distinction between 'personal' and 'professional' conduct in the workplace. Rule 4.6 explicitly subjects employers engaged in the practice of architecture to discipline when a court or administrative tribunal finds they violated laws protecting employees' rights — including those pertaining to harassment and discrimination. The licensing board's jurisdiction extends to workplace conduct. The tribunal finding is sufficient — the board does not re-litigate the underlying facts.",
+    "tags": [
+      "s1",
+      "work-environment",
+      "trap",
+      "rule-4.6",
+      "harassment",
+      "discipline"
+    ],
+    "meta": {
+      "grader": "coverage",
+      "rubric": [
+        {
+          "id": "employer-discipline",
+          "claim": "An employer in the practice of architecture who is found by a tribunal to have violated laws protecting employees from harassment or discrimination is subject to board discipline.",
+          "required": true,
+          "sourceQuote": "An employer engaged in the practice of architecture found by a court or administrative tribunal to have violated the law of the United States or any U.S. jurisdiction protecting the rights of persons working for the employer, such as those pertaining to harassment, discrimination, and unfair compensation, shall be subject to discipline"
+        },
+        {
+          "id": "no-rights-violation",
+          "claim": "Rule 4.2's prohibition on deliberate disregard of the rights of others reinforces the duty.",
+          "required": false,
+          "sourceQuote": "An architect shall not engage in conduct involving fraud or deliberate disregard of the rights of others"
+        }
+      ]
+    }
+  },
+  {
+    "type": "explain",
+    "front": "TRAP (S2 — Rule 2.2): A glazing manufacturer offers your firm a $5,000 'design assistance fee' if you specify their curtain wall system on a corporate campus project. The project architect argues it is legitimate compensation for the technical effort of specifying and evaluating the product. What is the trap?",
+    "back": "The trap is the rationalization that the payment is for legitimate services rather than for the specifying act. Rule 2.2 prohibits accepting compensation from material or equipment suppliers for specifying or endorsing their products — full stop. The rule's only exception is customary and reasonable business hospitality, entertainment, or product education. A cash payment for specification selection is not within that exception. Accepting it also creates a conflict of interest under Rule 2.3 because the architect's judgment on product selection becomes financially influenced.",
+    "tags": [
+      "s2",
+      "conflict-of-interest",
+      "trap",
+      "rule-2.2",
+      "supplier-compensation"
+    ],
+    "meta": {
+      "grader": "coverage",
+      "rubric": [
+        {
+          "id": "no-supplier-comp",
+          "claim": "An architect may not solicit or accept compensation from suppliers for specifying or endorsing their products.",
+          "required": true,
+          "sourceQuote": "An architect shall not solicit or accept compensation from material or equipment suppliers for specifying or endorsing their products in connection with a project"
+        },
+        {
+          "id": "exception-scope",
+          "claim": "The only permissible exception is customary and reasonable business hospitality, entertainment, or product education — not cash payments for specification decisions.",
+          "required": true,
+          "sourceQuote": "compensation\" shall not mean customary and reasonable business hospitality, entertainment, or product education"
+        },
+        {
+          "id": "judgment-impaired",
+          "claim": "A financial relationship with a supplier may adversely affect the architect's judgment, creating a conflict of interest.",
+          "required": false,
+          "sourceQuote": "the architect's judgment may be adversely affected by a relationship with another party"
+        }
+      ]
+    }
+  },
+  {
+    "type": "explain",
+    "front": "DECODE (S2 — Rule 2.3): An architect owns a 15% equity stake in the development LLC that is her client on a mixed-use project. She has not disclosed this to anyone. What is the situation really testing, and what is the deciding factor?",
+    "back": "The situation tests conflict-of-interest disclosure obligations. The deciding factor: any financial or other interest in the project (or in an entity participating in it) constitutes a conflict of interest under Rule 2.3. The architect may continue only if the conflict is fully disclosed and waived in writing by all parties — or she must withdraw. Non-disclosure is the violation, not the equity stake itself. The equity stake means the architect's judgment on design, cost, and schedule decisions could favor her financial return over the client's independent interests.",
+    "tags": [
+      "s2",
+      "conflict-of-interest",
+      "decode",
+      "rule-2.3",
+      "disclosure"
+    ],
+    "meta": {
+      "grader": "coverage",
+      "rubric": [
+        {
+          "id": "financial-interest-trigger",
+          "claim": "Owning an equity stake in the client entity means the architect has a financial interest in the project, triggering the conflict-of-interest rule.",
+          "required": true,
+          "sourceQuote": "the architect has or may acquire a financial or other interest in the project, someone participating in it, or any component of it"
+        },
+        {
+          "id": "coi-disclosure-required",
+          "claim": "The architect cannot perform services while the conflict exists unless it is fully disclosed and waived in writing by all parties.",
+          "required": true,
+          "sourceQuote": "An architect shall not perform professional services in the face of a conflict of interest that is not fully disclosed and waived in writing by all parties"
+        },
+        {
+          "id": "dual-compensation-parallel",
+          "claim": "Dual compensation from more than one party also requires full written disclosure and waiver.",
+          "required": false,
+          "sourceQuote": "An architect shall not accept compensation in connection with services from more than one party on a project unless the circumstances are fully disclosed and waived in writing by all parties"
+        }
+      ]
+    }
+  },
+  {
+    "type": "explain",
+    "front": "TRAP (S2 — Rules 2.1 & 2.4): During construction of a school, the general contractor offers to pay the architect a $15,000 'expediting fee' to prioritize their RFIs and submittals above those from other parties. The owner is not informed. What is the trap, and which two rules does it implicate?",
+    "back": "Two rules are simultaneously violated. Rule 2.1: accepting compensation from a second party (the contractor) without full written disclosure and waiver from all parties is prohibited. Rule 2.4: when acting as the independent interpreter of contract documents, the architect must render decisions impartially — taking money from the contractor to favor their submittals destroys impartiality. The trap is treating the payment as a private business arrangement when the architect's CA role requires independence from both parties.",
+    "tags": [
+      "s2",
+      "s3",
+      "trap",
+      "rule-2.1",
+      "rule-2.4",
+      "dual-compensation",
+      "impartiality"
+    ],
+    "meta": {
+      "grader": "coverage",
+      "rubric": [
+        {
+          "id": "dual-comp-rule",
+          "claim": "Accepting money from the contractor (a second party) without full written disclosure and waiver from all parties violates Rule 2.1.",
+          "required": true,
+          "sourceQuote": "An architect shall not accept compensation in connection with services from more than one party on a project unless the circumstances are fully disclosed and waived in writing by all parties"
+        },
+        {
+          "id": "impartial-interpreter",
+          "claim": "As the interpreter of contract documents, the architect must render decisions impartially — the payment corrupts this required neutrality.",
+          "required": true,
+          "sourceQuote": "An architect, when acting by agreement of the parties as the independent interpreter of building contract documents or as the judge of contract performance, shall render decisions impartially"
+        },
+        {
+          "id": "impartial-even-paid-by-owner",
+          "claim": "The impartiality duty applies even though the architect is paid by the owner — the contractor payment makes this even more acute.",
+          "required": false,
+          "sourceQuote": "This rule governs the construction industry relationship where the architect is to act impartially as the interpreter of building contract documents and/or the judge of contract performance, even though paid by the owner"
+        }
+      ]
+    }
+  },
+  {
+    "type": "explain",
+    "front": "TRAP (S2 — Financial Misconduct): Under schedule pressure on a cost-plus contract, a project manager routinely rounds staff hours up by 10–15% on invoices to 'recover overhead that doesn't get billed separately.' The PM argues it is standard practice in the industry. What is the trap?",
+    "back": "The trap is the rationalization that overhead recovery justifies inaccurate billing. Fraudulent or improper billing practices are an explicit ground for discipline under the Model Law, independent of industry custom. The architect also may not make false statements (Rule 3.1), and the invoices are statements to the client. The PM's claim that it is 'standard practice' is a distractor — the Model Law does not recognize widespread bad practice as a defense.",
+    "tags": [
+      "s2",
+      "financial-misconduct",
+      "trap",
+      "billing",
+      "discipline"
+    ],
+    "meta": {
+      "grader": "coverage",
+      "rubric": [
+        {
+          "id": "financial-misconduct-ground",
+          "claim": "Improper or fraudulent billing practices are an explicit ground for discipline under the Model Law.",
+          "required": true,
+          "sourceQuote": "Financial misconduct such as improper or fraudulent billing practices"
+        },
+        {
+          "id": "no-false-statements",
+          "claim": "Inflated invoices are false statements to the client, violating Rule 3.1.",
+          "required": true,
+          "sourceQuote": "An architect shall not make statements that are misleading, deceptive, or false"
+        },
+        {
+          "id": "no-fraud",
+          "claim": "Rule 4.2 independently prohibits conduct involving fraud.",
+          "required": false,
+          "sourceQuote": "An architect shall not engage in conduct involving fraud or deliberate disregard of the rights of others"
+        }
+      ]
+    }
+  },
+  {
+    "type": "explain",
+    "front": "DECODE (S2 — Record Keeping): Three years after substantial completion, an owner files a claim alleging the architect failed to coordinate structural and mechanical drawings, causing costly field changes. The firm's PM reveals that project records were purged after two years per an informal office policy. What is the situation testing, and what was the critical error?",
+    "back": "The situation tests whether the architect maintained records adequate to demonstrate responsible control. The critical error is the two-year retention policy: the Model Law requires documentation of Technical Submissions be kept for at least five years and made available to the Board upon request. The records must be adequate to demonstrate the architect's responsible control over all technical submissions, whether self-prepared or integrated from others. Without these records, the firm cannot defend against the coordination claim.",
+    "tags": [
+      "s2",
+      "record-keeping",
+      "decode",
+      "responsible-control",
+      "legal-exposure"
+    ],
+    "meta": {
+      "grader": "coverage",
+      "rubric": [
+        {
+          "id": "five-year-requirement",
+          "claim": "The Model Law requires documentation of Technical Submissions be kept for at least five years, not two.",
+          "required": true,
+          "sourceQuote": "An Architect shall maintain documentation of Technical Submissions for at least five (5) years and make records available to the Board upon request"
+        },
+        {
+          "id": "records-demonstrate-rc",
+          "claim": "Records must be adequate to demonstrate the architect's responsible control over all technical submissions, including work integrated from others.",
+          "required": true,
+          "sourceQuote": "Records must be adequate to demonstrate the Architect's Responsible Control over the Technical Submissions, whether prepared entirely by the Architect or by integrating the work of others"
+        },
+        {
+          "id": "rc-definition",
+          "claim": "Responsible control means ultimate authority over, and ability to oversee and integrate, the design and technical decisions.",
+          "required": false,
+          "sourceQuote": "Responsibility for exercising the ultimate authority over, and possessing the knowledge and ability to oversee, delegate, and integrate the design and technical decisions related to the preparation of the project's instruments of service"
+        }
+      ]
+    }
+  },
+  {
+    "type": "explain",
+    "front": "PRINCIPLE-SELECTION (S2/S4 — Business Structure & Liability): Two architects launching a new practice debate structure. Architect A prefers a sole proprietorship for simplicity. Architect B insists on an LLC to protect personal assets from firm liabilities. Which principle governs this choice, which structure actually provides the protection Architect B describes, and what registration obligation applies regardless of structure?",
+    "back": "The governing principle is limited liability as a risk mitigation strategy. The LLC provides the protection Architect B describes: its owners are shielded because liability for the company's actions does not automatically pass through to them. The sole proprietor has no such protection — there is no legal distinction between the owner and the business, and the sole trader bears unlimited responsibility for all losses and debts. Regardless of which structure is chosen, a legally formed business entity must meet the board's regulatory requirements before performing architectural services in the jurisdiction.",
+    "tags": [
+      "s2",
+      "s4",
+      "business-structure",
+      "llc",
+      "sole-proprietorship",
+      "principle-selection",
+      "liability"
+    ],
+    "meta": {
+      "grader": "coverage",
+      "rubric": [
+        {
+          "id": "llc-shield",
+          "claim": "The LLC shields owners because liability for the company's actions does not automatically pass through to them.",
+          "required": true,
+          "sourceQuote": "The limited liability of an LLC shields owners in that liability for the company's actions does not automatically pass through to them"
+        },
+        {
+          "id": "sole-prop-unlimited",
+          "claim": "A sole proprietor has unlimited responsibility for all losses and debts — there is no personal asset protection.",
+          "required": true,
+          "sourceQuote": "The sole trader receives all profits (subject to taxation specific to the business) and has unlimited responsibility for all losses and debts"
+        },
+        {
+          "id": "firm-reg-prerequisite",
+          "claim": "Whatever structure is chosen, the entity must meet the board's regulatory requirements before performing architectural services.",
+          "required": true,
+          "sourceQuote": "To perform architectural services in a Jurisdiction as a Firm, a legally formed business entity must first meet any regulatory requirements set forth by the Board"
+        }
+      ]
+    }
+  },
+  {
+    "type": "explain",
+    "front": "DECODE (S3 — Delivery Methods): A hospital system needs a new outpatient clinic open in 18 months. Their legal counsel recommends design-bid-build for price transparency and competitive bidding. The project manager believes only overlapping design and construction phases can meet the schedule. What is the situation testing, and what is the deciding factor?",
+    "back": "The situation tests delivery-method selection based on project goals. The deciding factor is schedule compression: design-bid-build is a sequential three-phase method (design, then bidding, then construction) and differs substantially from design-build. Design-build overlaps the design and construction phases and uses a single point of responsibility contract to minimize owner risk and reduce delivery time. If the 18-month schedule is the owner's primary constraint, design-build is the appropriate method. The counsel's preference for price transparency through competitive bidding is a legitimate concern but a secondary one given the schedule imperative.",
+    "tags": [
+      "s3",
+      "delivery-methods",
+      "decode",
+      "design-build",
+      "design-bid-build"
+    ],
+    "meta": {
+      "grader": "coverage",
+      "rubric": [
+        {
+          "id": "db-overlap-schedule",
+          "claim": "Design-build reduces delivery time by overlapping design and construction phases under a single point of responsibility.",
+          "required": true,
+          "sourceQuote": "design-build relies on a single point of responsibility contract and is used to minimize risks for the project owner and to reduce the delivery schedule by overlapping the design phase and construction phase of a project"
+        },
+        {
+          "id": "dbb-sequential",
+          "claim": "Design-bid-build is a sequential, three-phase traditional method that cannot overlap design and construction.",
+          "required": true,
+          "sourceQuote": "Design-bid-build is the traditional method for project delivery and differs in several substantial aspects from design-build"
+        },
+        {
+          "id": "dbb-separate-entities",
+          "claim": "Under design-bid-build, the owner contracts separately for design and construction — making simultaneous work structurally impossible.",
+          "required": false,
+          "sourceQuote": "a project delivery method in which the agency or owner contracts with separate entities for the design and construction of a project"
+        }
+      ]
+    }
+  },
+  {
+    "type": "explain",
+    "front": "TRAP (S3 — CA Boundary): During a site observation visit, you notice workers using an unstable scaffold that appears likely to fail. The contractor's superintendent is not reachable. A colleague urges you to immediately issue a written architect's directive ordering all work to stop for safety. You are providing standard CA services. What is the trap, and what should you actually do?",
+    "back": "The trap is confusing the architect's CA role with the contractor's means-and-methods responsibility. Site safety during construction is explicitly the contractor's obligation, not the architect's. NCARB identifies site safety as a CA activity that is NOT the practice of architecture. The Rule 3.5 reporting duty also explicitly excludes matters of construction safety that are the contractor's obligation. Issuing a formal architectural directive for site safety could expose the firm to liability it was never responsible for. The correct action is to notify the contractor's responsible party and, if there is an imminent threat, contact emergency authorities — but not to issue an architectural directive claiming safety oversight authority.",
+    "tags": [
+      "s3",
+      "construction-administration",
+      "trap",
+      "site-safety",
+      "contractor-boundary"
+    ],
+    "meta": {
+      "grader": "coverage",
+      "rubric": [
+        {
+          "id": "safety-excluded-from-rule35",
+          "claim": "The Rule 3.5 reporting duty explicitly excludes matters of construction safety that are the contractor's obligation.",
+          "required": true,
+          "sourceQuote": "The rule specifically intends to exclude matters of safety during the course of construction that are the obligation of the contractor"
+        },
+        {
+          "id": "site-safety-not-practice",
+          "claim": "NCARB identifies site safety as a construction administration activity that is NOT the practice of architecture.",
+          "required": true,
+          "sourceQuote": "NCARB recognizes there are Construction Administration activities that are not the Practice of Architecture. These include activities that do not interpret or revise the Architect's sealed and signed Technical Submissions."
+        },
+        {
+          "id": "ca-is-evaluation",
+          "claim": "The architect's CA role is to evaluate that work is proceeding in accordance with the contract documents — not to manage site operations or safety.",
+          "required": false,
+          "sourceQuote": "Construction administration includes, but is not limited to, evaluation of construction to determine that the work is proceeding in accordance with the contract documents"
+        }
+      ]
+    }
+  },
+  {
+    "type": "explain",
+    "front": "PRINCIPLE-SELECTION (S3 — Rule 2.4): During construction of a public library, the owner calls and instructs you to deny a change-order request the contractor has submitted for differing site conditions. The owner says, 'I don't care if they're entitled — I'm not paying.' You believe the contractor's claim is contractually valid. Which principle applies, and what must you do?",
+    "back": "Rule 2.4 — the impartial interpreter obligation — applies here. When acting as the interpreter of building contract documents or as the judge of contract performance, the architect must render decisions impartially. This duty holds even though the architect is paid by the owner. The architect cannot deny a legitimate claim simply because the owner objects; doing so would also expose the firm to a claim that it counseled a client in illegal or fraudulent conduct (Rule 4.3). The architect must evaluate the differing-site-conditions claim on its contractual merits and render an honest determination.",
+    "tags": [
+      "s3",
+      "principle-selection",
+      "rule-2.4",
+      "impartial-interpreter",
+      "construction-administration"
+    ],
+    "meta": {
+      "grader": "coverage",
+      "rubric": [
+        {
+          "id": "impartial-rule",
+          "claim": "As interpreter of contract documents, the architect must render decisions impartially regardless of which party is paying.",
+          "required": true,
+          "sourceQuote": "An architect, when acting by agreement of the parties as the independent interpreter of building contract documents or as the judge of contract performance, shall render decisions impartially"
+        },
+        {
+          "id": "paid-by-owner-no-excuse",
+          "claim": "The impartiality duty applies even though the architect is paid by the owner — the payment relationship does not justify favoring the owner.",
+          "required": true,
+          "sourceQuote": "This rule governs the construction industry relationship where the architect is to act impartially as the interpreter of building contract documents and/or the judge of contract performance, even though paid by the owner"
+        },
+        {
+          "id": "no-assist-illegal",
+          "claim": "Denying a valid claim at the owner's direction could constitute assisting a client in conduct the architect knows to be fraudulent or illegal.",
+          "required": false,
+          "sourceQuote": "An architect shall not counsel or assist a client in conduct that the architect knows, or reasonably should know, is fraudulent or illegal"
+        }
+      ]
+    }
+  },
+  {
+    "type": "explain",
+    "front": "DECODE (S3 — Delivery Methods / IPD): An owner proposes Integrated Project Delivery for a complex research laboratory. All key participants — architect, contractor, and major subcontractors — would share in savings if the project comes in under budget, but also share in losses if it exceeds the target. A partner at your firm is uncomfortable giving up the traditional fee-for-service model. What is the situation testing?",
+    "back": "The situation tests understanding of IPD as a delivery method where compensation is tied to overall project success. IPD seeks the efficiency and involvement of all participants through all phases of design, fabrication, and construction — functioning as a single collaborative entity rather than independent contract parties. The trade-off the partner is uncomfortable with is the intentional design of IPD: trading guaranteed fee certainty for shared risk and reward aligned with project outcomes. This is not a defect of IPD — it is the mechanism that drives collaborative behavior.",
+    "tags": [
+      "s3",
+      "delivery-methods",
+      "decode",
+      "ipd",
+      "risk-reward"
+    ],
+    "meta": {
+      "grader": "coverage",
+      "rubric": [
+        {
+          "id": "ipd-definition",
+          "claim": "IPD is a delivery method seeking efficiency and involvement of all participants through all phases of design, fabrication, and construction.",
+          "required": true,
+          "sourceQuote": "a construction project delivery method that seeks the efficiency and involvement of all participants (people, systems, business structures and practices) through all phases of design, fabrication, and construction"
+        },
+        {
+          "id": "ipd-one-firm",
+          "claim": "Under IPD, all disciplines work as one firm — erasing traditional contractual adversarialism.",
+          "required": true,
+          "sourceQuote": "the IPD system is a process where all disciplines in a construction project work as one firm"
+        },
+        {
+          "id": "ipd-compensation",
+          "claim": "The distinguishing feature of IPD is that compensation is tied to overall project success, creating shared risk and reward.",
+          "required": true,
+          "sourceQuote": "compensation is tied to overall project success"
+        }
+      ]
+    }
+  },
+  {
+    "type": "explain",
+    "front": "TRAP (S3/Cross-cutting — Rule 5.1): A busy principal routinely signs and seals 100+ page construction document sets that her team produced. She reviews the cover sheet and a few sheets before signing, saying 'I trust my team.' She has not been involved in the project's day-to-day design decisions. What is the trap?",
+    "back": "The trap is treating the seal as a formality rather than a representation. By sealing a technical submission, the architect represents that she was in responsible control over its content during preparation — not merely that she reviewed it afterward. Responsible control requires exercising ultimate authority over and possessing the ability to oversee, delegate, and integrate the design and technical decisions throughout preparation. Post-hoc spot review does not satisfy this. Sealing work not actually under responsible control violates Rule 5.1.",
+    "tags": [
+      "s3",
+      "sealing",
+      "responsible-control",
+      "trap",
+      "rule-5.1"
+    ],
+    "meta": {
+      "grader": "coverage",
+      "rubric": [
+        {
+          "id": "seal-only-rc",
+          "claim": "An architect shall sign and seal only those technical submissions prepared under the architect's responsible control.",
+          "required": true,
+          "sourceQuote": "An architect shall sign and seal only those technical submissions that were prepared under the architect's responsible control"
+        },
+        {
+          "id": "seal-is-representation",
+          "claim": "Sealing is a representation that the architect was in responsible control during preparation and applied the required standard of care — not merely reviewed afterward.",
+          "required": true,
+          "sourceQuote": "By sealing a Technical Submission, the Architect represents that the Architect was in Responsible Control over the content of such Technical Submissions during its preparation and has applied the required professional standard of care"
+        },
+        {
+          "id": "rc-requires-oversight",
+          "claim": "Responsible control requires the ability to oversee, delegate, and integrate design and technical decisions throughout preparation — not post-production review.",
+          "required": false,
+          "sourceQuote": "Responsibility for exercising the ultimate authority over, and possessing the knowledge and ability to oversee, delegate, and integrate the design and technical decisions related to the preparation of the project's instruments of service"
+        }
+      ]
+    }
+  },
+  {
+    "type": "explain",
+    "front": "DECODE (S4 — Business Structure): A sole-proprietor architect is sued after a residential addition she designed fails structurally. The plaintiff's attorney seeks to attach the architect's personal bank accounts and home equity. The architect asks whether her 'business assets' are protected from personal attachment. What does the situation actually test?",
+    "back": "The situation tests understanding that a sole proprietorship provides no separation between the owner and the business. There is no legal distinction between the owner and the business entity. The sole trader bears unlimited responsibility for all losses and debts. There are no 'business assets' separate from personal assets — the plaintiff can reach all of them. The architect's confusion likely stems from conflating the sole proprietorship with an LLC or corporation, both of which would limit personal exposure.",
+    "tags": [
+      "s4",
+      "business-structure",
+      "decode",
+      "sole-proprietorship",
+      "unlimited-liability"
+    ],
+    "meta": {
+      "grader": "coverage",
+      "rubric": [
+        {
+          "id": "no-legal-distinction",
+          "claim": "In a sole proprietorship, there is no legal distinction between the owner and the business entity — personal and business assets are one.",
+          "required": true,
+          "sourceQuote": "there is no legal distinction between the owner and the business entity"
+        },
+        {
+          "id": "unlimited-liability",
+          "claim": "The sole trader has unlimited responsibility for all losses and debts — the plaintiff can reach personal assets.",
+          "required": true,
+          "sourceQuote": "The sole trader receives all profits (subject to taxation specific to the business) and has unlimited responsibility for all losses and debts"
+        },
+        {
+          "id": "contrast-llc",
+          "claim": "An LLC would have shielded personal assets — the architect chose the wrong structure for liability protection.",
+          "required": false,
+          "sourceQuote": "The limited liability of an LLC shields owners in that liability for the company's actions does not automatically pass through to them"
+        }
+      ]
+    }
+  },
+  {
+    "type": "explain",
+    "front": "PRINCIPLE-SELECTION (S4 — Firm Registration): Two architects form a new general partnership in State X and immediately begin offering and performing architectural services under the partnership name before filing registration paperwork with the state board. A colleague says registration is just a formality that can happen after the first contract is signed. What principle applies and why is the colleague's advice wrong?",
+    "back": "Model Law Section 303 makes firm registration a prerequisite — not a post-signing formality. A legally formed business entity must first meet the board's regulatory requirements before performing architectural services in the jurisdiction. Performing services before registration is a practice-law violation. The additional risk for a general partnership is that both partners are already personally liable for partnership debts (general partnership default rule), so the unregistered practice also means personal exposure. Correct sequencing: form the entity → register → then perform services.",
+    "tags": [
+      "s4",
+      "firm-registration",
+      "principle-selection",
+      "partnership",
+      "prerequisites"
+    ],
+    "meta": {
+      "grader": "coverage",
+      "rubric": [
+        {
+          "id": "registration-prerequisite",
+          "claim": "A firm must meet the board's regulatory requirements before — not after — performing architectural services in the jurisdiction.",
+          "required": true,
+          "sourceQuote": "To perform architectural services in a Jurisdiction as a Firm, a legally formed business entity must first meet any regulatory requirements set forth by the Board"
+        },
+        {
+          "id": "firm-definition",
+          "claim": "A firm is any legally formed business entity registered with the Board through which architectural services are provided — registration is constitutive, not administrative.",
+          "required": true,
+          "sourceQuote": "Firm - Any legally formed business entity registered with the Board through which architectural services are provided"
+        },
+        {
+          "id": "gp-personal-liability",
+          "claim": "In a general partnership, all partners manage the business and are personally liable for its debts — making the unregistered practice doubly risky.",
+          "required": false,
+          "sourceQuote": "The general partnership, in which all partners manage the business and are personally liable for its debts, developed under common law"
+        }
+      ]
+    }
+  },
+  {
+    "type": "explain",
+    "front": "TRAP (S4 — Rule 5.3): A national retail chain asks your firm to serve as architect of record in State Y. The chain's out-of-state design firm (licensed in State Z) sends the prototypical store drawings and asks you to seal them to obtain the building permit. The client says, 'State Z already approved these — sealing is just a jurisdictional formality.' What is the trap?",
+    "back": "The trap is treating the architect-of-record seal as a pass-through rubber stamp. Rule 5.3 permits an AOR to seal prototypical documents prepared by an out-of-state architect, but only after two conditions are met: (1) the AOR independently determines that the documents comply with the requirements of the project's jurisdiction, and (2) the AOR incorporates them into the AOR's own technical submissions. Neither condition is satisfied by simply re-sealing. The AOR bears full responsible-control accountability for anything they seal. State Z's prior approval is irrelevant — local jurisdictional compliance is a fresh obligation.",
+    "tags": [
+      "s4",
+      "sealing",
+      "prototypical",
+      "trap",
+      "rule-5.3",
+      "architect-of-record"
+    ],
+    "meta": {
+      "grader": "coverage",
+      "rubric": [
+        {
+          "id": "proto-seal-two-conditions",
+          "claim": "The AOR may seal prototypical documents only after (1) independently determining local jurisdiction compliance and (2) incorporating them into the AOR's own technical submissions.",
+          "required": true,
+          "sourceQuote": "An architect of record may sign and seal prototypical building documents prepared by an architect licensed in any U.S. jurisdiction, but only if the architect of record determines that such documents are in compliance with the requirements of the project's jurisdiction and incorporates them into the architect of record's own technical submissions"
+        },
+        {
+          "id": "proto-definition",
+          "claim": "A prototypical building is one intended to be constructed in multiple locations conveying a standard design — these documents are not inherently jurisdiction-compliant.",
+          "required": true,
+          "sourceQuote": "Prototypical Building - Any Building or any space within a Building intended to be constructed in multiple locations for a client and that conveys a standard design"
+        },
+        {
+          "id": "seal-representation-rc",
+          "claim": "By sealing, the AOR represents they were in responsible control and applied the required standard of care — a rubber stamp makes this representation false.",
+          "required": false,
+          "sourceQuote": "By sealing a Technical Submission, the Architect represents that the Architect was in Responsible Control over the content of such Technical Submissions during its preparation and has applied the required professional standard of care"
+        }
+      ]
+    }
+  },
+  {
+    "type": "explain",
+    "front": "DECODE (S4 — Firm Registration / Supervising Architect): A firm registered in State X opens a branch office in State Y with only unlicensed designers on-site. The X-licensed principal plans to review all work remotely and argues that remote oversight satisfies State Y's requirements. What is the situation testing, and what must the firm actually do?",
+    "back": "The situation tests the supervising architect requirement at the firm level. The Model Regulations require the firm to designate one or more supervising architects who perform or directly supervise all architectural services in the jurisdiction. This standard means unrestricted, unchecked, and unqualified command of, and legal accountability for, the services performed. Remote review from an out-of-state licensee does not constitute direct supervision with unrestricted command. The firm must designate a supervising architect who is licensed in State Y and has the direct supervisory authority the regulations require.",
+    "tags": [
+      "s4",
+      "firm-registration",
+      "supervising-architect",
+      "decode",
+      "responsible-control"
+    ],
+    "meta": {
+      "grader": "coverage",
+      "rubric": [
+        {
+          "id": "designate-supervising-arch",
+          "claim": "The firm must designate one or more supervising architects who perform or directly supervise all architectural services in the jurisdiction.",
+          "required": true,
+          "sourceQuote": "which shall designate one or more supervising Architects who shall perform or directly supervise the performance of all architectural services by said Firm in (Jurisdiction)"
+        },
+        {
+          "id": "unrestricted-command",
+          "claim": "Directly supervising means unrestricted, unchecked, and unqualified command of, and legal accountability for, the services — remote review from another state does not qualify.",
+          "required": true,
+          "sourceQuote": "Performing or directly supervising the performance of all architectural services shall mean unrestricted, unchecked, and unqualified command of, and legal accountability for, the architectural services performed"
+        },
+        {
+          "id": "firm-reg-prerequisite",
+          "claim": "The firm must also meet the board's regulatory requirements in State Y before performing services there.",
+          "required": false,
+          "sourceQuote": "To perform architectural services in a Jurisdiction as a Firm, a legally formed business entity must first meet any regulatory requirements set forth by the Board"
+        }
+      ]
+    }
+  },
+  {
+    "type": "explain",
+    "front": "TRAP (S3 — Rule 5.2): The contractor submits a product substitution ('or equal') for the specified acoustic ceiling tile, attaching the manufacturer's technical data sheet and requesting that the architect incorporate it into the record. A project manager says, 'Just stamp it — it's the manufacturer's data, not ours; we're not responsible for it.' What is the trap?",
+    "back": "The trap is treating third-party data as a pass-through that carries no architect responsibility once incorporated. Rule 5.2 permits — but does not require — an AOR to seal non-architect-prepared submissions (including manufacturer data) that will be incorporated into the AOR's technical submissions. The condition is that the architect must have reviewed such information and be able to reasonably trust its accuracy. Sealing without review means the representation of responsible control and standard of care (embedded in the act of sealing) is false. The PM's 'not ours' argument is precisely backwards — by sealing, the architect makes it theirs.",
+    "tags": [
+      "s3",
+      "sealing",
+      "or-equal",
+      "trap",
+      "rule-5.2",
+      "responsible-control"
+    ],
+    "meta": {
+      "grader": "coverage",
+      "rubric": [
+        {
+          "id": "seal-manufacturer-data-conditions",
+          "claim": "An AOR may incorporate and seal manufacturer or contractor data only after reviewing it and being able to reasonably trust its accuracy.",
+          "required": true,
+          "sourceQuote": "An architect of record may sign and seal technical submissions not required by law to be prepared by an architect including information supplied by manufacturers, suppliers, installers, contractors, or from the architect of record's consultants, when that information is intended to be incorporated into the architect of record's technical submissions and the architect of record has reviewed such information and can reasonably trust its accuracy"
+        },
+        {
+          "id": "seal-representation",
+          "claim": "By sealing, the architect represents responsible control and application of the standard of care — an unreviewed stamp makes this representation false.",
+          "required": true,
+          "sourceQuote": "By sealing a Technical Submission, the Architect represents that the Architect was in Responsible Control over the content of such Technical Submissions during its preparation and has applied the required professional standard of care"
+        }
+      ]
+    }
+  }
+]
