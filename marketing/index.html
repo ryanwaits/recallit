@@ -3,32 +3,32 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>recallit · drop a source, get a tutor that grades you honestly</title>
+    <title>recallit · a tutor that won't tell you you've got it when you don't</title>
     <meta
       name="description"
-      content="recallit turns any source (a book, a course, a paper, a language) into an honest study pack, then tests your recall and checks your answer against the source. Every card cites a line you can check, and code owns the grade, not the model."
+      content="Tell recallit what you want to learn and you get a tutor built around it. Practice your way, by drilling or just talking it through. The grade comes from code checking your answer against the source, not a model deciding to be nice."
     />
     <link rel="icon" href="favicon.svg" type="image/svg+xml" />
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="recallit · a tutor that grades you honestly" />
+    <meta property="og:title" content="recallit · honest about what you actually know" />
     <meta
       property="og:description"
-      content="Drop a source. recallit tests your recall and checks your answer against the source, citing the exact line. Code owns the grade, not the model."
+      content="Describe what you want to learn, practice it your way, and remember it. It won't tell you you've got it when you don't, the grade is owned by code, not the model."
     />
     <meta property="og:image" content="og.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="recallit · a tutor that grades you honestly" />
+    <meta name="twitter:title" content="recallit · honest about what you actually know" />
     <meta
       name="twitter:description"
-      content="Drop a source. recallit tests your recall and checks your answer against the source, citing the exact line. Code owns the grade, not the model."
+      content="Describe what you want to learn, practice it your way, and remember it. It won't tell you you've got it when you don't."
     />
     <meta name="twitter:image" content="og.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&family=Newsreader:ital,opsz@1,18&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..900;1,9..144,400..900&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="tokens.css" />
@@ -45,73 +45,58 @@
     <main id="top">
       <section class="wrap hero">
         <div class="hero__copy">
-          <span class="hero__kicker label">Source-grounded tutor</span>
-          <h1>Drop a source. Get a tutor that <em>grades you honestly.</em></h1>
+          <span class="hero__kicker label">Describe. Practice. Remember.</span>
+          <h1>It won't tell you you've got it <em>when you don't.</em></h1>
           <p class="hero__lede">
-            Point it at a book, a course, a paper, or a language. recallit builds an honest study
-            pack, then asks you to recall it in your own words and checks your answer against the
-            source, citing the exact line. It comes back before you'd forget.
+            Say it in plain words and you get a tutor built around what you're studying. Practice your
+            way, by drilling or just talking it through. The grade comes from code checking your
+            answer, not a model deciding to be nice.
           </p>
           <div class="hero__cta">
-            <a class="btn btn--primary" href="demo/index.html">Try it, no setup →</a>
-            <a class="btn btn--ghost" href="https://github.com/ryanwaits/recallit">★ Star on GitHub</a>
+            <a class="btn btn--primary" href="demo/index.html">Try the demo, no key needed →</a>
+            <a class="btn btn--ghost" href="#how">See how it works</a>
           </div>
-          <p class="hero__note">Your cards are files on your disk. No accounts, no cloud. Runs in your terminal or browser.</p>
+          <p class="hero__note">Your cards are files on your disk. No one can change your grade, including us.</p>
         </div>
 
-        <div
-          class="flip reveal"
-          tabindex="0"
-          role="button"
-          aria-pressed="false"
-          aria-label="Example recall question. Front: Why is the engine topic-agnostic? Activate to reveal how recallit grades your answer."
-        >
-          <div class="flip__inner">
-            <div class="flip__face flip__face--front">
-              <span class="flip__hint">Recall, in your words</span>
-              <span class="flip__es">Why is the engine topic-agnostic?</span>
-              <span class="flip__hint">Answer, then flip ↻</span>
-            </div>
-            <div class="flip__face flip__face--back">
-              <span class="flip__hint">Graded by rule, not vibe</span>
-              <span class="flip__en">Good · 3 of 4 key points</span>
-              <span class="flip__hint">✓ checked against the source line</span>
-            </div>
-          </div>
-        </div>
+        <figure class="cite reveal" aria-label="An example: your answer, checked against the exact source line.">
+          <p class="cite__q">How do you say “you're right” in Mexican Spanish?</p>
+          <p class="cite__label label">Your answer</p>
+          <p class="cite__a">tienes razón</p>
+          <p class="cite__receipt"><span class="cite__check" aria-hidden="true">✓</span> graded by code, matched your answer</p>
+          <p class="cite__source"><span class="cite__ln">L42</span> …y le dije, “<mark>tienes razón</mark>, no debí dudar de ti”</p>
+          <figcaption class="cite__foot">The grade shows its line. That's the whole point.</figcaption>
+        </figure>
       </section>
 
       <aside class="wrap trust reveal" aria-label="What recallit is built on">
         <ul class="trust__list">
           <li>Built on the Claude Agent SDK</li>
-          <li>FSRS-6 scheduling</li>
+          <li>Spaced repetition</li>
           <li>Open source</li>
         </ul>
       </aside>
 
-      <section class="wrap section loop-section">
+      <section class="wrap section loop-section" id="how">
         <div class="section__head reveal">
-          <h2>Drop a source. Learn it for real.</h2>
-          <p>
-            One honest loop: what you study traces back to your source, and the grade is a rule, not
-            the model's mood.
-          </p>
+          <h2>Three steps, no setup.</h2>
+          <p>Describe what you want to learn, practice it however you like, and the right thing comes back at the right time.</p>
         </div>
         <ol class="loop">
           <li class="loop__step reveal">
             <span class="loop__num">01</span>
-            <h3>Drop a source</h3>
-            <p>A book, a course, a paper, a repo, a language. recallit reads it and writes the pack.</p>
+            <h3>Describe</h3>
+            <p>Point it at a book, a paper, a link, or just a topic in your head. It builds the cards for you and shows you the exact line each one came from.</p>
           </li>
           <li class="loop__step reveal">
             <span class="loop__num">02</span>
-            <h3>Get an honest pack</h3>
-            <p>Every card cites a verbatim line from your source. What it can't verify, it holds back instead of inventing.</p>
+            <h3>Practice</h3>
+            <p>Run a quick drill when you're busy, or talk it through when you want to explain things in your own words. You pick, and you can switch any day.</p>
           </li>
           <li class="loop__step reveal">
             <span class="loop__num">03</span>
-            <h3>Get tested, graded honestly</h3>
-            <p>Recall it in your own words. recallit checks your answer against the source's points, grades it by rule, then brings it back before you'd forget.</p>
+            <h3>Remember</h3>
+            <p>Answer well and a card drifts away for weeks. Struggle and it comes back sooner. When you sit down, what's waiting is the stuff you're about to forget.</p>
           </li>
         </ol>
       </section>
@@ -119,7 +104,7 @@
       <section class="wrap section" id="generate">
         <div class="section__head reveal">
           <span class="label">How it stays honest · recorded run</span>
-          <h2>The gate holds the line.</h2>
+          <h2>It holds the line.</h2>
           <p>
             A real <code>recallit pack</code> run over this repo's own README, captured verbatim.
             Each card must quote the source literally; the one it couldn't verify, it held back. No
@@ -133,7 +118,7 @@
 <span class="t-dim">  · Read  · ToolSearch  · save_source  · write_pack</span>
 
 <span class="t-ok">27/28 ready · 1 held · grounding source · $0.1935</span>
-<span class="t-held">  ⚠ "Who decides the FSRS rating?"  [unverified-proper-noun]</span>
+<span class="t-held">  ⚠ "Who decides the rating?"  [unverified-proper-noun]</span>
 
 <span class="t-dim">wrote packs/readme (not installed)</span></pre>
           </div>
@@ -149,115 +134,91 @@
         </div>
       </section>
 
-      <section class="examples">
-        <div class="wrap section">
-          <div class="section__head reveal">
-            <h2>A fact, or a whole idea.</h2>
-            <p>
-              Drill a one-word answer or recall a full idea in your own words. recallit checks both
-              against your source the same honest way. The engine knows nothing about the subject, so
-              bring any one you like.
-            </p>
-          </div>
-          <div class="gallery" aria-label="Example packs across subjects">
-            <article class="mini reveal">
-              <span class="mini__tag label">Language</span>
-              <p class="mini__q">¿Qué onda?</p>
-              <p class="mini__a">What's up? (Mexican Spanish)</p>
-            </article>
-            <article class="mini reveal">
-              <span class="mini__tag label">Programming</span>
-              <p class="mini__q">Rust: what is ownership?</p>
-              <p class="mini__a">Each value has one owner; it's freed when the owner goes out of scope.</p>
-            </article>
-            <article class="mini reveal">
-              <span class="mini__tag label">A novel</span>
-              <p class="mini__q">Who narrates Moby-Dick?</p>
-              <p class="mini__a">Ishmael.</p>
-            </article>
-            <article class="mini reveal">
-              <span class="mini__tag label">Film</span>
-              <p class="mini__q">Who directed Blade Runner (1982)?</p>
-              <p class="mini__a">Ridley Scott.</p>
-            </article>
-            <article class="mini reveal">
-              <span class="mini__tag label">Geography</span>
-              <p class="mini__q">Capital of Japan?</p>
-              <p class="mini__a">Tokyo.</p>
-            </article>
-            <article class="mini reveal">
-              <span class="mini__tag label">Music theory</span>
-              <p class="mini__q">Notes in a C-major triad?</p>
-              <p class="mini__a">C, E, G.</p>
-            </article>
-            <article class="mini reveal">
-              <span class="mini__tag label">Comprehension</span>
-              <p class="mini__q">Explain what "Attention Is All You Need" proposed.</p>
-              <p class="mini__a">The Transformer: sequence modeling by self-attention, no recurrence. (graded on the points, not the wording)</p>
-            </article>
-            <article class="mini reveal">
-              <span class="mini__tag label">Biology</span>
-              <p class="mini__q">Largest organ in the human body?</p>
-              <p class="mini__a">The skin.</p>
-            </article>
-          </div>
-        </div>
-      </section>
-
       <section class="wrap section">
         <div class="section__head reveal">
-          <h2>Why you can trust it.</h2>
+          <h2>Most apps flatter you. This one is on your side.</h2>
           <p>The hard part was never flashcards. It's grading you honestly, and proving it.</p>
         </div>
         <div class="cards">
           <article class="card reveal">
-            <span class="label">Honest by construction</span>
-            <h3>Cites a line you can check</h3>
-            <p>Every card, and every point it grades you on, traces to a verbatim line from your source. What it can't verify, it holds back instead of inventing.</p>
+            <span class="label">It tells you straight</span>
+            <h3>No fake gold stars</h3>
+            <p>If you didn't really know it, it says so, and you see it again sooner. You always know where you actually stand.</p>
           </article>
           <article class="card reveal">
-            <span class="label">Code-owned grading</span>
-            <h3>Graded by rule, not vibe</h3>
-            <p>A deterministic rule scores your answer against the source's points. The tutor can examine and explain; it never picks the grade. No "the AI says you understood."</p>
+            <span class="label">The grade comes from code</span>
+            <h3>Not a model's mood</h3>
+            <p>Drill or conversation, typed or spoken, the score is the same. The tutor can check your answer against the source, but it can't talk its way into a better grade.</p>
           </article>
           <article class="card reveal">
             <span class="label">Yours</span>
             <h3>Your files, your call</h3>
-            <p>Your cards are plain files on your disk. No accounts, no cloud, no one can change your grade, including us.</p>
+            <p>Every card is a plain file on your own disk, and every card shows the line it came from. Nobody can quietly change it, and there's no cloud holding your progress.</p>
           </article>
         </div>
-        <p class="reveal voice-note">And it can talk: voice packs let you answer aloud and hear it back, on your own keys.</p>
+        <p class="reveal voice-note">And yes, it can talk back: answer aloud and hear it back, on your own keys.</p>
+      </section>
+
+      <section class="examples">
+        <div class="wrap section">
+          <div class="section__head reveal">
+            <h2>Same tutor, any subject.</h2>
+            <p>Hand it whatever you're trying to keep in your head. The way you practice can change; the honest grade behind it doesn't.</p>
+          </div>
+          <div class="gallery" aria-label="Example subjects and how you'd practice them">
+            <article class="mini reveal">
+              <span class="mini__tag label">A book</span>
+              <p class="mini__q">Thinking, Fast and Slow</p>
+              <p class="mini__a">Talk through the ideas. The shaky ones keep coming back.</p>
+            </article>
+            <article class="mini reveal">
+              <span class="mini__tag label">A topic</span>
+              <p class="mini__q">“teach me World War 2”</p>
+              <p class="mini__a">Drill the facts on the train, debate the why on the weekend.</p>
+            </article>
+            <article class="mini reveal">
+              <span class="mini__tag label">A language</span>
+              <p class="mini__q">Mexican Spanish, out loud</p>
+              <p class="mini__a">Hear it, say it, and one day just hold a conversation.</p>
+            </article>
+            <article class="mini reveal">
+              <span class="mini__tag label">A paper</span>
+              <p class="mini__q">Attention Is All You Need</p>
+              <p class="mini__a">Rehearse explaining it until you actually can.</p>
+            </article>
+          </div>
+        </div>
       </section>
 
       <section class="examples" id="install">
         <div class="wrap section install__inner">
           <div class="reveal">
-            <h2>Run it on your own sources.</h2>
-            <p>The demo above needs no keys. When you're ready for your own material, <code>bunx @waits/recallit</code>: point it at a source to build a pack, then <code>daily</code> to study and be graded. (<code>pack</code> and <code>daily</code> run on your own <code>ANTHROPIC_API_KEY</code>; voice adds a voice key.)</p>
+            <h2>Run it on your own material.</h2>
+            <p>The demo needs no keys. When you're ready for your own sources, <code>bunx @waits/recallit</code>: name what you want to learn, then study and be graded. (Building a pack and grading run on your own <code>ANTHROPIC_API_KEY</code>; voice adds a speech key.)</p>
             <div class="install__cta">
               <a class="btn btn--primary" href="https://github.com/ryanwaits/recallit">★ Star on GitHub</a>
-              <a class="btn btn--ghost" href="https://github.com/ryanwaits/recallit#readme">Read the docs →</a>
+              <a class="btn btn--ghost" href="https://github.com/ryanwaits/recallit#readme">Read the quickstart →</a>
             </div>
           </div>
           <div class="code reveal" aria-label="Install commands">
 <pre><span class="c"># no install needed: run it with bunx</span>
 bunx @waits/recallit
 
-<span class="c"># turn a PDF, URL, repo, or topic into a pack</span>
-bunx @waits/recallit <span class="p">pack</span> &lt;source&gt;
+<span class="c"># say what you want to learn, and study it</span>
+bunx @waits/recallit <span class="p">quickstart</span> <span class="s">"World War 2"</span>
 
-<span class="c"># then practice it (needs ANTHROPIC_API_KEY)</span>
-bunx @waits/recallit <span class="p">daily</span></pre>
+<span class="c"># practice your way</span>
+bunx @waits/recallit <span class="p">daily</span> --regimen converse</pre>
           </div>
         </div>
       </section>
 
       <section class="wrap">
         <div class="cta reveal">
-          <h2>Bring something you want to understand.</h2>
-          <p>Try the live demo in a minute, no keys, then point it at the book or course you've been meaning to learn.</p>
+          <h2>Find out what you <em>actually</em> know.</h2>
+          <p>Run a real session in your browser. No key, no account, no spend. The honest grade is the whole point, so try it before anything else.</p>
           <div class="hero__cta">
-            <a class="btn btn--primary" href="demo/index.html">Try it, no setup →</a>
+            <a class="btn btn--primary" href="demo/index.html">Try the demo →</a>
             <a class="btn btn--ghost" href="https://github.com/ryanwaits/recallit">★ Star on GitHub</a>
           </div>
         </div>
@@ -265,32 +226,20 @@ bunx @waits/recallit <span class="p">daily</span></pre>
     </main>
 
     <footer class="wrap foot">
-      <p class="foot__statement">An honest tutor for <em>anything.</em></p>
+      <p class="foot__statement">Describe it, practice it, <em>remember it.</em></p>
       <div class="foot__meta">
         <nav class="foot__links" aria-label="Footer">
           <a href="https://github.com/ryanwaits/recallit">GitHub</a>
           <a href="https://github.com/ryanwaits/recallit#readme">Docs</a>
           <a href="packs/index.html">Packs</a>
         </nav>
-        <span class="label">FSRS-6 · Bun · TypeScript · © 2026 recallit</span>
+        <span class="label">Open source · Bun · runs with bunx · one deploy, one user · © 2026 recallit</span>
       </div>
     </footer>
 
     <script>
-      // Touch + keyboard + hover flip. Tap or Enter/Space toggles; hover flips on pointer devices.
-      const card = document.querySelector(".flip");
-      if (card) {
-        const toggle = () => {
-          const flipped = card.classList.toggle("is-flipped");
-          card.setAttribute("aria-pressed", String(flipped));
-        };
-        card.addEventListener("click", toggle);
-        card.addEventListener("keydown", (e) => {
-          if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggle(); }
-        });
-      }
-
-      // One-shot reveal on scroll. Skipped when motion is reduced.
+      // One-shot reveal on scroll (also triggers the cited-line highlighter swipe).
+      // Skipped when motion is reduced.
       const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       const items = document.querySelectorAll(".reveal");
       if (reduce || !("IntersectionObserver" in window)) {

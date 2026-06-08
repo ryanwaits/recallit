@@ -136,7 +136,8 @@ a { color: inherit; }
 .hero h1 {
   font-size: var(--text-display);
   letter-spacing: var(--tracking-display);
-  max-width: 13ch;
+  line-height: var(--lh-tight);
+  max-width: 15ch;
 }
 .hero h1 em { font-family: var(--font-serif); font-style: italic; font-weight: 500; color: var(--color-accent-2); }
 .hero__lede { max-width: 44ch; font-size: var(--text-md); color: var(--color-ink-2); line-height: var(--lh-relaxed); }
@@ -185,6 +186,47 @@ a { color: inherit; }
 .flip__en { font-size: var(--text-xl); font-weight: 600; }
 .flip__hint { font-family: var(--font-mono); font-size: var(--text-xs); letter-spacing: var(--tracking-label); text-transform: uppercase; color: var(--color-muted); }
 .flip__face--back .flip__hint { color: var(--color-ink); opacity: 0.7; }
+
+/* ── The cited line · the signature visual (your answer, checked vs source) ── */
+.cite {
+  margin: 0;
+  border: var(--rule-card) solid var(--color-rule-2);
+  border-radius: var(--radius-card);
+  background: var(--color-paper-3);
+  box-shadow: var(--shadow-card);
+  padding: var(--space-lg);
+  display: grid;
+  gap: var(--space-xs);
+}
+.cite__q { font-family: var(--font-display); font-weight: 600; font-size: var(--text-lg); letter-spacing: var(--tracking-tight); line-height: var(--lh-snug); }
+.cite__label { margin-top: var(--space-sm); color: var(--color-muted); }
+.cite__a { font-family: var(--font-mono); font-size: var(--text-md); color: var(--color-ink); }
+.cite__receipt { display: flex; align-items: center; gap: var(--space-xs); margin-top: var(--space-2xs); font-size: var(--text-sm); color: var(--color-ink-2); }
+.cite__check {
+  display: inline-grid; place-items: center; flex: none;
+  width: 1.3rem; height: 1.3rem; border-radius: var(--radius-pill);
+  background: var(--color-accent); color: var(--color-accent-ink);
+  font-size: 0.78rem; font-weight: 700;
+}
+.cite__source {
+  margin-top: var(--space-sm); padding-top: var(--space-sm);
+  border-top: var(--rule-hair) solid var(--color-rule);
+  font-family: var(--font-mono); font-size: var(--text-sm); line-height: var(--lh-relaxed);
+  color: var(--color-cite-ink);
+}
+.cite__ln { color: var(--color-muted); margin-right: var(--space-xs); }
+.cite mark {
+  background: linear-gradient(var(--color-cite-wash), var(--color-cite-wash)) no-repeat;
+  background-size: 0% 100%;
+  border-bottom: 2px solid var(--color-cite-edge);
+  color: var(--color-cite-ink);
+  padding: 0.06em 0.14em; border-radius: 3px;
+  -webkit-box-decoration-break: clone; box-decoration-break: clone;
+  transition: background-size var(--dur-long) var(--ease-out) 120ms;
+}
+.cite.in mark { background-size: 100% 100%; }
+.cite__foot { font-family: var(--font-serif); font-style: italic; font-size: var(--text-sm); color: var(--color-muted); margin-top: var(--space-2xs); }
+@media (prefers-reduced-motion: reduce) { .cite mark { background-size: 100% 100%; transition: none; } }
 
 /* ── Trust strip · quiet credibility row ─────────────────────────── */
 .trust {
@@ -334,6 +376,7 @@ a { color: inherit; }
 .code pre { margin: 0; font-family: var(--font-mono); font-size: var(--text-sm); color: var(--color-on-ink); line-height: 1.9; overflow-x: auto; }
 .code .c { color: var(--color-on-ink-2); }
 .code .p { color: var(--color-accent-on-ink); }
+.code .s { color: var(--color-cite-edge); }
 
 /* ── Final CTA band (accent-committed) ──────────────────────────── */
 .cta {

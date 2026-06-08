@@ -1,30 +1,40 @@
-/* Hallmark · tokens — Plume (playful · warm cream paper · soft rose accent) */
+/* Hallmark · tokens — "Margin" (warm editorial tutor · cream paper · terracotta · the cited line) */
 :root {
   /* ── colour (OKLCH) ─────────────────────────────────────────── */
-  --color-paper:      oklch(96% 0.020 70);   /* warm cream */
-  --color-paper-2:    oklch(94% 0.026 70);   /* tinted band */
-  --color-paper-3:    oklch(91% 0.030 70);   /* card / hover surface */
-  --color-rule:       oklch(82% 0.022 70);   /* hairline */
-  --color-rule-2:     oklch(70% 0.024 70);   /* prominent border */
-  --color-muted:      oklch(45% 0.024 55);   /* darkened for ≥4.5:1 small text on cream */
-  --color-neutral:    oklch(36% 0.020 55);
-  --color-ink-2:      oklch(30% 0.018 55);
-  --color-ink:        oklch(22% 0.015 50);   /* near-black, warm */
-  --color-on-ink:     oklch(93% 0.018 70);   /* text on dark (code, card back) */
-  --color-on-ink-2:   oklch(72% 0.016 70);   /* muted text on dark (code comments) ≥4.5:1 */
-  --color-accent-on-ink: oklch(80% 0.110 22); /* brightened rose for accent on dark */
-  --color-accent:     oklch(68% 0.130 18);   /* soft rose-pink */
-  --color-accent-2:   oklch(58% 0.150 18);   /* deeper rose for hover */
-  --color-accent-soft: oklch(91% 0.045 18);  /* pale rose tint for the one accent tile */
-  --color-accent-ink: oklch(96% 0.020 70);   /* cream — text on a full-accent fill */
-  --color-focus:      oklch(50% 0.160 18);   /* darker rose — ≥3:1 ring on cream */
+  /* canvas: warm cream paper, tinted up the stack */
+  --color-paper:      oklch(97.0% 0.014 75);  /* base cream */
+  --color-paper-2:    oklch(94.8% 0.020 72);  /* tinted band */
+  --color-paper-3:    oklch(92.5% 0.024 70);  /* card / hover surface */
+  --color-paper-sunk: oklch(90.0% 0.026 68);  /* inset / well (mockup frames) */
+  /* rules / borders — warm, never gray */
+  --color-rule:       oklch(85% 0.018 72);    /* hairline */
+  --color-rule-2:     oklch(74% 0.022 70);    /* prominent border */
+  /* ink scale — warm near-black, never #000 */
+  --color-muted:      oklch(48% 0.022 58);    /* small text, ≥4.5:1 on cream */
+  --color-neutral:    oklch(38% 0.020 56);    /* secondary body */
+  --color-ink-2:      oklch(29% 0.018 54);    /* sub-heads */
+  --color-ink:        oklch(21% 0.016 52);    /* headlines / body, warm charcoal */
+  /* on dark surfaces (card backs, code) */
+  --color-on-ink:     oklch(94% 0.016 75);
+  --color-on-ink-2:   oklch(73% 0.016 72);    /* muted-on-dark ≥4.5:1 */
+  --color-accent-on-ink: oklch(74% 0.120 50); /* brightened clay on dark */
+  /* ACCENT: terracotta / clay — action + brand */
+  --color-accent:     oklch(60% 0.135 45);    /* terracotta — primary fill */
+  --color-accent-2:   oklch(52% 0.150 42);    /* deeper, hover */
+  --color-accent-soft: oklch(92% 0.045 50);   /* pale clay tint, one feature tile */
+  --color-accent-ink: oklch(97% 0.014 75);    /* cream text on terracotta fill */
+  --color-focus:      oklch(48% 0.160 45);    /* focus ring, ≥3:1 on cream */
+  /* the cited line — the signature motif (amber highlighter on verbatim source) */
+  --color-cite-wash:  oklch(91% 0.090 95);    /* warm amber marker swipe */
+  --color-cite-edge:  oklch(80% 0.110 92);    /* underline / left margin-mark */
+  --color-cite-ink:   oklch(34% 0.060 75);    /* the quoted text on the wash */
 
   /* ── type ───────────────────────────────────────────────────── */
-  --font-display: "Geist", "Inter Tight", ui-sans-serif, system-ui, sans-serif;
-  --font-body:    "Geist", "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-serif:   "Newsreader", ui-serif, Georgia, serif;
-  --font-mono:    "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
-  --display-weight: 700;
+  --font-display: "Fraunces", ui-serif, Georgia, "Times New Roman", serif;
+  --font-body:    "Hanken Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-serif:   "Fraunces", ui-serif, Georgia, serif;  /* italic asides */
+  --font-mono:    "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --display-weight: 900;
 
   --text-xs:   0.75rem;
   --text-sm:   0.875rem;
@@ -34,16 +44,16 @@
   --text-xl:   1.75rem;
   --text-2xl:  2.25rem;
   --text-3xl:  2.75rem;
-  --text-display:   clamp(2.75rem, 5vw + 0.75rem, 5rem);
+  --text-display:   clamp(3rem, 6vw + 0.5rem, 5.5rem);
   --text-display-s: clamp(2rem, 3vw + 0.5rem, 3rem);
 
-  --lh-tight:   1.04;
-  --lh-snug:    1.18;
+  --lh-tight:   1.0;
+  --lh-snug:    1.12;
   --lh-normal:  1.5;
   --lh-relaxed: 1.6;
-  --tracking-display: -0.025em;
+  --tracking-display: -0.02em;
   --tracking-tight:   -0.012em;
-  --tracking-label:    0.06em;
+  --tracking-label:    0.14em;
 
   /* ── space (4 pt scale) ─────────────────────────────────────── */
   --space-3xs: 0.125rem;
@@ -60,17 +70,18 @@
 
   --page-max:    76rem;
   --page-gutter: clamp(1.25rem, 4vw, 3rem);
-  --measure:     58ch;
+  --measure:     60ch;
   --rule-hair:   0.5px;
   --rule-fine:   1px;
 
   /* ── shape ──────────────────────────────────────────────────── */
-  --radius-card:  14px;
+  --radius-card:  18px;
   --radius-pill:  999px;
-  --radius-input: 10px;
+  --radius-input: 12px;
+  --radius-chip:  8px;
   --rule-card:    1px;
-  --shadow-card:  0 10px 28px -12px oklch(45% 0.10 18 / 0.16);
-  --shadow-lift:  0 20px 44px -16px oklch(45% 0.10 18 / 0.26);
+  --shadow-card:  0 8px 24px -14px oklch(40% 0.06 50 / 0.18);
+  --shadow-lift:  0 18px 40px -18px oklch(40% 0.06 50 / 0.24);
 
   /* ── motion ─────────────────────────────────────────────────── */
   --ease-out:    cubic-bezier(0.16, 1, 0.3, 1);
@@ -83,3 +94,5 @@
   /* ── z-index (fixed scale) ──────────────────────────────────── */
   --z-nav: 300;
 }
+
+html { font-optical-sizing: auto; }
