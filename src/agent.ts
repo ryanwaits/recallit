@@ -22,7 +22,7 @@ import {
   gatherFacts,
   regimenPhases,
 } from "./context.ts";
-import { mineCard } from "./mining.ts";
+import { captureCard, mineCard } from "./mining.ts";
 import { scenariosDir, sessionFile } from "./paths.ts";
 import { getProgress, markActive } from "./progress.ts";
 import { checkCardQuality } from "./quality.ts";
@@ -323,6 +323,30 @@ function buildServer(session: ReviewSession, goalMetric: string) {
       ),
 
       tool(
+        "capture_card",
+        "Capture a whole phrase, fact, or idea the learner wants to learn and remember, as a card for later spaced practice (use this in free-talk, not mine_card). front = the prompt, question, or situation; back = what they should be able to recall or produce; context = where it came from. Dedups on front; no one-new-thing limit.",
+        {
+          front: z.string(),
+          back: z.string(),
+          context: z.string().optional(),
+          type: z.string().optional(),
+        },
+        async (args) => {
+          try {
+            const { card, qualityFlags } = await captureCard(t, {
+              front: args.front,
+              back: args.back,
+              context: args.context,
+              type: args.type,
+            });
+            return ok({ id: card.id, qualityFlags });
+          } catch (e) {
+            return fail(String(e instanceof Error ? e.message : e));
+          }
+        },
+      ),
+
+      tool(
         "update_context",
         "Append a note to the learner's context (what went well, weak spots) for future sessions.",
         { note: z.string() },
@@ -398,6 +422,7 @@ export const TOOL_NAMES = [
   "delete_card",
   "search_cards",
   "mine_card",
+  "capture_card",
   "update_context",
   "list_scenarios",
   "read_scenario",
@@ -466,7 +491,7 @@ export async function runSession(
   } else if (mode === "talk") {
     systemPrompt = buildTalkPrompt(facts);
     defaultPrompt =
-      "Start a natural conversation with me in the target language. Keep it going, coach me when I switch to English, and capture the useful phrases I'd want to practise.";
+      "Start a natural conversation with me about this topic. Keep it going, coach me when I ask you something directly, and capture anything I'd want to learn and remember.";
   } else {
     systemPrompt = buildSystemPrompt(facts);
     defaultPrompt = "Begin my review session now. Review the due cards one at a time.";

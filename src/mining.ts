@@ -91,3 +91,47 @@ export async function mineCard(topicId: string, input: MineInput): Promise<MineR
   });
   return { card, qualityFlags: quality.flags };
 }
+
+export interface CaptureInput {
+  /** The situation or intent (e.g. "Order al pastor tacos, no onions"). */
+  front: string;
+  /** The natural target-language phrasing to practise producing. */
+  back: string;
+  /** Where it came from (the restaurant, the moment) — recognisable on return. */
+  context?: string;
+  type?: string;
+  meta?: Record<string, unknown>;
+}
+
+/**
+ * Capture a whole phrase/intent as a card — NO one-new-thing (i+1) constraint.
+ * For free-talk mining, where the learner wants the entire phrase they'd say
+ * (not an atomic element). Still dedups on front + runs the quality gate; the
+ * card is a normal scheduled card, graded later on the usual path.
+ */
+export async function captureCard(topicId: string, input: CaptureInput): Promise<MineResult> {
+  const front = input.front.trim();
+  const back = input.back.trim();
+  if (!front || !back) throw new MiningError("front and back are required");
+
+  const key = normalize(front);
+  const existing = await listCards(topicId);
+  if (existing.some((c) => normalize(c.front) === key)) {
+    throw new MiningError(`duplicate: "${front}" is already carded`);
+  }
+
+  const quality = checkCardQuality({ front, back, context: input.context ?? "" });
+  const tags = quality.ok ? ["mined", "talk"] : ["mined", "talk", "needs-review"];
+  const meta = quality.ok ? (input.meta ?? {}) : { ...input.meta, qualityFlags: quality.flags };
+
+  const card = await createCard(topicId, {
+    type: input.type ?? "phrase",
+    front,
+    back,
+    context: input.context,
+    source: "mined",
+    tags,
+    meta,
+  });
+  return { card, qualityFlags: quality.flags };
+}

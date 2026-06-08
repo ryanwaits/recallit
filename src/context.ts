@@ -199,11 +199,11 @@ export function buildPracticePrompt(facts: SessionFacts, scenario?: string): str
 }
 
 /**
- * Open free-talk conversation: the learner practises by just talking, can switch
- * to English to ask how to say/handle something, and the agent mines the useful
- * phrases + intents that come up into cards for later spaced practice. UNGRADED —
- * nothing here grades or moves a schedule; the captured cards are graded later on
- * the normal card path. The honest "conversation = coach + gap-finder" loop.
+ * Open free-talk conversation: the learner practises by just talking, can ask the
+ * agent directly for help, and the agent captures the useful phrases, facts, and
+ * ideas that come up into cards for later spaced practice. UNGRADED — nothing here
+ * grades or moves a schedule; the captured cards are graded later on the normal
+ * card path. The honest "conversation = coach + gap-finder" loop.
  */
 export function buildTalkPrompt(facts: SessionFacts): string {
   const t = facts.topic;
@@ -225,20 +225,20 @@ export function buildTalkPrompt(facts: SessionFacts): string {
   lines.push(
     "",
     "## How to talk",
-    "- Hold the conversation in this topic's target language (infer it from the domain config and the cards).",
+    "- Adapt to the subject: if this is a LANGUAGE topic, hold the conversation in the target language (infer it from the domain config and the cards); for any other subject, just talk about it naturally — explore it, think out loud together, follow their curiosity.",
     "- Drive EVERY turn with `converse`: say your line, get their reply. Never use await_user_response — there are no cards in this mode.",
-    "- They may switch to English to ask how to say something, or how to handle a real situation (ordering a specific dish at a specific restaurant, something they want to say to a specific person). Answer as a coach: give the natural phrasing, a short tip if useful, then steer gently back into the target language.",
-    "- Correct in the moment, lightly: recast first (restate it correctly), escalate to an explicit fix or the rule only if the same error repeats. Keep your turns short; let them produce.",
+    "- They may ask you things directly (how do I say this, why did that happen, how would I explain this, how should I handle this situation). Answer as a coach: give them what they need plus a short tip if useful, then steer gently back into the conversation.",
+    "- Correct or sharpen in the moment, lightly; keep your turns short and let them do most of the talking.",
     "",
-    "## Mine what's worth keeping (this is the point)",
-    "Whenever a genuinely useful phrase, correction, or INTENT surfaces — especially something THEY wanted to be able to say (how to order that dish, what to tell their wife) — call mine_card to capture it for later spaced practice:",
-    '- front = the situation or English intent (e.g. "Order the al pastor tacos, no onions"),',
-    "- back = the natural target-language phrasing,",
-    "- context = where it came from (the restaurant, the moment) so it's recognisable when it comes back.",
-    "Follow the one-new-thing rule: each card introduces exactly ONE new element in real context. mine_card rejects duplicates and multi-new-thing items — narrow it and retry. These cards are scheduled by the engine and come back for honest grading in a few days; the conversation itself never grades.",
+    "## Capture what's worth keeping (this is the point)",
+    "Whenever something the learner would want to LEARN AND REMEMBER surfaces — a phrase they wanted to be able to say, a fact, an explanation, a correction, an idea they fumbled — call capture_card to save it for later spaced practice:",
+    '- front = the prompt, question, or situation (e.g. "Order the al pastor tacos, no onions" — or — "Why did the invasion of Poland trigger the war?"),',
+    "- back = what they should be able to recall or produce,",
+    "- context = where it came from (the moment in the conversation) so it's recognisable when it comes back.",
+    "Capture the WHOLE thing — capture_card has no one-new-thing limit, it only dedups on the front. These cards are scheduled by the engine and come back for honest grading in a few days; the conversation itself never grades.",
     "",
     "## Rules",
-    "- Favor them talking over you talking.",
+    "- Favor them talking and thinking over you talking.",
     "- Never fabricate that they said something; always get it via converse.",
     "- When they wind down, or converse reports they ended, call complete_session with a one-line summary of what you captured.",
   );
