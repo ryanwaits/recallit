@@ -122,6 +122,7 @@ stats [--topic id]
 context [--topic id]                            (print the learner depth-memory: context.md weak-spot notes)
 agent [--topic id] [--model m] [--maxTurns n]   (run the interactive agent review loop)
 daily [--topic id] [--model m] [--regimen drill|converse|full]   (run today's session; pick how you practice)
+talk [--topic id] [--model m]                   (open conversation; mines phrases you can practice + be graded on later)
 quickstart <topic|source> [--model m]           (build or install a pack, then start today's session)
 pack <source> [--review|--dry-run|--auto] [--scope t] [--style t]   (generate a pack from a PDF/URL/repo/concept)
 pack edit <id> "<instruction>" [--dry-run]      (tweak a pack; additive edits preserve your review history)
@@ -501,6 +502,28 @@ async function main(argv: string[]): Promise<void> {
     case "daily": {
       const topic = await requireActive(f.topic);
       await runDailySession(topic, f);
+      break;
+    }
+
+    case "talk": {
+      // Open, ungraded conversation. Talk freely; the agent mines the useful
+      // phrases that come up into cards you'll be graded on in a few days.
+      const topic = await requireActive(f.topic);
+      const provider: AnswerProvider = async () => prompt("> ") || null; // no cards in talk mode
+      const session = createReviewSession(topic, provider, (e) => {
+        if (e.kind === "assistant_text") console.log(`\n🗣  ${e.data}`);
+        else if (e.kind === "tool_use") console.log(`   · ${(e.data as { name: string }).name}`);
+      });
+      session.converseProvider = async (say) => {
+        console.log(`\n🗣  ${say}`);
+        return prompt("> ") || null;
+      };
+      const res = await runSession(session, {
+        mode: "talk",
+        model: f.model,
+        maxTurns: f.maxTurns ? Number(f.maxTurns) : undefined,
+      });
+      console.log(`\n— talk ${res.stopReason} (${res.numTurns} turns, $${res.costUsd.toFixed(4)})`);
       break;
     }
 

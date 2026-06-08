@@ -17,6 +17,7 @@ import {
   appendContextNote,
   buildDailySessionPrompt,
   buildSystemPrompt,
+  buildTalkPrompt,
   dailyPhases,
   gatherFacts,
   regimenPhases,
@@ -409,8 +410,9 @@ export interface RunOptions {
   model?: string;
   maxTurns?: number;
   maxBudgetUsd?: number;
-  /** "review" (default) runs the SRS loop; "daily" runs the full multi-phase session. */
-  mode?: "review" | "daily";
+  /** "review" (default) runs the SRS loop; "daily" runs the full multi-phase session;
+   *  "talk" runs an open, ungraded conversation that mines cards for later practice. */
+  mode?: "review" | "daily" | "talk";
   /** Learner-chosen practice regimen for a daily run ("drill" | "converse" | "full");
    *  overrides the pack's modality default. The grade is identical regardless. */
   regimen?: string;
@@ -461,6 +463,10 @@ export async function runSession(
     const remaining = remainingPhases(base, cp, session.id);
     systemPrompt = buildDailySessionPrompt(facts, remaining);
     defaultPrompt = "Run my full daily session now, phase by phase.";
+  } else if (mode === "talk") {
+    systemPrompt = buildTalkPrompt(facts);
+    defaultPrompt =
+      "Start a natural conversation with me in the target language. Keep it going, coach me when I switch to English, and capture the useful phrases I'd want to practise.";
   } else {
     systemPrompt = buildSystemPrompt(facts);
     defaultPrompt = "Begin my review session now. Review the due cards one at a time.";

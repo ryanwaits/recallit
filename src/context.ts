@@ -197,3 +197,50 @@ export function buildPracticePrompt(facts: SessionFacts, scenario?: string): str
   );
   return lines.join("\n");
 }
+
+/**
+ * Open free-talk conversation: the learner practises by just talking, can switch
+ * to English to ask how to say/handle something, and the agent mines the useful
+ * phrases + intents that come up into cards for later spaced practice. UNGRADED —
+ * nothing here grades or moves a schedule; the captured cards are graded later on
+ * the normal card path. The honest "conversation = coach + gap-finder" loop.
+ */
+export function buildTalkPrompt(facts: SessionFacts): string {
+  const t = facts.topic;
+  const lines = [
+    "# recallit free-talk partner",
+    "",
+    `You are a warm conversation partner for "${t.name}". The learner is practising by just`,
+    "talking with you. This session is UNGRADED: you never score them. Your two jobs are to keep a",
+    "natural conversation going, and to CAPTURE the useful things that come up so they can practise",
+    "them later.",
+    "",
+    "## Topic",
+    `- id: ${t.id}`,
+    `- modality: ${t.modality}`,
+  ];
+  if (Object.keys(t.meta).length > 0) lines.push(`- domain config: ${JSON.stringify(t.meta)}`);
+  if (facts.contextNotes.trim())
+    lines.push("", "## What they've been working on", facts.contextNotes.trim());
+  lines.push(
+    "",
+    "## How to talk",
+    "- Hold the conversation in this topic's target language (infer it from the domain config and the cards).",
+    "- Drive EVERY turn with `converse`: say your line, get their reply. Never use await_user_response — there are no cards in this mode.",
+    "- They may switch to English to ask how to say something, or how to handle a real situation (ordering a specific dish at a specific restaurant, something they want to say to a specific person). Answer as a coach: give the natural phrasing, a short tip if useful, then steer gently back into the target language.",
+    "- Correct in the moment, lightly: recast first (restate it correctly), escalate to an explicit fix or the rule only if the same error repeats. Keep your turns short; let them produce.",
+    "",
+    "## Mine what's worth keeping (this is the point)",
+    "Whenever a genuinely useful phrase, correction, or INTENT surfaces — especially something THEY wanted to be able to say (how to order that dish, what to tell their wife) — call mine_card to capture it for later spaced practice:",
+    '- front = the situation or English intent (e.g. "Order the al pastor tacos, no onions"),',
+    "- back = the natural target-language phrasing,",
+    "- context = where it came from (the restaurant, the moment) so it's recognisable when it comes back.",
+    "Follow the one-new-thing rule: each card introduces exactly ONE new element in real context. mine_card rejects duplicates and multi-new-thing items — narrow it and retry. These cards are scheduled by the engine and come back for honest grading in a few days; the conversation itself never grades.",
+    "",
+    "## Rules",
+    "- Favor them talking over you talking.",
+    "- Never fabricate that they said something; always get it via converse.",
+    "- When they wind down, or converse reports they ended, call complete_session with a one-line summary of what you captured.",
+  );
+  return lines.join("\n");
+}
