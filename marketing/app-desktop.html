@@ -47,8 +47,13 @@
     .profile span { font-size: 0.85rem; color: var(--color-ink-2); }
 
     /* ── main ── */
-    .main { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 2.25rem 2rem; align-content: start; max-width: 1180px; padding: 2.5rem clamp(1.5rem, 4vw, 3.5rem); }
-    .m-head { grid-column: 1 / -1; display: flex; align-items: flex-end; justify-content: space-between; gap: 1.5rem; }
+    .main { max-width: 1180px; padding: 2.5rem clamp(1.5rem, 4vw, 3.5rem); }
+    .view { display: none; }
+    .view.active { display: block; }
+    .dash { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 2.25rem 2rem; align-content: start; }
+    .m-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 1.5rem; }
+    .dash .m-head { grid-column: 1 / -1; }
+    .view-head { margin-bottom: 2.25rem; }
     .m-col { grid-column: 1; display: grid; gap: 2.25rem; align-content: start; }
     .m-head h1 { font-family: var(--font-display); font-weight: 700; font-size: clamp(2rem, 3vw, 2.75rem); letter-spacing: -0.02em; }
     .m-head p { color: var(--color-ink-2); margin-top: 0.35rem; }
@@ -83,6 +88,35 @@
     .nx__when { font-family: var(--font-label); font-size: 11px; color: var(--color-mint-deep); }
 
     .m-side { grid-column: 2; display: grid; gap: 1.5rem; align-content: start; }
+
+    /* packs library */
+    .lib { display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 1.25rem; }
+    .addcard { display: grid; place-items: center; align-content: center; gap: 0.6rem; min-height: 196px; border: 2px dashed var(--color-rule-2); border-radius: var(--radius-card); background: transparent; color: var(--color-ink-2); font-weight: 700; font-size: 1rem; transition: border-color 160ms, color 160ms; }
+    .addcard:hover { border-color: var(--color-mint-deep); color: var(--color-mint-deep); }
+    .addcard svg { width: 26px; height: 26px; }
+    .pcard__meta { font-family: var(--font-label); font-size: 10px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--color-muted); }
+
+    /* progress */
+    .prog { display: grid; gap: 1.5rem; }
+    .bigstats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
+    .bigstat { padding: 1.5rem; text-align: center; }
+    .bigstat b { display: block; font-family: var(--font-display); font-weight: 700; font-size: 2.1rem; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+    .bigstat b .u { font-size: 0.5em; color: var(--color-mint-deep); }
+    .bigstat span { font-family: var(--font-label); font-size: 10px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--color-muted); }
+    .pcols { display: grid; grid-template-columns: 1.4fr 1fr; gap: 1.5rem; align-items: start; }
+    .chartcard, .panel { padding: 1.5rem; display: grid; gap: 1.1rem; }
+    .chart { display: flex; align-items: flex-end; gap: 7px; height: 150px; }
+    .chart i { flex: 1; border-radius: 6px 6px 0 0; background: var(--color-mint); min-height: 5px; transition: height 400ms var(--ease-out); }
+    .chart i.dim { background: var(--color-paper-3); }
+    .chartx { display: flex; justify-content: space-between; font-family: var(--font-label); font-size: 9px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--color-muted); }
+    .mr { display: grid; gap: 0.5rem; }
+    .mr__top { display: flex; align-items: baseline; justify-content: space-between; }
+    .mr__top b { font-family: var(--font-display); font-weight: 700; }
+    .mr__top span { font-family: var(--font-label); font-size: 10px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--color-muted); }
+    .shaky { display: grid; }
+    .shaky div { display: flex; align-items: center; justify-content: space-between; gap: 1rem; font-size: 0.9rem; color: var(--color-ink); padding: 0.7rem 0; border-top: 1px solid var(--color-rule); }
+    .shaky div:first-child { border-top: 0; }
+    .shaky em { font-style: normal; font-family: var(--font-label); font-size: 10px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--color-accent-3-deep); }
     .statcard { padding: 1.4rem; display: grid; gap: 1.1rem; }
     .stat3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; text-align: center; }
     .stat3 div b { display: block; font-family: var(--font-display); font-weight: 700; font-size: 1.5rem; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
@@ -134,9 +168,9 @@
     <aside class="rail">
       <span class="brand"><span class="mark"></span>recallit</span>
       <nav class="nav">
-        <a href="#" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg>Home</a>
-        <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="5" rx="2"/><rect x="3" y="11" width="18" height="9" rx="2"/></svg>Packs</a>
-        <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5M4 19h16M8 16v-4M13 16V8M18 16v-7"/></svg>Progress</a>
+        <a href="#" class="active" data-view="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg>Home</a>
+        <a href="#" data-view="packs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="5" rx="2"/><rect x="3" y="11" width="18" height="9" rx="2"/></svg>Packs</a>
+        <a href="#" data-view="progress"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5M4 19h16M8 16v-4M13 16V8M18 16v-7"/></svg>Progress</a>
       </nav>
       <div class="railstreak">
         <span class="railstreak__top"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2c4 4 6 7 6 11a6 6 0 0 1-12 0c0-2 1-3.6 2.2-4.9C9.6 10 11 8 12 2Z" fill="#f15f4c"/><path d="M12 9.2c1.9 1.9 2.7 3.4 2.7 5a2.7 2.7 0 0 1-5.4 0c0-1.4 1.1-2.7 2.7-5Z" fill="#edc845"/></svg>5-day streak</span>
@@ -150,6 +184,8 @@
 
     <!-- MAIN -->
     <main class="main">
+     <div class="view active" id="view-home">
+      <div class="dash">
       <header class="m-head">
         <div>
           <h1>Buenas, Ryan.</h1>
@@ -198,6 +234,69 @@
             </div>
           </div>
         </aside>
+      </div>
+     </div>
+
+     <!-- PACKS PAGE -->
+     <div class="view" id="view-packs">
+      <header class="m-head view-head">
+        <div><h1>Packs</h1><p>Drop a source and get a pack. Each card cites where it came from.</p></div>
+      </header>
+      <div class="lib">
+        <button class="pcard" data-accent="mint" data-pack="Mexican Spanish">
+          <div class="pcard__row"><span class="pcard__icon"><i></i></span><div><div class="pcard__name">Mexican Spanish</div><div class="pcard__meta">voice · 41 cards</div></div></div>
+          <div class="bar"><i style="width:64%"></i></div>
+          <div class="pcard__foot"><span>164 of 248 mastered · 7 due</span><span class="pcard__go">Open →</span></div>
+        </button>
+        <button class="pcard" data-accent="cyan" data-pack="Learn recallit">
+          <div class="pcard__row"><span class="pcard__icon"><i></i></span><div><div class="pcard__name">Learn recallit</div><div class="pcard__meta">text · 24 cards</div></div></div>
+          <div class="bar"><i style="width:38%"></i></div>
+          <div class="pcard__foot"><span>9 of 24 mastered · 3 due</span><span class="pcard__go">Open →</span></div>
+        </button>
+        <button class="addcard">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+          Build a pack
+          <span style="font-family:var(--font-label);font-size:10px;letter-spacing:0.05em;text-transform:uppercase;color:var(--color-muted)">a PDF, a link, a topic</span>
+        </button>
+      </div>
+     </div>
+
+     <!-- PROGRESS PAGE -->
+     <div class="view" id="view-progress">
+      <header class="m-head view-head">
+        <div><h1>Progress</h1><p>What you're keeping, and what's slipping.</p></div>
+      </header>
+      <div class="prog">
+        <div class="bigstats">
+          <div class="card bigstat"><b>5</b><span>day streak</span></div>
+          <div class="card bigstat"><b>92<span class="u">%</span></b><span>kept</span></div>
+          <div class="card bigstat"><b>248</b><span>known</span></div>
+          <div class="card bigstat"><b>61</b><span>reviews this week</span></div>
+        </div>
+        <div class="pcols">
+          <div class="card chartcard">
+            <p class="sec">Reviews · last 14 days</p>
+            <div class="chart">
+              <i style="height:30%"></i><i style="height:55%"></i><i style="height:42%"></i><i style="height:70%"></i><i style="height:48%"></i><i style="height:80%"></i><i style="height:62%"></i><i style="height:38%"></i><i style="height:66%"></i><i style="height:90%"></i><i style="height:74%"></i><i style="height:58%"></i><i style="height:84%"></i><i class="" style="height:46%"></i>
+            </div>
+            <div class="chartx"><span>2 weeks ago</span><span>today</span></div>
+          </div>
+          <div class="card panel">
+            <p class="sec">Mastery by pack</p>
+            <div class="mr"><div class="mr__top"><b>Mexican Spanish</b><span>66%</span></div><div class="bar" style="--pc:var(--color-mint)"><i style="width:66%;background:var(--color-mint)"></i></div></div>
+            <div class="mr"><div class="mr__top"><b>Learn recallit</b><span>38%</span></div><div class="bar"><i style="width:38%;background:var(--color-accent-2)"></i></div></div>
+          </div>
+        </div>
+        <div class="card panel">
+          <p class="sec">What you're shaky on</p>
+          <div class="shaky">
+            <div><span>The subjunctive after “espero que”</span><em>missed 3×</em></div>
+            <div><span>“por” vs “para”</span><em>missed 2×</em></div>
+            <div><span>Why the SQLite index is derived, not the source</span><em>missed 2×</em></div>
+          </div>
+        </div>
+      </div>
+     </div>
     </main>
   </div>
 
@@ -233,6 +332,11 @@
     function openSession(pack) { $("#packLabel").textContent = pack; i = 0; render(); ov.classList.add("open"); }
     function closeSession() { ov.classList.remove("open"); }
     document.querySelectorAll("[data-pack]").forEach((b) => b.addEventListener("click", () => openSession(b.dataset.pack)));
+    document.querySelectorAll(".nav a[data-view]").forEach((a) => a.addEventListener("click", (e) => {
+      e.preventDefault();
+      document.querySelectorAll(".nav a").forEach((n) => n.classList.toggle("active", n === a));
+      document.querySelectorAll(".view").forEach((v) => v.classList.toggle("active", v.id === "view-" + a.dataset.view));
+    }));
     $("#x").addEventListener("click", closeSession);
     document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeSession(); if (!ov.classList.contains("open")) return; if (e.key === "ArrowRight") { i = (i + 1) % prompts.length; render(); } if (e.key === "ArrowLeft") { i = (i - 1 + prompts.length) % prompts.length; render(); } });
 
