@@ -28,7 +28,8 @@
     .mark { width: 20px; height: 20px; border-radius: 6px; background: var(--color-mint); box-shadow: 0 2.5px 0 -0.5px var(--color-mint-deep); }
     .streak { display: inline-flex; align-items: center; gap: 0.3em; padding: 0.35rem 0.7rem; border-radius: 999px; background: var(--tint-pear); color: var(--color-accent-deep); font-family: var(--font-label); font-size: 12px; font-weight: 600; }
     .g-scroll { flex: 1; overflow-y: auto; padding: 0.25rem 1.25rem 1rem; display: grid; gap: 1.4rem; align-content: start; }
-    .sec { font-family: var(--font-label); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-muted); margin-bottom: -0.6rem; }
+    .group { display: grid; gap: 0.8rem; }
+    .sec { font-family: var(--font-label); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-muted); padding-left: 0.25rem; }
 
     .streakcard { background: var(--color-paper); border: 1.5px solid var(--color-rule); border-radius: var(--radius-card); box-shadow: var(--shadow-card); padding: 1.1rem 1.2rem; display: grid; gap: 0.8rem; }
     .week { display: flex; justify-content: space-between; gap: 0.4rem; }
@@ -68,7 +69,11 @@
     .nx__txt span { font-family: var(--font-label); font-size: 10px; letter-spacing: 0.04em; text-transform: uppercase; color: var(--color-muted); }
     .nx__when { font-family: var(--font-label); font-size: 11px; color: var(--color-mint-deep); flex: 0 0 auto; }
 
-    .talk { margin: 0 1.25rem calc(1.1rem + env(safe-area-inset-bottom)); display: inline-flex; align-items: center; justify-content: center; gap: 0.5em; padding: 0.9rem; border-radius: var(--radius-pill); border: 1.5px dashed var(--color-rule-2); background: transparent; color: var(--color-ink-2); font-weight: 600; }
+    .talk { margin: 0.4rem 1.25rem calc(1.1rem + env(safe-area-inset-bottom)); display: grid; justify-items: center; gap: 0.35rem; }
+    .talk__btn { display: inline-flex; align-items: center; gap: 0.55em; padding: 0.85rem 1.7rem; border-radius: 999px; border: 0; background: var(--color-lavender); color: var(--color-ink); font-family: var(--font-body); font-weight: 700; font-size: 1.0625rem; box-shadow: 0 5px 0 -1px var(--color-lavender-deep), 0 12px 22px -8px oklch(64% 0.18 305 / 0.5); transition: transform 120ms var(--ease-out), box-shadow 120ms; }
+    .talk__btn:active { transform: translateY(3px); box-shadow: 0 1px 0 -1px var(--color-lavender-deep); }
+    .talk__btn svg { width: 19px; height: 19px; }
+    .talk__cap { font-family: var(--font-label); font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--color-muted); }
 
     /* ── SESSION ── */
     .top { display: flex; align-items: center; gap: 0.75rem; padding: 1.1rem 1.25rem 0.5rem; }
@@ -114,7 +119,7 @@
       <section class="screen gallery">
         <div class="g-top">
           <span class="brand"><span class="mark"></span>recallit</span>
-          <span class="streak">🔥 5</span>
+          <span class="streak"><svg class="flame" viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path d="M12 2c4 4 6 7 6 11a6 6 0 0 1-12 0c0-2 1-3.6 2.2-4.9C9.6 10 11 8 12 2Z" fill="#f15f4c"/><path d="M12 9.2c1.9 1.9 2.7 3.4 2.7 5a2.7 2.7 0 0 1-5.4 0c0-1.4 1.1-2.7 2.7-5Z" fill="#edc845"/></svg>5</span>
         </div>
         <div class="g-scroll">
           <div class="streakcard">
@@ -130,7 +135,7 @@
             <div class="stat3"><b>248</b><span>known</span></div>
           </div>
 
-          <div>
+          <div class="group">
             <p class="sec">Your packs</p>
             <div class="packs">
               <button class="pcard" data-accent="mint" data-pack="Mexican Spanish">
@@ -146,7 +151,7 @@
             </div>
           </div>
 
-          <div>
+          <div class="group">
             <p class="sec">Next up</p>
             <ul class="nextup">
               <li><button class="nx" data-pack="Mexican Spanish"><span class="nx__dot mint"></span><span class="nx__txt"><b>¿Qué onda?</b><span>Mexican Spanish</span></span><span class="nx__when">now</span></button></li>
@@ -155,7 +160,13 @@
             </ul>
           </div>
         </div>
-        <button class="talk" data-pack="Mexican Spanish">＋ Just talk (no grading)</button>
+        <div class="talk">
+          <button class="talk__btn" data-pack="Mexican Spanish">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-12.3 7.5L3 21l2-5.7A8.4 8.4 0 1 1 21 11.5Z"/></svg>
+            Just talk
+          </button>
+          <span class="talk__cap">no grading, just practice</span>
+        </div>
       </section>
 
       <!-- SESSION -->
@@ -195,7 +206,7 @@
     let i = 0, recording = false, busy = false;
 
     function enter(pack) { $("#packLabel").textContent = pack; i = 0; render(); phone.dataset.screen = "session"; }
-    document.querySelectorAll(".pcard, .nx, .talk").forEach((b) => b.addEventListener("click", () => enter(b.dataset.pack)));
+    document.querySelectorAll(".pcard, .nx, .talk__btn").forEach((b) => b.addEventListener("click", () => enter(b.dataset.pack)));
     $("#x").addEventListener("click", () => { phone.dataset.screen = "gallery"; });
 
     function render() {
