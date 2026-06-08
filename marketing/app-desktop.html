@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="en" data-theme="hum">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>recallit · desktop app mock</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="hum-tokens.css" />
+  <style>
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    body { margin: 0; min-height: 100dvh; background: var(--color-paper-2); font-family: var(--font-body); color: var(--color-ink); }
+    button { font: inherit; cursor: pointer; }
+    h1, h2, h3, p, ul { margin: 0; }
+    .sec { font-family: var(--font-label); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-muted); margin-bottom: 0.9rem; }
+    .card { background: var(--color-paper); border: 1.5px solid var(--color-rule); border-radius: var(--radius-card); box-shadow: var(--shadow-card); }
+
+    /* ── app shell: persistent rail + main ── */
+    .app { display: grid; grid-template-columns: 270px 1fr; min-height: 100dvh; }
+
+    .rail { position: sticky; top: 0; height: 100dvh; display: flex; flex-direction: column; gap: 1.5rem; padding: 1.6rem 1.25rem; background: var(--color-paper); border-right: 1.5px solid var(--color-rule); }
+    .brand { display: inline-flex; align-items: center; gap: 0.5em; font-family: var(--font-display); font-weight: 700; font-size: 1.35rem; padding: 0 0.5rem; }
+    .mark { width: 22px; height: 22px; border-radius: 7px; background: var(--color-mint); box-shadow: 0 2.5px 0 -0.5px var(--color-mint-deep); }
+    .nav { display: grid; gap: 0.25rem; }
+    .nav a { display: flex; align-items: center; gap: 0.8rem; padding: 0.7rem 0.8rem; border-radius: 14px; color: var(--color-ink-2); font-weight: 600; font-size: 0.95rem; text-decoration: none; transition: background 160ms, color 160ms; }
+    .nav a svg { width: 20px; height: 20px; }
+    .nav a:hover { background: var(--color-paper-2); color: var(--color-ink); }
+    .nav a.active { background: var(--tint-mint); color: var(--color-ink); }
+    .nav a.active svg { color: var(--color-mint-deep); }
+
+    .railstreak { margin-top: 0.25rem; padding: 1rem; border-radius: 16px; background: var(--color-paper-2); border: 1.5px solid var(--color-rule); display: grid; gap: 0.7rem; }
+    .railstreak__top { display: flex; align-items: center; gap: 0.5em; font-weight: 700; }
+    .railstreak__top svg { width: 18px; height: 18px; }
+    .week { display: flex; gap: 5px; }
+    .day { flex: 1; aspect-ratio: 1; display: grid; place-items: center; border-radius: 8px; background: var(--color-paper); color: var(--color-muted); font-family: var(--font-label); font-size: 9px; font-weight: 600; }
+    .day.done { background: var(--color-mint); color: var(--color-ink); }
+    .day.now { background: transparent; color: var(--color-mint-deep); border: 2px solid var(--color-mint-deep); }
+    .railstreak__cap { font-size: 0.8rem; color: var(--color-ink-2); }
+
+    .rail__spacer { flex: 1; }
+    .talkbtn { display: inline-flex; align-items: center; justify-content: center; gap: 0.55em; padding: 0.85rem; border-radius: 999px; border: 0; background: var(--color-lavender); color: var(--color-ink); font-weight: 700; font-size: 1rem; box-shadow: 0 5px 0 -1px var(--color-lavender-deep), 0 12px 22px -8px oklch(64% 0.18 305 / 0.5); transition: transform 120ms var(--ease-out), box-shadow 120ms; }
+    .talkbtn:active { transform: translateY(3px); box-shadow: 0 1px 0 -1px var(--color-lavender-deep); }
+    .talkbtn svg { width: 18px; height: 18px; }
+    .profile { display: flex; align-items: center; gap: 0.7rem; padding: 0.5rem; }
+    .avatar { width: 34px; height: 34px; border-radius: 999px; background: var(--tint-cyan); display: grid; place-items: center; font-weight: 700; color: var(--color-accent-2-deep); }
+    .profile span { font-size: 0.85rem; color: var(--color-ink-2); }
+
+    /* ── main ── */
+    .main { padding: 2.5rem clamp(1.5rem, 4vw, 3.5rem); max-width: 1100px; }
+    .m-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 1.5rem; margin-bottom: 2.5rem; }
+    .m-head h1 { font-family: var(--font-display); font-weight: 700; font-size: clamp(2rem, 3vw, 2.75rem); letter-spacing: -0.02em; }
+    .m-head p { color: var(--color-ink-2); margin-top: 0.35rem; }
+    .start-cta { display: inline-flex; align-items: center; gap: 0.5em; padding: 1rem 1.6rem; border-radius: 999px; border: 0; background: var(--color-mint); color: var(--color-accent-ink); font-weight: 700; font-size: 1.0625rem; white-space: nowrap; box-shadow: 0 5px 0 -1px var(--color-mint-deep), 0 14px 26px -8px oklch(70% 0.18 150 / 0.5); transition: transform 120ms var(--ease-out), box-shadow 120ms; }
+    .start-cta:active { transform: translateY(3px); box-shadow: 0 1px 0 -1px var(--color-mint-deep); }
+
+    .pgrid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+    .pcard { --pc: var(--color-mint); --pc-tint: var(--tint-mint); --pc-deep: var(--color-mint-deep);
+      text-align: left; border: 1.5px solid var(--color-rule); background: var(--color-paper); box-shadow: var(--shadow-card);
+      border-radius: var(--radius-card); padding: 1.4rem; display: grid; gap: 1rem; transition: transform 200ms var(--ease-spring), box-shadow 200ms; }
+    .pcard[data-accent="cyan"] { --pc: var(--color-accent-2); --pc-tint: var(--tint-cyan); --pc-deep: var(--color-accent-2-deep); }
+    .pcard:hover { transform: translateY(-4px); box-shadow: var(--shadow-card-hover); }
+    .pcard__row { display: flex; align-items: center; gap: 0.9rem; }
+    .pcard__icon { width: 44px; height: 44px; border-radius: 13px; background: var(--pc-tint); display: grid; place-items: center; flex: 0 0 auto; }
+    .pcard__icon i { width: 15px; height: 15px; border-radius: 5px; background: var(--pc); }
+    .pcard__name { font-family: var(--font-display); font-weight: 700; font-size: 1.2rem; letter-spacing: -0.01em; }
+    .pcard__sub { font-family: var(--font-label); font-size: 11px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--color-muted); }
+    .pcard__sub b { color: var(--pc-deep); }
+    .bar { height: 8px; border-radius: 999px; background: var(--color-paper-2); overflow: hidden; }
+    .bar i { display: block; height: 100%; border-radius: 999px; background: var(--pc); }
+    .pcard__foot { display: flex; align-items: center; justify-content: space-between; font-size: 0.8rem; color: var(--color-muted); }
+    .pcard__go { color: var(--pc-deep); font-weight: 600; }
+
+    .m-lower { display: grid; grid-template-columns: 1fr 320px; gap: 1.5rem; margin-top: 2.5rem; }
+    .nextup { list-style: none; display: grid; gap: 0.7rem; }
+    .nx { width: 100%; text-align: left; display: flex; align-items: center; gap: 0.9rem; padding: 1rem 1.2rem; border-radius: 16px; border: 1.5px solid var(--color-rule); background: var(--color-paper); box-shadow: var(--shadow-card); transition: transform 140ms var(--ease-out); }
+    .nx:hover { transform: translateX(3px); }
+    .nx__dot { width: 9px; height: 9px; border-radius: 999px; flex: 0 0 auto; }
+    .nx__dot.mint { background: var(--color-mint); } .nx__dot.cyan { background: var(--color-accent-2); }
+    .nx__txt { flex: 1; display: grid; gap: 0.15rem; min-width: 0; }
+    .nx__txt b { font-weight: 600; font-size: 0.95rem; }
+    .nx__txt span { font-family: var(--font-label); font-size: 10px; letter-spacing: 0.04em; text-transform: uppercase; color: var(--color-muted); }
+    .nx__when { font-family: var(--font-label); font-size: 11px; color: var(--color-mint-deep); }
+
+    .m-side { display: grid; gap: 1.5rem; align-content: start; }
+    .statcard { padding: 1.4rem; display: grid; gap: 1.1rem; }
+    .stat3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; text-align: center; }
+    .stat3 div b { display: block; font-family: var(--font-display); font-weight: 700; font-size: 1.5rem; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+    .stat3 div span { font-family: var(--font-label); font-size: 9px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--color-muted); }
+    .minedcard { padding: 1.4rem; display: grid; gap: 0.9rem; }
+    .minedcard .sec { margin: 0; }
+    .mined { display: grid; gap: 0.55rem; }
+    .mined div { font-size: 0.875rem; color: var(--color-ink-2); padding-left: 1.1rem; position: relative; line-height: 1.4; }
+    .mined div::before { content: ""; position: absolute; left: 0; top: 0.45em; width: 8px; height: 8px; border-radius: 999px; background: var(--color-lavender); }
+
+    /* ── focused session overlay ── */
+    .ov { position: fixed; inset: 0; background: var(--color-paper); z-index: 50; display: none; flex-direction: column; }
+    .ov.open { display: flex; }
+    .ov__top { display: flex; align-items: center; gap: 1rem; padding: 1.5rem 2rem; }
+    .x { width: 40px; height: 40px; border: 0; background: transparent; color: var(--color-muted); font-size: 1.2rem; border-radius: 999px; }
+    .x:hover { background: var(--color-paper-2); }
+    .dots { flex: 1; display: flex; justify-content: center; gap: 7px; }
+    .dot { width: 8px; height: 8px; border-radius: 999px; background: var(--color-rule-2); opacity: 0.5; }
+    .dot.done { background: var(--color-mint); opacity: 1; }
+    .dot.now { background: var(--color-mint-deep); opacity: 1; transform: scale(1.3); }
+    .ov__pack { font-family: var(--font-label); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-muted); }
+    .ov__stage { flex: 1; display: grid; align-content: center; justify-items: center; gap: 1.5rem; padding: 2rem; text-align: center; }
+    .eyebrow { font-family: var(--font-label); font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--color-mint-deep); }
+    .prompt { font-family: var(--font-display); font-weight: 700; font-size: clamp(2rem, 4vw, 3rem); line-height: 1.12; letter-spacing: -0.02em; max-width: 18ch; }
+    .fb { display: grid; gap: 0.7rem; justify-items: center; min-height: 1px; }
+    .you { background: var(--color-paper-2); border: 1.5px solid var(--color-rule); border-radius: 16px; padding: 0.8rem 1.3rem; font-family: var(--font-mono); font-size: 1.1rem; opacity: 0; transform: translateY(8px); transition: all 260ms var(--ease-out); }
+    .you.in { opacity: 1; transform: none; }
+    .grade { display: inline-flex; align-items: center; gap: 0.5em; background: var(--tint-mint); border: 1.5px solid var(--color-mint-deep); border-radius: 999px; padding: 0.55rem 1.1rem; font-size: 1rem; opacity: 0; transform: scale(0.9); transition: all 280ms var(--ease-spring); }
+    .grade.in { opacity: 1; transform: none; }
+    .grade b { font-family: var(--font-display); color: var(--color-mint-deep); }
+    .ov__bottom { display: grid; justify-items: center; gap: 0.6rem; padding: 1.5rem 2rem 2.5rem; }
+    .mic { position: relative; width: 104px; height: 104px; border-radius: 999px; border: 0; background: var(--color-mint); color: var(--color-accent-ink); box-shadow: 0 7px 0 -1px var(--color-mint-deep), 0 14px 28px -6px oklch(70% 0.18 150 / 0.5); display: grid; place-items: center; user-select: none; transition: transform 120ms var(--ease-out), box-shadow 120ms; }
+    .mic svg { width: 42px; height: 42px; }
+    .mic:active, .mic.rec { transform: translateY(3px); box-shadow: 0 3px 0 -1px var(--color-mint-deep); }
+    .mic.rec { background: var(--color-accent-3); box-shadow: 0 3px 0 -1px var(--color-accent-3-deep); }
+    .mic.rec::before { content: ""; position: absolute; inset: -12px; border-radius: 999px; border: 3px solid var(--color-accent-3); opacity: 0.5; animation: pulse 1s var(--ease-out) infinite; }
+    @keyframes pulse { 0% { transform: scale(1); opacity: 0.5; } 100% { transform: scale(1.4); opacity: 0; } }
+    .micLabel { font-family: var(--font-label); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-muted); min-height: 1.2em; }
+    .hint { font-family: var(--font-label); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-ink-2); }
+    .hint span { color: var(--color-rule-2); }
+
+    @media (prefers-reduced-motion: reduce) { * { animation-duration: 0.01ms !important; } }
+    @media (max-width: 859px) { body::before { content: "this is the DESKTOP mock — see app-mock.html for mobile"; position: fixed; inset: 0; display: grid; place-items: center; text-align: center; padding: 2rem; background: var(--color-paper); color: var(--color-muted); font-family: var(--font-label); font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; z-index: 100; } }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <!-- RAIL -->
+    <aside class="rail">
+      <span class="brand"><span class="mark"></span>recallit</span>
+      <nav class="nav">
+        <a href="#" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg>Home</a>
+        <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="5" rx="2"/><rect x="3" y="11" width="18" height="9" rx="2"/></svg>Packs</a>
+        <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5M4 19h16M8 16v-4M13 16V8M18 16v-7"/></svg>Progress</a>
+      </nav>
+      <div class="railstreak">
+        <span class="railstreak__top"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2c4 4 6 7 6 11a6 6 0 0 1-12 0c0-2 1-3.6 2.2-4.9C9.6 10 11 8 12 2Z" fill="#f15f4c"/><path d="M12 9.2c1.9 1.9 2.7 3.4 2.7 5a2.7 2.7 0 0 1-5.4 0c0-1.4 1.1-2.7 2.7-5Z" fill="#edc845"/></svg>5-day streak</span>
+        <div class="week"><span class="day done">M</span><span class="day done">T</span><span class="day done">W</span><span class="day done">T</span><span class="day now">F</span><span class="day">S</span><span class="day">S</span></div>
+        <span class="railstreak__cap">Two more for your record.</span>
+      </div>
+      <div class="rail__spacer"></div>
+      <button class="talkbtn" data-pack="Mexican Spanish"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-12.3 7.5L3 21l2-5.7A8.4 8.4 0 1 1 21 11.5Z"/></svg>Just talk</button>
+      <div class="profile"><span class="avatar">R</span><span>Ryan · your files</span></div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+      <header class="m-head">
+        <div>
+          <h1>Buenas, Ryan.</h1>
+          <p>10 things are due across your packs.</p>
+        </div>
+        <button class="start-cta" data-pack="Mexican Spanish">Start studying →</button>
+      </header>
+
+      <section>
+        <p class="sec">Your packs</p>
+        <div class="pgrid">
+          <button class="pcard" data-accent="mint" data-pack="Mexican Spanish">
+            <div class="pcard__row"><span class="pcard__icon"><i></i></span><div><div class="pcard__name">Mexican Spanish</div><div class="pcard__sub"><b>7 due</b> · voice</div></div></div>
+            <div class="bar"><i style="width:64%"></i></div>
+            <div class="pcard__foot"><span>164 of 248 mastered</span><span class="pcard__go">Open →</span></div>
+          </button>
+          <button class="pcard" data-accent="cyan" data-pack="Learn recallit">
+            <div class="pcard__row"><span class="pcard__icon"><i></i></span><div><div class="pcard__name">Learn recallit</div><div class="pcard__sub"><b>3 due</b> · text</div></div></div>
+            <div class="bar"><i style="width:38%"></i></div>
+            <div class="pcard__foot"><span>9 of 24 mastered</span><span class="pcard__go">Open →</span></div>
+          </button>
+        </div>
+      </section>
+
+      <div class="m-lower">
+        <section>
+          <p class="sec">Next up</p>
+          <ul class="nextup">
+            <li><button class="nx" data-pack="Mexican Spanish"><span class="nx__dot mint"></span><span class="nx__txt"><b>¿Qué onda?</b><span>Mexican Spanish</span></span><span class="nx__when">now</span></button></li>
+            <li><button class="nx" data-pack="Mexican Spanish"><span class="nx__dot mint"></span><span class="nx__txt"><b>Order al pastor, no onions</b><span>Mexican Spanish · from your chat</span></span><span class="nx__when">now</span></button></li>
+            <li><button class="nx" data-pack="Learn recallit"><span class="nx__dot cyan"></span><span class="nx__txt"><b>Why is the engine topic-agnostic?</b><span>Learn recallit</span></span><span class="nx__when">2h</span></button></li>
+          </ul>
+        </section>
+        <aside class="m-side">
+          <div class="card statcard">
+            <p class="sec">Status</p>
+            <div class="stat3"><div><b>10</b><span>due now</span></div><div><b>92%</b><span>kept</span></div><div><b>248</b><span>known</span></div></div>
+          </div>
+          <div class="card minedcard">
+            <p class="sec">From your conversations</p>
+            <div class="mined">
+              <div>Order al pastor tacos, no onions</div>
+              <div>Tell your wife you'll be home late</div>
+              <div>“ahorita” vs “ahora mismo”</div>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </main>
+  </div>
+
+  <!-- FOCUSED SESSION -->
+  <div class="ov" id="ov">
+    <div class="ov__top">
+      <button class="x" id="x" aria-label="Back to dashboard">✕</button>
+      <div class="dots" id="dots"></div>
+      <span class="ov__pack" id="packLabel">Mexican Spanish</span>
+    </div>
+    <main class="ov__stage" id="stage">
+      <p class="eyebrow" id="eyebrow">Recall, in your words</p>
+      <h1 class="prompt" id="prompt"></h1>
+      <div class="fb" id="fb"></div>
+    </main>
+    <div class="ov__bottom">
+      <button class="mic" id="mic" aria-label="Hold to speak"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button>
+      <p class="micLabel" id="micLabel">Hold to speak</p>
+      <p class="hint">hold <span>·</span> ← → to move <span>·</span> esc to exit</p>
+    </div>
+  </div>
+
+  <script>
+    const prompts = [
+      { eyebrow: "Recall, in your words", prompt: "How do you say “you're right”?", answer: "tienes razón", grade: "Good", note: "back in 4 days" },
+      { eyebrow: "From your last chat", prompt: "Order al pastor tacos, no onions.", answer: "Me da unos tacos de al pastor, sin cebolla", grade: "Good", note: "back in 6 days" },
+      { eyebrow: "You fumbled this one", prompt: "Tell your wife you'll be home late.", answer: "voy a llegar tarde", grade: "Almost", note: "back tomorrow" },
+    ];
+    const $ = (s) => document.querySelector(s);
+    const ov = $("#ov"), dots = $("#dots"), stage = $("#stage"), mic = $("#mic"), micLabel = $("#micLabel"), fb = $("#fb");
+    let i = 0, recording = false, busy = false;
+
+    function openSession(pack) { $("#packLabel").textContent = pack; i = 0; render(); ov.classList.add("open"); }
+    function closeSession() { ov.classList.remove("open"); }
+    document.querySelectorAll("[data-pack]").forEach((b) => b.addEventListener("click", () => openSession(b.dataset.pack)));
+    $("#x").addEventListener("click", closeSession);
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeSession(); if (!ov.classList.contains("open")) return; if (e.key === "ArrowRight") { i = (i + 1) % prompts.length; render(); } if (e.key === "ArrowLeft") { i = (i - 1 + prompts.length) % prompts.length; render(); } });
+
+    function render() { const p = prompts[i]; $("#eyebrow").textContent = p.eyebrow; $("#prompt").textContent = p.prompt; fb.innerHTML = ""; dots.innerHTML = prompts.map((_, k) => `<span class="dot ${k < i ? "done" : k === i ? "now" : ""}"></span>`).join(""); }
+    function grade() {
+      const p = prompts[i], good = p.grade === "Good";
+      fb.innerHTML = `<div class="you">“${p.answer}”</div><div class="grade" style="${good ? "" : "background:var(--tint-coral);border-color:var(--color-accent-3-deep)"}"><b style="${good ? "" : "color:var(--color-accent-3-deep)"}">${p.grade}.</b> ${p.note}</div>`;
+      requestAnimationFrame(() => { fb.querySelector(".you").classList.add("in"); setTimeout(() => fb.querySelector(".grade").classList.add("in"), 220); });
+      busy = true; setTimeout(() => { busy = false; i = (i + 1) % prompts.length; render(); }, 2200);
+    }
+    function start(e) { if (busy) return; e.preventDefault(); recording = true; mic.classList.add("rec"); micLabel.textContent = "Listening…"; }
+    function end() { if (!recording) return; recording = false; mic.classList.remove("rec"); micLabel.textContent = "Checking…"; setTimeout(() => { micLabel.textContent = "Hold to speak"; grade(); }, 700); }
+    mic.addEventListener("pointerdown", start);
+    mic.addEventListener("pointerup", end);
+    mic.addEventListener("pointerleave", () => { if (recording) end(); });
+    render();
+  </script>
+</body>
+</html>
