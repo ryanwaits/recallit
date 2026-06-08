@@ -40,5 +40,10 @@ No gradient text, no side-stripe borders (full rules + semantic top-rule on cite
 ## Responsive / a11y
 Hero is 2-col (1.1fr/0.9fr) collapsing to 1-col; verified no overflow at 390px and 1280px. Tabular figures where numbers change; 44px tap targets; visible focus rings; contrast ≥4.5:1 body / ≥3:1 large.
 
+## Two stylesheets, on purpose
+- **Landing (`index.html`)** is a faithful 1:1 port of the Hallmark "Bubble" template (hum-07): it links `hum-tokens.css` + `hum.css` + `hum.js` and uses Hallmark's own classes (`.btn--mint`, `.stage`/`.stage__node`, `.eyebrow`, `.chip`, `.bignum`, `.voice`, `.plan`, the floating `.nav`, `.footer__statement`), with recallit content and one recallit addition: the `.proof` cited-line card + `.rec-mark`. The numbered timeline, counters, voice cards, and pricing cards are Bubble's components verbatim.
+- **Demo + pack pages** use our token-driven `tokens.css` + `styles.css` (also Bubble-themed: cream + mint-green + Plus Jakarta Sans). Their markup uses our component classes (`.flip`, `.cite`, `.grade`, `.mini`, `.qchip`, `.term`), so they can't share `hum.css` directly; they re-skin from `tokens.css`.
+
 ## How to swap themes
-The whole marketing site is token-driven. To change themes, replace the values + font links in `marketing/tokens.css` (token *names* stay constant), update the two `<link>`s (landing + demo) and the head() link in `marketing/scripts/build-pack-pages.ts` plus `og-card.html`, then regenerate pack pages + OG. The landing, demo, and pack pages all re-skin from the tokens.
+- The landing follows whatever Hallmark theme is dropped into `hum-tokens.css` / `hum.css` (replace those files + the font `<link>` in `index.html`).
+- The demo + pack pages are token-driven: replace the values + font links in `marketing/tokens.css` (token *names* stay constant), update the `<link>` in `demo/index.html`, the head() link in `marketing/scripts/build-pack-pages.ts`, and `og-card.html`, then regenerate pack pages + OG.
