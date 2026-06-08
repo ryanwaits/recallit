@@ -90,6 +90,7 @@ export {
   updateTopicConfig,
 } from "./topic.ts";
 export type {
+  CourseConfig,
   EvalRating,
   EvalResult,
   FsrsCard,

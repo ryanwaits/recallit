@@ -23,6 +23,11 @@ export interface TopicConfig {
   meta: Record<string, unknown>;
 }
 
+/** A course is recallit's container for "a subject" — structurally today's
+ *  TopicConfig. The noun is migrating topic -> course; this alias lets new code use
+ *  CourseConfig while the on-disk + internal topic naming is retired incrementally. */
+export type CourseConfig = TopicConfig;
+
 export interface RecallCard {
   id: string;
   /** Card shape, e.g. "vocab" | "sentence" | "basic". Free-form. */

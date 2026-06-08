@@ -12,9 +12,9 @@ import { prepareSource, runPackAuthor, runPackEditor } from "./packgen/author.ts
 import { writePack } from "./packgen/gate.ts";
 import { resolveMode } from "./packgen/mode.ts";
 import { contextFile } from "./paths.ts";
-import { start } from "./start.ts";
 import { dayKey } from "./progress.ts";
 import { previewSchedule } from "./scheduler.ts";
+import { start } from "./start.ts";
 import {
   createCard,
   deleteCard,
@@ -110,6 +110,7 @@ topic add <source> [--no-activate] [--force] [--no-audio]   (install a topic pac
 topic list
 topic use <id>
 topic show [<id>]
+course <create|list|use|show|add ...>           (alias of topic — a "course" is the container noun)
 card add --front <f> --back <b> [--type t] [--context c] [--tags a,b] [--topic id]
 card list [--topic id]
 card search <query> [--topic id]
@@ -143,6 +144,7 @@ async function main(argv: string[]): Promise<void> {
       break;
     }
 
+    case "course": // alias: a "course" is the container (today's "topic")
     case "topic": {
       const sub = pos[0];
       if (sub === "create") {
