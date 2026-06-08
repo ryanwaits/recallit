@@ -1,132 +1,120 @@
-# Design: courses & styles (the source-of-record direction)
+# Design: deployable tutor agents (the source-of-record direction)
 
-> Status: **adopted direction** (2026-06-08), from a Honen cross-reference + a direction conversation with the maintainer. This doc is now the source of record for product shape and supersedes the *distribution* framing of packs in [pack-generation.md](./pack-generation.md) and the "never a SaaS / one-deploy-one-user is law" guardrail in [hosted-product.md](./hosted-product.md) and [simpler-vision.md](./simpler-vision.md). Those docs remain accurate about the **engine** (honesty gate, FSRS, graders, converse); only their packaging + deployment stances are overridden here.
+> Status: **adopted direction** (2026-06-08). Evolves the earlier "courses & styles" framing into the full vision: a course is no longer the unit — a *deployable tutor agent* is. This doc is the source of record for product shape and supersedes the *packaging* framing of [pack-generation.md](./pack-generation.md) and the "never a SaaS / one-deploy-one-user is law" guardrail in [hosted-product.md](./hosted-product.md) + [simpler-vision.md](./simpler-vision.md). Those stay accurate about the ENGINE.
 >
-> Honesty rule, unchanged: the **capability truth** table below is what we may market. Do not ship a claim the code doesn't back. Most of this doc is `gap-to-build`; the engine it stands on is `real-today`.
+> Honesty rule, unchanged: the **capability truth** table below is what we may market. Most of this doc is `gap-to-build`; the foundation it stands on (an honest, agent-native tutor) is `real-today`.
 
 ## One line
 
-**Feed it material, pick a style, and you get a course with a tutor that practices with you and is honest about what you actually know — running on your laptop or hosted for your org, same engine.**
+**Bring your resources — PDFs, books, audio, a repo, or just describe it — and we build you a grounded, honest tutor *agent* on the Claude Agent SDK. The tutor is agent-native; we render it into the modality and surface you need from a generative UI registry — a standalone study app, a spaced-repetition loop, a voice session, an org's onboarding/compliance flow. The agent is the portable brain; the registry supplies the surfaces it wears.**
 
-The model collapses to three words: **material → course → study.**
+## The reframe: the unit is a deployable tutor agent
 
-- **material** — the only input. A PDF, a URL, a repo, a recording, or a bare topic. There is no "install a prepackaged deck" anymore.
-- **course** — the container (today's `topic`/pack, renamed). Generated *in place* from the material. It is the unit you study, the unit you export.
-- **study** — a tutor/agent runs the course in the shape its **style** defines.
+The deliverable is **not "a course"** (data we generate). It's a **tutor agent**: a configured, knowledge-grounded Claude Agent SDK agent that can be wired into many surfaces and many pedagogies. "A course," "an onboarding flow," "an SRS app," "an embedded widget" are all just **deployment targets** for the same agent.
 
-A **style** is the generation-time template that decides what gets made, how you practice it, and what "done" means. A course *is* a style applied to material.
+What makes this credible rather than hand-wavy: the tutor is *already* a Claude Agent SDK agent (`src/agent.ts` — `runSession` composing ~15 in-process MCP tools), and its grades are *already* code-owned and source-grounded. The hard, easy-to-get-wrong foundation exists. What's missing is (a) a **portable artifact** that captures a configured tutor + its knowledge, and (b) a **generative UI registry** that renders that agent-native tutor into any modality/surface. Note: embedding into arbitrary *third-party* products is a stretch and explicitly NOT the near-term goal — the surfaces are ours, composed from a registry; only the agent + its knowledge are portable.
 
-## Three decisions (locked 2026-06-08)
+## The layered model
 
-1. **Engine-neutral deployment — host OR local.** The engine never knows where it runs; "hosted" is just where the files live (a managed per-user/org volume). Self-host stays for individuals. **Local-first is now a deployment option, not a law.** This overrides the "Not a SaaS" lines in the superseded docs.
-2. **Material is the only input; a course is exportable.** Drop install-a-pack-from-`github:`/`npm:`/tarball as an *input* path. Keep `export` — a generated course is a portable artifact an org can hand off. (Output, not input.)
-3. **Style is chosen at generation time.** It bakes the course shape; a course is a style applied to material. Not a study-time toggle. (The existing `--regimen` study-time choice survives *inside* a style, but it no longer decides the course's shape.)
+```
+  resources / a description
+        │  ingest + gate (honest grounding)
+        ▼
+  ① KNOWLEDGE BASE  ── grounded cards, rubrics, scenarios, corpus-of-record, depth-memory
+        │
+  ② TUTOR AGENT     ── Claude Agent SDK agent; deterministic primitives; CODE-OWNED grades
+        │
+  ③ STYLE           ── pedagogy template (regimen + graders + done): recallit | compliance | onboarding  [Sprint 1]
+        │
+  ④ TUTOR MANIFEST  ── the portable artifact: { knowledge ref, style, modality, agent config, bindings }
+        │
+  ⑤ RUNTIME         ── runTutor(manifest, io): the headless, agent-native engine, decoupled from any UI
+        │
+  ⑥ GENERATIVE UI REGISTRY ── surfaces/modalities the agent renders into: study app · SRS · voice · onboarding · compliance
+        │
+  ⑦ SHAREABLE REGISTRY (later) ── a catalog of tutors + the surfaces they expose
+```
 
-## Style as a first-class concept (data, not code)
+Layers ①–③ largely exist (③ shipped in Sprint 1). Layers ④–⑦ are the new build, and ⑤ is closer than it looks: the IO seam already exists (`AnswerProvider`, `converseProvider`, `onEvent`, and the `run` override in `startServer` deps already decouple the agent from the transport — the SPA and the keyless `serve-local` are two different drivers of the *same* session today). The generative UI registry (⑥) is the natural next step: a surface is a **declarative template** the agent selects + parameterizes per (style × modality), not a hand-coded screen per case.
 
-This mirrors the [grader registry](../../src/graders/registry.ts): a seam that adds capability as **prose + config**, never as a model deciding anything load-bearing. A new pedagogy is a new `StyleDefinition`, not a new code path.
+## The honesty invariants (sacred across every layer and every target)
 
+These do not bend no matter where a tutor is deployed:
+
+1. **Grades are code-owned, everywhere.** Every target dispatches through the grader registry; a model never picks a rating. An embedded tutor in someone else's product grades exactly like ours.
+2. **Self-improvement is scoped to knowledge + pedagogy, NEVER the grade.** A tutor may fetch new sources, propose cards, or revise a rubric to fix a logged weak spot — all routed through the honesty gate — but it can never rewrite how it's graded. This is the moat, stated as a limit on the agent's own power.
+3. **All ingested knowledge passes the honesty gate** (verbatim-substring grounding); what can't be grounded is held, never invented.
+4. **Own-your-data / export / no lock-in** — a deployed tutor and its knowledge are exportable; hosting is convenience, not capture.
+
+## Capability truth (where we actually are)
+
+| Pillar | Status | Note |
+|---|---|---|
+| **Tutor is a Claude Agent SDK agent** | **real-today** | `runSession` composes the primitives; features are prompts. The core of the vision. |
+| **Honest, code-owned grading + grounding** | **real-today** | grader registry + honesty gate + FSRS; deployment-blind. Safe to lead with. |
+| **Pedagogy as data (style)** | **partial** | Sprint 1 shipped the style seam (recallit live); compliance/onboarding `gap-to-build`. |
+| **Ingest anything** | **partial** | PDF/URL/repo/concept real; **audio/video → transcript** unbuilt (STT seam exists, unused); markdown/books partial. |
+| **Collab to build/review/manage resources** | **partial** | `pack edit` + `/recallit-pack`; a persistent multi-source workspace is unbuilt. |
+| **Tutor manifest (portable artifact)** | **gap-to-build** | No artifact captures agent+knowledge+style+bindings yet. |
+| **Headless runtime / stable interface** | **gap-to-build** | The IO seam exists; a named `runTutor` + an external contract do not. |
+| **Render into multiple surfaces/modalities (generative UI registry)** | **gap-to-build** | One fixed SPA renders the agent today; no surface registry. The biggest hole. |
+| **Scoped self-improvement** | **gap-to-build** | Light today (`mine_card`, `context.md`); a guarded improve-the-knowledge loop is unbuilt. |
+| **Hosting / tenancy for others** | **gap-to-build** | onebox scoped in hosted-and-pricing.md, not built. |
+| **Registry of ends** | **gap-to-build** | conceptual. |
+
+**Net:** the "build a grounded, honest, agent-native tutor" half ≈ 50–60%; the "deploy it as a portable agent into arbitrary surfaces + self-improve + registry" half ≈ 15%. ~⅓ of the full vision, on the foundation that's hardest to get right.
+
+## The deployment spine (the missing piece, designed)
+
+**Tutor manifest** — a superset of today's `CourseConfig`:
 ```ts
-interface StyleDefinition {
-  id: string;            // "recallit" | "compliance" | "onboarding"
+interface TutorManifest {
+  id: string;
   name: string;
-
-  // GENERATE — how gated material becomes content. A prompt template, not code.
-  authorPrompt: string;  // shapes cards | modules | scenarios from the corpus of record
-  contentKinds: string[]; // "card" | "module" | "scenario" | "assessment"
-
-  // STUDY — the session loop (reuses today's phase regimen machinery).
-  regimen(modality): string[]; // modality-aware (today's dailyPhases branches text vs voice); a learner may pick a --regimen within it, validated against these phases
-
-  // GRADE — which code-owned graders, gated to which phases. The rating is
-  // NEVER model-owned, in any style. Dispatch stays in the grader registry.
-  graders: { phase: string; grader: string }[];
-
-  // DONE — definition of complete, code-evaluated, never self-report.
-  done:
-    | { kind: "retention"; stability: number }   // FSRS stability threshold
-    | { kind: "assessment"; pass: number }        // code-graded quiz score
-    | { kind: "scenarios"; all: true };           // applied scenarios completed
+  knowledge: string;          // ref to the knowledge base (today: the course/topic dir)
+  style: string;              // pedagogy template id (Sprint 1)
+  modality: Modality;
+  agent: {                    // how the agent runs
+    model?: string;
+    maxTurns?: number;
+    guardrails?: string[];    // prose constraints injected into the system prompt
+  };
+  surfaces?: string[];        // generative-UI-registry surfaces this tutor exposes (Sprint 3)
 }
 ```
 
-`course.json` (today's `topic.json`) gains one field: `style: string`. The engine dispatches on it exactly as `gradeResponse` dispatches on `card.meta.grader`. Unknown style → **fail closed** (throw), never "the agent improvises a course." **Assessment-score invariant:** a `{kind:"assessment"}` done-criterion reads its score from code-owned graded records (`review_log`), never from the agent's `complete_session` summary.
+**Runtime** — `runTutor(manifest, io): Promise<RunResult>`: the headless, agent-native engine. `io` is the existing IO seam made first-class — `{ present, await, converse, onEvent, tts?, stt? }` — so ANY surface (our SPA, a CLI, a generated surface) drives the same session. This is mostly *naming and extracting* what `agent.ts` + `server.ts` deps already do, not new agent logic.
 
-### The three seed styles
-
-| Style | Generates | Study loop | "Done" = |
-|---|---|---|---|
-| **recallit** (today's behavior, verbatim) | cards + scenarios | drill / converse, learner's choice | FSRS stability — you've retained it |
-| **compliance** | modules + reading + a gated end **assessment** | read → check → assess | pass the **code-graded** quiz + acknowledge |
-| **onboarding** | applied scenarios + roleplay | scenario runs | scenarios completed |
-
-The engine stays **topic-agnostic** and now also **shape-agnostic**. Same wedge, one new axis.
-
-## What changes
-
-**Dies**
-- `topic add github:/npm:/tarball` as an input path; the external-resolution half of [`resolve.ts`](../../src/resolve.ts) and the install-from-pack flows. The gallery stops being an install-store.
-- The "topics-as-packages" *distribution* framing (packs were two things — a distribution unit and a container; we keep the container, drop the distribution unit).
-- The `never multi-tenant / one-deploy-one-user is law` guardrail. Replaced by the new guardrail below.
-
-**Renamed / reframed**
-- `topic` → **course**; `topic.json` → `course.json` (+ `style` field). `TopicConfig` → `CourseConfig` in [`types.ts`](../../src/types.ts).
-- `--regimen drill|converse|full` is absorbed *into* a style's `regimen`; it remains the in-style study-time choice.
-- `pack export` survives as **export course** — the portable artifact (decision 2).
-
-**Born**
-- A **style registry** (`src/styles/registry.ts`) shaped like the grader registry; the three seed styles as data.
-- An **in-browser authoring wizard**: paste material → pick style → generate → study. This is the non-dev path (the maintainer's wife building an **ARE** course) *and* the SaaS path — one surface. The CLI stays for power users.
-- An honest **assessment grader** for the compliance style — code-owned, MCQ gated to the assessment phase only (recognition must never feed the FSRS recall grade; see [the Honen brief's tension note]). Completion is never self-report.
-- **Hosted deployment**: the data dir relocates to a per-user/org volume; the only genuinely new infra is **auth + volume routing**. The engine is unchanged.
-
-**Untouched — the moat (`real-today`)**
-The honesty gate (verbatim-substring), FSRS scheduler, code-owned graders, files-as-truth, and the agent-native primitives all work **identically** hosted or local. The gate gets *more* valuable under the compliance style: "the course physically cannot misquote the policy" is worth real money to an org.
-
-## The new guardrail (rewrite, don't delete)
-
-The thing that was ever sacred was never "local-first." It is:
-
-> **Honest grades + real retention + own-your-data, with export and no lock-in.**
-
-Those four port to hosting cleanly: the org owns its volume, can **export its course** any time, and is never trapped. Local-first becomes the strongest *deployment option* for individuals, not a law that blocks orgs. When reconciling the superseded docs, replace every "Not a SaaS / one-deploy-one-user" line with that promise.
-
-## Capability truth (what we may say)
-
-| Claim | Status | Note |
-|---|---|---|
-| **Honest, code-owned grading + FSRS** | **real-today** | Unchanged by this direction; the registry + gate are deployment-blind. Safe to lead with, in any style. |
-| **Feed material, get a course** | **partial** | `recallit pack "<source>"` authors today; "course" is the rename + the wizard. The bare-concept one-command path still doesn't author end-to-end (see simpler-vision enhancement #1). |
-| **Pick a style (recallit / compliance / onboarding)** | **gap-to-build** | The style registry + seed styles do not exist yet. Do not market styles until the registry ships. |
-| **In-browser authoring (no CLI)** | **gap-to-build** | The wizard is the non-dev front door; nothing ships it yet. |
-| **Hosted for your org** | **gap-to-build** | Engine is deployment-neutral by design, but auth + per-org volumes are unbuilt. "Self-host today; hosted coming," never "hosted now." |
-| **Compliance assessment / completion** | **gap-to-build** | Needs the assessment grader + a `done` evaluator. Honesty bar: completion is code-graded, never self-report. |
+**Generative UI registry** — a registry of **surfaces**: declarative UI templates the agent selects + parameterizes per (style × modality), rendered by us. "Deploying a modality/surface" = picking/generating one from the registry, not wiring into a foreign app. Seed surfaces:
+- **Study app** (our SPA, refactored to render from the registry as one surface).
+- **SRS / comprehension loop** (the recallit style's surface).
+- **Voice session** (push-to-talk / hands-free over the same runtime).
+- **Onboarding modules** (read → check, the onboarding style's surface).
+- **Compliance assessment** (the compliance style + a code-graded assessment surface).
+- Later (riskier, optional): fuller **model-generated** surfaces — held to the same code-owned-grade invariant.
 
 ## What this is NOT
 
-- **Not Honen.** We do not chase output-format breadth (comics/music/games — content theater, zero retention signal). The course's honesty + retention is the product; the style is how it's shaped, not how many activities it has.
-- **Not a fake-it LMS.** "Completion" in any style is a code-evaluated `done` criterion (retention threshold / graded assessment / scenarios run), never a self-reported checkbox.
-- **Not a lock-in cloud.** Hosting is a convenience; export-your-course + own-your-volume is the promise. If an org can't walk away with its course, we've broken the wedge.
-- **Not an engine rewrite.** Style and deployment are seams *over* the existing engine. If a style needs a new grading path or a hosted feature needs to mutate `turn.ts`/the FSRS scheduler, it's mis-scoped.
-- **Not marketed ahead of the code.** Styles, the wizard, and hosting are all `gap-to-build`. Keep them "coming" until they ship.
+- **Not a model that grades itself or improves its own grading.** Self-improvement touches knowledge + pedagogy only (invariant #2). A tutor that could edit its grade is the one thing we will never ship.
+- **Not "embed into arbitrary third-party products."** That's a stretch and explicitly out of near-term scope (CORS/auth/tenancy surface). The surfaces are OURS, composed from a generative UI registry; only the agent + its knowledge are portable. Pick 2–3 first-class surfaces; the registry generalizes later.
+- **Not fully model-improvised UI (yet).** Surfaces are declarative templates the agent selects + parameterizes; free model-generated UI is a later, riskier option held to the same honesty invariants.
+- **Not Honen.** We don't chase output-format breadth; the tutor's honesty + retention + agent-native renderability is the product.
+- **Not a lock-in cloud.** A deployed tutor + its knowledge are exportable; an org can walk away with its tutor.
+- **Not an engine rewrite.** The spine is extraction + adapters over `agent.ts`; if a target needs to mutate `turn.ts` or the grader path, it's mis-scoped.
+- **Not marketed ahead of the code.** Manifest, runtime, targets, self-improvement, hosting are all `gap-to-build` — "coming" until they ship.
 
-## Migration notes
+## The style layer (Sprint 1, still valid — one field of the manifest)
 
-- Rename is mechanical but wide: `topic` → `course` across `types.ts`, `topic.ts`, `cli.ts`, `server.ts`, paths, docs. Keep `topic`-named on-disk dirs readable for one version (alias), or ship a one-time migrator that renames `~/.recallit/topics/` → `courses/` and rebuilds the SQLite index from files (it's always derivable).
-- `resolve.ts`: keep the *local-dir* + *export-artifact-reimport* paths; retire the `github:`/`npm:` *install* resolvers.
-- The two superseded docs should be marked superseded at the top and their packaging/deployment sections reconciled to the new guardrail (separate task — do not silently rewrite).
+A **style** is the pedagogy template = `{ regimen(modality), allowsRegimenOverride, done, authorPrompt?, contentKinds?, graders? }`, dispatched via `src/styles/registry.ts` exactly like the grader registry; unknown style **fails closed**. `manifest.style` selects it. Seed styles: **recallit** (cards+FSRS, done=retention — shipped), **compliance** (modules+reading+gated assessment, done=code-graded pass — `gap-to-build`), **onboarding** (applied scenarios — `gap-to-build`). **Assessment-score invariant:** a `{kind:"assessment"}` done-criterion reads its score from code-owned graded records (`review_log`), never from the agent's `complete_session` summary.
+
+Resolved refinements (2026-06-08, plan review): `regimen` is a modality-aware function; `--regimen` overrides rejected on non-recallit styles; assessment distractors forced to human review by default; on-disk migration = one-time migrator + read-both; the `/api/packs`/`?topicId=` wire contract kept legacy behind course-renamed types.
 
 ## Open questions
 
-**Resolved (2026-06-08, plan review):**
-- *Disk migration* — one-time migrator (`topics/`→`courses/`, rebuild `index.sqlite` from files) + read-both during the transition window.
-- *Assessment distractors* — forced human review by default (held, like web-grounded concept packs); the "compliance" claim stays `gap-to-build` until distractors are defensible. Substring grounding proves the correct option is in-corpus; it does NOT prove a distractor is wrong.
-- *`--regimen` on non-recallit styles* — rejected (must not skip an assessment); only the recallit style honors drill/converse/full.
-- *Wire contract* — `/api/packs` + `?topicId=` kept as a legacy wire contract behind course-renamed types (HTTP/WS rename deferred, low value).
-- *`StyleDefinition.regimen`* — a modality-aware function, not a flat array.
-
-**Still open:**
-1. **Business model for hosting** — BYO-key default (COGS≈0) vs managed-key metered/flat. In tension with the prior "annual license" call; decide before Sprint 4.
-2. **Style extensibility surface** — third-party styles (a style is just data) vs a curated set only, to keep the honesty bar enforceable.
+1. **First-class surfaces** — which 2–3 ship first from the registry? (Recommend: the existing study-app + a voice surface, because both already have runtime support and prove "one tutor, multiple surfaces"; onboarding/compliance third, paired with their styles.)
+2. **How "generative" is the registry** — declarative surface templates the agent selects + parameterizes (safe, predictable, recommended for v1), vs model-generated UI specs (powerful, riskier). Where's the line, and how does a surface stay honest (the grade is always code-owned regardless of UI)?
+3. **Self-improvement scope** — which knowledge/pedagogy edits may a tutor make autonomously (propose-only vs auto-apply-through-gate), and where's the human checkpoint? Never the grade.
+4. **Manifest vs CourseConfig** — extend `CourseConfig` in place, or a new `TutorManifest` that wraps it? (Affects how invasive the rename is.)
+5. **Business model for hosting** — BYO-key default (COGS≈0) vs managed-key metered/flat. Decide before the hosting/tenancy sprint.
 
 [the Honen brief's tension note]: ./honen-crossref.md
