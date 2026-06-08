@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en" data-theme="hum">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>recallit · hero mocks</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="hum-tokens.css" />
+  <link rel="stylesheet" href="hum.css" />
+  <style>
+    body { padding-top: 0; }
+    .mockbar { background: var(--color-ink); color: var(--color-paper); padding: 1rem var(--page-gutter); font-family: var(--font-label); font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; }
+    .mock { border-bottom: 1px dashed var(--color-rule-2); }
+    .mock__tag { max-width: var(--page-max); margin: 0 auto; padding: 1.5rem var(--page-gutter) 0; }
+    .mock__chip { display: inline-flex; align-items: center; gap: 0.5em; font-family: var(--font-label); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-paper); background: var(--color-ink); padding: 0.35rem 0.8rem; border-radius: 999px; }
+    .mock__note { color: var(--color-muted); font-size: 0.9rem; margin: 0.6rem 0 0; max-width: 60ch; }
+    .hero { padding-block: clamp(1.5rem, 4vh, 3rem) clamp(2.5rem, 5vh, 4rem); }
+
+    /* A · refined proof card */
+    .pcard { width: 100%; max-width: 380px; background: var(--color-paper); border: 1.5px solid var(--color-rule); border-radius: var(--radius-card); box-shadow: var(--shadow-card); padding: 1.5rem; display: grid; gap: 0.9rem; }
+    .pcard__q { font-family: var(--font-display); font-weight: 700; font-size: 1.1rem; letter-spacing: -0.01em; line-height: 1.25; }
+    .pcard__you { font-family: var(--font-label); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-muted); }
+    .pcard__a { font-family: var(--font-display); font-weight: 500; font-size: 1.0625rem; color: var(--color-ink); margin: -0.4rem 0 0; }
+    .pcard__grade { display: flex; align-items: center; gap: 0.7rem; padding-top: 0.6rem; border-top: 1px solid var(--color-rule); }
+    .pcard__rating { display: inline-flex; align-items: center; padding: 0.3rem 0.9rem; border-radius: 999px; background: var(--tint-mint); color: var(--color-mint-deep); font-family: var(--font-display); font-weight: 700; }
+    .pcard__cov { font-size: 0.875rem; color: var(--color-ink-2); }
+    .pcard__src { font-family: var(--font-mono); font-size: 0.8125rem; color: var(--color-ink-2); line-height: 1.6; background: var(--color-paper-2); border-radius: 12px; padding: 0.7rem 0.85rem; }
+
+    /* B · honest exchange (chat) */
+    .chat { width: 100%; max-width: 400px; display: grid; gap: 0.7rem; }
+    .bub { padding: 0.85rem 1.1rem; border-radius: 18px; font-size: 0.95rem; line-height: 1.4; max-width: 85%; }
+    .bub--ask { background: var(--color-accent-2); color: var(--color-paper); border-bottom-left-radius: 5px; justify-self: start; }
+    .bub--you { background: var(--color-paper); border: 1.5px solid var(--color-rule); color: var(--color-ink); border-bottom-right-radius: 5px; justify-self: end; }
+    .bub__who { font-family: var(--font-label); font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.8; display: block; margin-bottom: 0.2rem; }
+    .grade-row { display: flex; align-items: center; gap: 0.6rem; padding: 0.7rem 0.9rem; background: var(--tint-mint); border-radius: 14px; border: 1.5px solid var(--color-mint-deep); }
+    .grade-row b { font-family: var(--font-display); color: var(--color-mint-deep); }
+    .grade-row span { font-size: 0.875rem; color: var(--color-ink-2); }
+
+    /* C · interactive flip */
+    .fcard { width: 100%; max-width: 360px; aspect-ratio: 5/3.4; perspective: 1100px; cursor: pointer; border: 0; background: transparent; padding: 0; }
+    .fcard__in { position: relative; width: 100%; height: 100%; transition: transform 480ms var(--ease-soft); transform-style: preserve-3d; }
+    .fcard.flip .fcard__in { transform: rotateY(180deg); }
+    .fcard__f { position: absolute; inset: 0; backface-visibility: hidden; border-radius: var(--radius-card); border: 1.5px solid var(--color-rule); box-shadow: var(--shadow-card); padding: 1.4rem; display: flex; flex-direction: column; justify-content: space-between; }
+    .fcard__front { background: var(--color-paper); }
+    .fcard__back { background: var(--tint-mint); border-color: var(--color-mint-deep); transform: rotateY(180deg); }
+    .fcard__hint { font-family: var(--font-label); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-muted); }
+    .fcard__big { font-family: var(--font-display); font-weight: 700; font-size: 1.3rem; letter-spacing: -0.02em; line-height: 1.15; color: var(--color-ink); }
+    .fcard__src { font-family: var(--font-mono); font-size: 0.8rem; color: var(--color-ink-2); }
+  </style>
+</head>
+<body>
+  <div class="mockbar">recallit hero mocks — pick a tagline + a right-side. View on desktop. (this is a scratch file, not the live page)</div>
+
+  <!-- OPTION A -->
+  <section class="mock">
+    <div class="mock__tag">
+      <span class="mock__chip">Option A · refined proof</span>
+      <p class="mock__note">A cleaner version of today's card: one question, your answer, a clear honest grade, and the single line it checked against. Less meta, more legible.</p>
+    </div>
+    <div class="hero"><div class="hero__grid">
+      <div class="hero__lead">
+        <p class="eyebrow"><span class="eyebrow__dot eyebrow__dot--mint"></span> Describe · practice · remember</p>
+        <h1 class="hero__title">Learn anything. <em>Actually remember it.</em></h1>
+        <p class="hero__lede">Tell recallit what you want to learn and it builds you a tutor. Practice by drilling or just talking it through, and it grades you straight: the points you got, the ones you missed, and the line it checked.</p>
+        <div class="hero__cta">
+          <a class="btn btn--mint btn--lg" href="#">Try the demo, no key needed</a>
+          <a class="btn btn--outline btn--lg btn--mint" href="#">See how it works →</a>
+        </div>
+      </div>
+      <div class="hero__stage">
+        <div class="pcard">
+          <p class="pcard__q">Why does the recallit engine stay topic-agnostic?</p>
+          <div><p class="pcard__you">Your answer</p>
+          <p class="pcard__a">The engine has no subject knowledge; a topic is just data you plug in.</p></div>
+          <div class="pcard__grade"><span class="pcard__rating">Good</span><span class="pcard__cov">3 of 4 key points covered</span></div>
+          <p class="pcard__src">checked against: “the engine knows <span class="hl">nothing about any subject</span>”</p>
+        </div>
+      </div>
+    </div></div>
+  </section>
+
+  <!-- OPTION B -->
+  <section class="mock">
+    <div class="mock__tag">
+      <span class="mock__chip">Option B · the honest exchange</span>
+      <p class="mock__note">Shows the tutor as a conversation: it asks, you answer, and it grades you honestly, including what you missed and when it'll come back. Most relatable; shows voice + honesty + spacing at once.</p>
+    </div>
+    <div class="hero"><div class="hero__grid">
+      <div class="hero__lead">
+        <p class="eyebrow"><span class="eyebrow__dot eyebrow__dot--cyan"></span> A tutor you can talk to</p>
+        <h1 class="hero__title">It won't tell you you've got it <em>when you don't.</em></h1>
+        <p class="hero__lede">Describe what you want to learn and practice it your way, out loud or typed. The grade comes from code checking your answer against the source, never a model being nice.</p>
+        <div class="hero__cta">
+          <a class="btn btn--mint btn--lg" href="#">Try the demo, no key needed</a>
+          <a class="btn btn--outline btn--lg btn--mint" href="#">See how it works →</a>
+        </div>
+      </div>
+      <div class="hero__stage">
+        <div class="chat">
+          <div class="bub bub--ask"><span class="bub__who">recallit asks</span>In your own words, why does the engine stay topic-agnostic?</div>
+          <div class="bub bub--you"><span class="bub__who">you</span>Because it doesn't know the subject, the cards are just data.</div>
+          <div class="grade-row"><b>Good.</b><span>You missed the “proven by the World Capitals test” point, so it's back tomorrow.</span></div>
+        </div>
+      </div>
+    </div></div>
+  </section>
+
+  <!-- OPTION C -->
+  <section class="mock">
+    <div class="mock__tag">
+      <span class="mock__chip">Option C · the card that grades itself (click it)</span>
+      <p class="mock__note">An interactive flashcard: the question + your answer on the front, the honest grade + cited line on the back. Click to flip. Playful, and the visitor does something.</p>
+    </div>
+    <div class="hero"><div class="hero__grid">
+      <div class="hero__lead">
+        <p class="eyebrow"><span class="eyebrow__dot eyebrow__dot--pear"></span> Drop a source, get a tutor</p>
+        <h1 class="hero__title">Study anything. <em>Get graded honestly.</em></h1>
+        <p class="hero__lede">recallit turns whatever you're learning into a tutor that practices with you and tells you the truth about what you know, citing the exact line every time.</p>
+        <div class="hero__cta">
+          <a class="btn btn--mint btn--lg" href="#">Try the demo, no key needed</a>
+          <a class="btn btn--outline btn--lg btn--mint" href="#">See how it works →</a>
+        </div>
+      </div>
+      <div class="hero__stage">
+        <button class="fcard" id="fc" aria-label="Example card, click to reveal the grade">
+          <div class="fcard__in">
+            <div class="fcard__f fcard__front">
+              <span class="fcard__hint">You answered</span>
+              <span class="fcard__big">“It doesn't know the subject, the cards are just data.”</span>
+              <span class="fcard__hint">Click to see the grade ↻</span>
+            </div>
+            <div class="fcard__f fcard__back">
+              <span class="fcard__hint">Graded by code</span>
+              <span class="fcard__big">Good · 3 of 4 points</span>
+              <span class="fcard__src">✓ matched “<span class="hl">nothing about any subject</span>”</span>
+            </div>
+          </div>
+        </button>
+      </div>
+    </div></div>
+  </section>
+
+  <script>
+    const fc = document.getElementById('fc');
+    fc.addEventListener('click', () => fc.classList.toggle('flip'));
+  </script>
+</body>
+</html>
