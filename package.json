@@ -35,7 +35,9 @@
     "recallit": "src/cli.ts"
   },
   "files": [
-    "src"
+    "src",
+    "public",
+    "packs/spanish-mx-rgv"
   ],
   "publishConfig": {
     "access": "public"
