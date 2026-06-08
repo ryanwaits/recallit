@@ -87,15 +87,21 @@ export function gateCards(cards: PackCard[], corpus: string): GateResult {
     });
     for (const flag of q.flags) reasons.push(`quality:${flag.replace(/\s+/g, "-")}`);
 
-    // A number / proper-noun in the answer not grounded in quote(s)+context+front is a
-    // likely fabrication. Mitigation, not a guarantee.
-    const ground = normWS(`${groundQuote} ${context} ${card.front}`);
-    if (numbersIn(card.back).some((n) => !ground.includes(n))) reasons.push("unverified-number");
-    const groundNouns = new Set(
-      properNounsIn(`${groundQuote} ${context} ${card.front}`).map((w) => w.toLowerCase()),
-    );
-    if (properNounsIn(card.back).some((n) => !groundNouns.has(n.toLowerCase()))) {
-      reasons.push("unverified-proper-noun");
+    // A number / proper-noun in a FLASHCARD answer not grounded in quote+context+front
+    // is a likely fabrication (mitigation, not a guarantee). Skipped for checkable items:
+    // their `back` is an illustrative exemplar, NOT the grounding contract — the rubric
+    // checkpoints (verified above) are, and the examiner grades a learner's free recall
+    // against those, never the exemplar. Applied to prose the heuristic false-flags
+    // sentence-initial title-case words ("The", "Signing") and incidental figures.
+    if (!rubric) {
+      const ground = normWS(`${groundQuote} ${context} ${card.front}`);
+      if (numbersIn(card.back).some((n) => !ground.includes(n))) reasons.push("unverified-number");
+      const groundNouns = new Set(
+        properNounsIn(`${groundQuote} ${context} ${card.front}`).map((w) => w.toLowerCase()),
+      );
+      if (properNounsIn(card.back).some((n) => !groundNouns.has(n.toLowerCase()))) {
+        reasons.push("unverified-proper-noun");
+      }
     }
 
     const frontKey = normalize(card.front);

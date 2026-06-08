@@ -80,6 +80,42 @@ describe("gateCards · rubric (checkable items)", () => {
     expect(ready.length).toBe(1);
   });
 
+  test("a checkable card's exemplar back is NOT flagged for ungrounded proper-noun/number", () => {
+    // Natural exemplar prose: "Plato" (title-case, not in corpus) + "200" (ungrounded)
+    // would both hold a FLASHCARD, but on a checkable item the rubric is the grounding
+    // contract and the back is illustrative, so neither fires.
+    const { ready, needsReview } = gateCards(
+      [
+        rubricCard(
+          [{ id: "sky", claim: "sky is blue", required: true, sourceQuote: "The sky is blue" }],
+          "Per Plato, the sky is blue even above 200 meters.",
+        ),
+      ],
+      corpus,
+    );
+    const reasons = [...(needsReview[0]?.reasons ?? [])];
+    expect(reasons).not.toContain("unverified-proper-noun");
+    expect(reasons).not.toContain("unverified-number");
+    expect(ready.length).toBe(1);
+  });
+
+  test("a FLASHCARD (no rubric) still gets the proper-noun/number fabrication guard", () => {
+    const { ready, needsReview } = gateCards(
+      [
+        {
+          front: "What color is the sky?",
+          back: "Per Plato, it is blue above 200 meters.",
+          meta: { sourceQuote: "The sky is blue" },
+        },
+      ],
+      corpus,
+    );
+    expect(ready.length).toBe(0);
+    const reasons = [...(needsReview[0]?.reasons ?? [])];
+    expect(reasons).toContain("unverified-proper-noun");
+    expect(reasons).toContain("unverified-number");
+  });
+
   test("an empty rubric is flagged", () => {
     const { needsReview } = gateCards([rubricCard([])], corpus);
     expect(needsReview[0]?.reasons).toContain("rubric-empty");
