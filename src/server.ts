@@ -6,7 +6,12 @@
 // scripted driver so the WS/audio/turn wiring is verifiable without the LLM.
 import { join } from "node:path";
 import type { ServerWebSocket } from "bun";
-import { type AnswerProvider, createReviewSession, type RunResult, runSession } from "./agent.ts";
+import {
+  type AnswerProvider,
+  type createReviewSession,
+  type RunResult,
+  runSession,
+} from "./agent.ts";
 import { coursePhases } from "./context.ts";
 import { countCards } from "./db.ts";
 import { installPack } from "./install.ts";
@@ -14,6 +19,7 @@ import { cardAttemptFile } from "./paths.ts";
 import { getProgress } from "./progress.ts";
 import { updateCard } from "./store.ts";
 import { getActiveTopic, listTopics, readTopicConfig } from "./topic.ts";
+import { buildTutorSession, type TutorIO } from "./tutor.ts";
 import type { RecallCard } from "./types.ts";
 import type { SttProvider, TtsProvider } from "./voice/types.ts";
 
@@ -294,10 +300,9 @@ export function startServer(deps: ServerDeps) {
         // Tell the client the regimen up front so it can render a phase rail; live
         // progress is forwarded from the agent's real complete_phase tool calls.
         send(ws, { type: "phases", phases: coursePhases(cfg) });
-        const session = createReviewSession(
-          ws.data.topicId,
-          makeAnswerProvider(ws, deps.tts),
-          (e) => {
+        const io: TutorIO = {
+          answerProvider: makeAnswerProvider(ws, deps.tts),
+          onEvent: (e) => {
             if (e.kind === "assistant_text") send(ws, { type: "caption", text: e.data });
             else if (
               e.kind === "tool_use" &&
@@ -308,15 +313,16 @@ export function startServer(deps: ServerDeps) {
                 phase: (e.data as { input?: { phase?: string } }).input?.phase,
               });
           },
-        );
-        // When the agent edits a card's front, refresh its native recording so
-        // shadowing audio never drifts from the text.
-        session.onCardContentChanged = (card) =>
-          regenerateCardAudio(ws.data.topicId, card, deps.tts, ws.data.voiceId);
-        // Surface the engine's grade + receipt (coverage breakdown) to the client.
-        session.onGraded = (cardId, grade) => send(ws, { type: "graded", cardId, ...grade });
-        // Card-less spoken turns for the roleplay phase.
-        session.converseProvider = makeConverseProvider(ws, deps.tts);
+          // When the agent edits a card's front, refresh its native recording so
+          // shadowing audio never drifts from the text.
+          onCardContentChanged: (card) =>
+            regenerateCardAudio(ws.data.topicId, card, deps.tts, ws.data.voiceId),
+          // Surface the engine's grade + receipt (coverage breakdown) to the client.
+          onGraded: (cardId, grade) => send(ws, { type: "graded", cardId, ...grade }),
+          // Card-less spoken turns for the roleplay phase.
+          converseProvider: makeConverseProvider(ws, deps.tts),
+        };
+        const session = buildTutorSession(ws.data.topicId, io);
         run(session)
           .then((res) =>
             send(ws, { type: "done", summary: session.summary, stopReason: res.stopReason }),

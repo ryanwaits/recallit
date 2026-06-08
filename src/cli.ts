@@ -32,6 +32,7 @@ import {
   readTopicConfig,
   setActiveTopic,
 } from "./topic.ts";
+import { loadManifest, runTutor, type TutorIO } from "./tutor.ts";
 import type { Modality } from "./types.ts";
 
 /** Split args into --flags (with values) and bare positionals, order-preserving. */
@@ -64,26 +65,31 @@ async function requireActive(explicit?: string): Promise<string> {
 
 /** Run the full multi-phase daily session for `topic`. Shared by `daily` + `quickstart`. */
 async function runDailySession(topic: string, f: Record<string, string>): Promise<void> {
-  const provider: AnswerProvider = async () => prompt("\nYour answer (blank to stop)> ") || null;
-  // Stable per-day id so a killed session resumes the same day.
-  const session = createReviewSession(
-    topic,
-    provider,
-    (e) => {
+  const io: TutorIO = {
+    answerProvider: async () => prompt("\nYour answer (blank to stop)> ") || null,
+    onEvent: (e) => {
       if (e.kind === "assistant_text") console.log(`\n🗣  ${e.data}`);
       else if (e.kind === "tool_use") console.log(`   · ${(e.data as { name: string }).name}`);
     },
-    `daily-${dayKey()}`,
-  );
-  session.converseProvider = async (say) => {
-    console.log(`\n🗣  ${say}`);
-    return prompt("> ") || null;
+    converseProvider: async (say) => {
+      console.log(`\n🗣  ${say}`);
+      return prompt("> ") || null;
+    },
   };
-  const res = await runSession(session, {
+  // The portable tutor artifact (agent config + style); bare course as fallback.
+  const manifest = (await loadManifest(topic)) ?? {
+    id: topic,
+    name: topic,
+    modality: "text",
+    meta: {},
+  };
+  // Stable per-day session id so a killed session resumes the same day.
+  const res = await runTutor(manifest, io, {
     mode: "daily",
     model: f.model,
     regimen: f.regimen,
     maxTurns: f.maxTurns ? Number(f.maxTurns) : undefined,
+    sessionId: `daily-${dayKey()}`,
   });
   console.log(
     `\n— daily session ${res.stopReason} (${res.numTurns} turns, $${res.costUsd.toFixed(4)})`,
