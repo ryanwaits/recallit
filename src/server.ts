@@ -257,6 +257,29 @@ export function startServer(deps: ServerDeps) {
       if (url.pathname === "/" || url.pathname === "/index.html") {
         return new Response(Bun.file(clientHtml), { headers: { "content-type": "text/html" } });
       }
+      // Static assets from public/ (favicon, PWA manifest + service worker, icons).
+      // Path-traversal guarded; serves only existing files under public/.
+      {
+        const rel = url.pathname.replace(/^\/+/, "");
+        if (rel && !rel.includes("..")) {
+          const f = Bun.file(join(import.meta.dir, "..", "public", rel));
+          if (await f.exists()) {
+            const types: Record<string, string> = {
+              svg: "image/svg+xml",
+              webmanifest: "application/manifest+json",
+              js: "text/javascript",
+              css: "text/css",
+              json: "application/json",
+              png: "image/png",
+              ico: "image/x-icon",
+            };
+            const ext = rel.slice(rel.lastIndexOf(".") + 1);
+            return new Response(f, {
+              headers: { "content-type": types[ext] ?? "application/octet-stream" },
+            });
+          }
+        }
+      }
       return new Response("not found", { status: 404 });
     },
     websocket: {

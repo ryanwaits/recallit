@@ -1,0 +1,13 @@
+{
+  "name": "recallit",
+  "short_name": "recallit",
+  "description": "An honest, source-grounded tutor. Describe it, practice it, remember it.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#faf6ee",
+  "theme_color": "#faf6ee",
+  "icons": [
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="recallit">
+  <!-- simple: the recallit mark is a rounded green square -->
+  <rect width="64" height="64" rx="16" fill="#67d29b"/>
+  <rect x="3" y="3" width="58" height="58" rx="13.5" fill="none" stroke="#43b87d" stroke-width="3"/>
+</svg>
