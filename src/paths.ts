@@ -1,9 +1,12 @@
 // Filesystem layout. Files are the source of truth; the sqlite index is derived.
 // Data root is overridable via RECALLIT_DATA_DIR (tests point it at a temp dir).
+import { homedir } from "node:os";
 import { join } from "node:path";
 
+// Default to a stable per-user home (~/.recallit) so the published CLI persists
+// reviews regardless of cwd. RECALLIT_DATA_DIR overrides (tests + hosted tenancy).
 export function dataRoot(): string {
-  return process.env.RECALLIT_DATA_DIR ?? join(process.cwd(), "data");
+  return process.env.RECALLIT_DATA_DIR ?? join(homedir(), ".recallit");
 }
 
 export const userFile = (): string => join(dataRoot(), "user.json");
