@@ -16,6 +16,7 @@ Start here, then go as deep as you need:
 ## Design rationale (the *why* behind big decisions)
 - [design/pack-generation.md](./design/pack-generation.md) — pack format, the author loop, the honesty gate, modes A/B/C.
 - [design/tutor-multimodal.md](./design/tutor-multimodal.md) — the checkable-item generalization, the examiner contract, and the validation methodology behind the numbers.
+- [design/conversation-and-curation.md](./design/conversation-and-curation.md) — why the conversation layer stays separate + ungraded, and how it feeds a background, source-grounded card curator (two-LLM classify + merge, threshold-gated) instead of grading.
 - [design/hosted-product.md](./design/hosted-product.md) — roadmap toward a hosted / multi-touchpoint direction.
 - [design/mobile-surfaces.md](./design/mobile-surfaces.md) — the honest PWA plan (offline study deck today; full tutor gated on a deploy + keys; the structural iOS limits).
 
