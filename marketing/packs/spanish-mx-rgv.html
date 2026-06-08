@@ -1,52 +1,57 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="en" data-theme="hum">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>Conversational Mexican Spanish (RGV) · recallit pack</title>
     <meta name="description" content="Speak answers aloud; i+1 sentences; mine new words from conversation." />
+    <meta name="theme-color" content="#faf6ee" />
     <link rel="icon" href="../favicon.svg" type="image/svg+xml" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="../tokens.css" />
-    <link rel="stylesheet" href="../styles.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="../hum-tokens.css" />
+    <link rel="stylesheet" href="../hum.css" />
     <link rel="stylesheet" href="pack.css" />
   </head>
   <body>
-    <header class="nav">
-      <div class="wrap nav__inner">
-        <a class="brand" href="../index.html"><span class="brand__dot" aria-hidden="true"></span>recallit</a>
-        <a class="btn btn--ghost" href="../index.html">← Home</a>
+    <header class="nav" id="nav">
+      <div class="nav__inner">
+        <a class="nav__brand" href="../index.html"><span class="rec-mark" aria-hidden="true"></span>recallit</a>
+        <nav class="nav__links" aria-label="Primary">
+          <a href="../index.html#stages">The method</a>
+          <a href="index.html">Packs</a>
+        </nav>
+        <div class="nav__actions">
+          <a class="btn btn--mint btn--sm" href="https://github.com/ryanwaits/recallit">★ Star</a>
+        </div>
       </div>
     </header>
 
-    <main class="wrap pack">
-      <section class="pack__head">
-        <span class="label pack__kicker">recallit pack · spanish-mx-rgv</span>
-        <h1>Conversational Mexican Spanish (RGV)</h1>
-        <p class="pack__lede">Speak answers aloud; i+1 sentences; mine new words from conversation.</p>
-        <div class="badge" aria-label="Cards ready to install">
-          <span class="badge__n">41/41</span>
-          <span class="badge__t">cards install · Nothing held back.</span>
-        </div>
+    <main id="main" class="section pack">
+      <header class="section__head pack__head">
+        <p class="eyebrow"><span class="eyebrow__dot eyebrow__dot--mint"></span> recallit pack · spanish-mx-rgv</p>
+        <h1 class="section__title">Conversational Mexican Spanish (RGV)</h1>
+        <p class="section__lede">Speak answers aloud; i+1 sentences; mine new words from conversation.</p>
+        <p class="pbadge"><b>41/41</b> cards install · nothing held back</p>
         <ul class="stats">
-          <li><b>41</b> cards</li>
-          <li><b>41</b> voiced</li>
-          <li><b>8</b> scenarios</li>
-          <li>37 sentence · 4 vocab</li>
-          <li>modality <b>voice</b></li>
+            <li><b>41</b> cards</li>
+            <li><b>41</b> voiced</li>
+            <li><b>8</b> scenarios</li>
+            <li>37 sentence · 4 vocab</li>
+            <li>modality <b>voice</b></li>
         </ul>
-      </section>
+      </header>
 
-      <section class="samples" aria-label="Audio samples">
-        <h2 class="label">Hear a few</h2>
+      <section class="block" aria-label="Audio samples">
+        <p class="eyebrow"><span class="eyebrow__dot eyebrow__dot--cyan"></span> Hear a few</p>
+        <div class="samples">
         <div class="sample">
           <div class="sample__txt">
             <span class="sample__front">Tengo hambre.</span>
             <span class="sample__back">I'm hungry.</span>
           </div>
-          <button class="sample__audio" type="button" data-src="audio/spanish-mx-rgv/00-tengo-hambre.mp3">
+          <button class="btn btn--mint btn--sm sample__audio" type="button" data-src="audio/spanish-mx-rgv/00-tengo-hambre.mp3">
             <span aria-hidden="true">►</span> Hear it
           </button>
         </div>
@@ -55,7 +60,7 @@
             <span class="sample__front">¿A qué hora regresas?</span>
             <span class="sample__back">What time are you coming back?</span>
           </div>
-          <button class="sample__audio" type="button" data-src="audio/spanish-mx-rgv/01-a-que-hora-regresas.mp3">
+          <button class="btn btn--mint btn--sm sample__audio" type="button" data-src="audio/spanish-mx-rgv/01-a-que-hora-regresas.mp3">
             <span aria-hidden="true">►</span> Hear it
           </button>
         </div>
@@ -64,70 +69,59 @@
             <span class="sample__front">Eres muy linda.</span>
             <span class="sample__back">You're very lovely. (to a woman)</span>
           </div>
-          <button class="sample__audio" type="button" data-src="audio/spanish-mx-rgv/02-eres-muy-linda.mp3">
+          <button class="btn btn--mint btn--sm sample__audio" type="button" data-src="audio/spanish-mx-rgv/02-eres-muy-linda.mp3">
             <span aria-hidden="true">►</span> Hear it
           </button>
         </div>
-      </section>
-
-      <section>
-        <h2 class="label">Sample cards</h2>
-        <div class="gallery" style="margin-top: var(--space-md);">
-            <article class="mini">
-              <span class="mini__tag label">sentence</span>
-              <p class="mini__q">Tengo hambre.</p>
-              <p class="mini__a">I'm hungry.</p>
-              
-            </article>
-            <article class="mini">
-              <span class="mini__tag label">sentence</span>
-              <p class="mini__q">¿A qué hora regresas?</p>
-              <p class="mini__a">What time are you coming back?</p>
-              
-            </article>
-            <article class="mini">
-              <span class="mini__tag label">sentence</span>
-              <p class="mini__q">Eres muy linda.</p>
-              <p class="mini__a">You're very lovely. (to a woman)</p>
-              
-            </article>
-            <article class="mini">
-              <span class="mini__tag label">sentence</span>
-              <p class="mini__q">No te preocupes, yo lo hago.</p>
-              <p class="mini__a">Don't worry, I'll do it.</p>
-              
-            </article>
-            <article class="mini">
-              <span class="mini__tag label">sentence</span>
-              <p class="mini__q">¿Ya comiste?</p>
-              <p class="mini__a">Have you eaten yet?</p>
-              
-            </article>
-            <article class="mini">
-              <span class="mini__tag label">sentence</span>
-              <p class="mini__q">¿Me entiendes?</p>
-              <p class="mini__a">Do you understand me?</p>
-              
-            </article>
-            <article class="mini">
-              <span class="mini__tag label">vocab</span>
-              <p class="mini__q">la troca</p>
-              <p class="mini__a">the truck (regional)</p>
-              
-            </article>
-            <article class="mini">
-              <span class="mini__tag label">sentence</span>
-              <p class="mini__q">Gracias por todo, mi amor.</p>
-              <p class="mini__a">Thanks for everything, my love.</p>
-              
-            </article>
         </div>
       </section>
 
-      <section class="pack__install">
-        <h2>Install this pack</h2>
-        <div class="code"><pre>bun run cli topic add packs/spanish-mx-rgv</pre></div>
-        <p class="pack__note">Every number above is read directly from this pack's <code>manifest.json</code> and <code>cards.json</code>. recallit installs only cards that pass its checks; anything flagged <code>needs-review</code> is held back, never guessed.</p>
+      <section class="block">
+        <p class="eyebrow"><span class="eyebrow__dot eyebrow__dot--pear"></span> Sample cards</p>
+        <div class="gallery">
+          <article class="mini">
+            <span class="mini__tag">sentence</span>
+            <p class="mini__q">Tengo hambre.</p>
+            <p class="mini__a">I'm hungry.</p>
+            
+          </article>
+          <article class="mini">
+            <span class="mini__tag">sentence</span>
+            <p class="mini__q">¿A qué hora regresas?</p>
+            <p class="mini__a">What time are you coming back?</p>
+            
+          </article>
+          <article class="mini">
+            <span class="mini__tag">sentence</span>
+            <p class="mini__q">Eres muy linda.</p>
+            <p class="mini__a">You're very lovely. (to a woman)</p>
+            
+          </article>
+          <article class="mini">
+            <span class="mini__tag">sentence</span>
+            <p class="mini__q">No te preocupes, yo lo hago.</p>
+            <p class="mini__a">Don't worry, I'll do it.</p>
+            
+          </article>
+          <article class="mini">
+            <span class="mini__tag">sentence</span>
+            <p class="mini__q">¿Ya comiste?</p>
+            <p class="mini__a">Have you eaten yet?</p>
+            
+          </article>
+          <article class="mini">
+            <span class="mini__tag">sentence</span>
+            <p class="mini__q">¿Me entiendes?</p>
+            <p class="mini__a">Do you understand me?</p>
+            
+          </article>
+        </div>
+      </section>
+
+      <section class="block install">
+        <p class="eyebrow"><span class="eyebrow__dot eyebrow__dot--mint"></span> Install this pack</p>
+        <div class="code"><pre>recallit topic add packs/spanish-mx-rgv</pre></div>
+        <p class="install__note">Every number here is read straight from the pack's <code>manifest.json</code> and <code>cards.json</code>. recallit installs only cards that pass its checks; anything flagged <code>needs-review</code> is held back, never guessed.</p>
       </section>
     </main>
 
@@ -145,5 +139,7 @@
         });
       }
     </script>
+
+    <script src="../hum.js"></script>
   </body>
 </html>

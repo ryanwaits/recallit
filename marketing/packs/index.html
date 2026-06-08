@@ -1,46 +1,55 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="en" data-theme="hum">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>recallit packs</title>
     <meta name="description" content="Browse the recallit packs in this repo." />
+    <meta name="theme-color" content="#faf6ee" />
     <link rel="icon" href="../favicon.svg" type="image/svg+xml" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="../tokens.css" />
-    <link rel="stylesheet" href="../styles.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="../hum-tokens.css" />
+    <link rel="stylesheet" href="../hum.css" />
     <link rel="stylesheet" href="pack.css" />
   </head>
   <body>
-    <header class="nav">
-      <div class="wrap nav__inner">
-        <a class="brand" href="../index.html"><span class="brand__dot" aria-hidden="true"></span>recallit</a>
-        <a class="btn btn--ghost" href="../index.html">← Home</a>
+    <header class="nav" id="nav">
+      <div class="nav__inner">
+        <a class="nav__brand" href="../index.html"><span class="rec-mark" aria-hidden="true"></span>recallit</a>
+        <nav class="nav__links" aria-label="Primary">
+          <a href="../index.html#stages">The method</a>
+          <a href="index.html">Packs</a>
+        </nav>
+        <div class="nav__actions">
+          <a class="btn btn--mint btn--sm" href="https://github.com/ryanwaits/recallit">★ Star</a>
+        </div>
       </div>
     </header>
 
-    <main class="wrap pack">
-      <section class="pack__head">
-        <span class="label pack__kicker">Packs</span>
-        <h1>Packs in this repo</h1>
-        <p class="pack__lede">Each pack is just cards plus optional audio. Pick one to see its stats and install line, or bring your own with <code>recallit pack &lt;source&gt;</code>.</p>
-      </section>
-      <ul class="packlist">
-        <li>
-          <a href="spanish-mx-rgv.html">
-            <h3>Conversational Mexican Spanish (RGV)</h3>
-            <p>41 cards · 41 voiced · voice</p>
-          </a>
-        </li>
-        <li>
-          <a href="architecture.html">
-            <h3>recallit Architecture</h3>
-            <p>24 cards · 0 voiced · text</p>
-          </a>
-        </li>
-      </ul>
+    <main id="main" class="section pack">
+      <header class="section__head">
+        <p class="eyebrow"><span class="eyebrow__dot eyebrow__dot--mint"></span> Packs</p>
+        <h1 class="section__title">A pack for anything.</h1>
+        <p class="section__lede">Each pack is just cards plus optional audio, every one citing its source. Pick one to see its stats and install line, or build your own with <code>recallit pack &lt;source&gt;</code>.</p>
+      </header>
+      <div class="packlist">
+        <a class="packcard" data-accent="mint" href="spanish-mx-rgv.html">
+          <span class="packcard__tag"><span class="packcard__dot"></span>voice pack</span>
+          <h3 class="packcard__name">Conversational Mexican Spanish (RGV)</h3>
+          <p class="packcard__stats">41 cards · 41 ready · 41 voiced</p>
+          <span class="packcard__go">Open <span aria-hidden="true">→</span></span>
+        </a>
+        <a class="packcard" data-accent="cyan" href="architecture.html">
+          <span class="packcard__tag"><span class="packcard__dot"></span>text pack</span>
+          <h3 class="packcard__name">recallit Architecture</h3>
+          <p class="packcard__stats">24 cards · 19 ready · 3 examiner-graded</p>
+          <span class="packcard__go">Open <span aria-hidden="true">→</span></span>
+        </a>
+      </div>
     </main>
+
+    <script src="../hum.js"></script>
   </body>
 </html>
