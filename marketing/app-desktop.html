@@ -32,8 +32,8 @@
     .railstreak { margin-top: 0.25rem; padding: 1rem; border-radius: 16px; background: var(--color-paper-2); border: 1.5px solid var(--color-rule); display: grid; gap: 0.7rem; }
     .railstreak__top { display: flex; align-items: center; gap: 0.5em; font-weight: 700; }
     .railstreak__top svg { width: 18px; height: 18px; }
-    .week { display: flex; gap: 5px; }
-    .day { flex: 1; aspect-ratio: 1; display: grid; place-items: center; border-radius: 8px; background: var(--color-paper); color: var(--color-muted); font-family: var(--font-label); font-size: 9px; font-weight: 600; }
+    .week { display: flex; gap: 4px; }
+    .day { flex: 1 1 0; min-width: 0; aspect-ratio: 1; display: grid; place-items: center; border-radius: 8px; background: var(--color-paper); color: var(--color-muted); font-family: var(--font-label); font-size: 9px; font-weight: 600; }
     .day.done { background: var(--color-mint); color: var(--color-ink); }
     .day.now { background: transparent; color: var(--color-mint-deep); border: 2px solid var(--color-mint-deep); }
     .railstreak__cap { font-size: 0.8rem; color: var(--color-ink-2); }
@@ -47,8 +47,9 @@
     .profile span { font-size: 0.85rem; color: var(--color-ink-2); }
 
     /* ── main ── */
-    .main { padding: 2.5rem clamp(1.5rem, 4vw, 3.5rem); max-width: 1100px; }
-    .m-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 1.5rem; margin-bottom: 2.5rem; }
+    .main { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 2.25rem 2rem; align-content: start; max-width: 1180px; padding: 2.5rem clamp(1.5rem, 4vw, 3.5rem); }
+    .m-head { grid-column: 1 / -1; display: flex; align-items: flex-end; justify-content: space-between; gap: 1.5rem; }
+    .m-col { grid-column: 1; display: grid; gap: 2.25rem; align-content: start; }
     .m-head h1 { font-family: var(--font-display); font-weight: 700; font-size: clamp(2rem, 3vw, 2.75rem); letter-spacing: -0.02em; }
     .m-head p { color: var(--color-ink-2); margin-top: 0.35rem; }
     .start-cta { display: inline-flex; align-items: center; gap: 0.5em; padding: 1rem 1.6rem; border-radius: 999px; border: 0; background: var(--color-mint); color: var(--color-accent-ink); font-weight: 700; font-size: 1.0625rem; white-space: nowrap; box-shadow: 0 5px 0 -1px var(--color-mint-deep), 0 14px 26px -8px oklch(70% 0.18 150 / 0.5); transition: transform 120ms var(--ease-out), box-shadow 120ms; }
@@ -71,7 +72,6 @@
     .pcard__foot { display: flex; align-items: center; justify-content: space-between; font-size: 0.8rem; color: var(--color-muted); }
     .pcard__go { color: var(--pc-deep); font-weight: 600; }
 
-    .m-lower { display: grid; grid-template-columns: 1fr 320px; gap: 1.5rem; margin-top: 2.5rem; }
     .nextup { list-style: none; display: grid; gap: 0.7rem; }
     .nx { width: 100%; text-align: left; display: flex; align-items: center; gap: 0.9rem; padding: 1rem 1.2rem; border-radius: 16px; border: 1.5px solid var(--color-rule); background: var(--color-paper); box-shadow: var(--shadow-card); transition: transform 140ms var(--ease-out); }
     .nx:hover { transform: translateX(3px); }
@@ -82,7 +82,7 @@
     .nx__txt span { font-family: var(--font-label); font-size: 10px; letter-spacing: 0.04em; text-transform: uppercase; color: var(--color-muted); }
     .nx__when { font-family: var(--font-label); font-size: 11px; color: var(--color-mint-deep); }
 
-    .m-side { display: grid; gap: 1.5rem; align-content: start; }
+    .m-side { grid-column: 2; display: grid; gap: 1.5rem; align-content: start; }
     .statcard { padding: 1.4rem; display: grid; gap: 1.1rem; }
     .stat3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; text-align: center; }
     .stat3 div b { display: block; font-family: var(--font-display); font-weight: 700; font-size: 1.5rem; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
@@ -158,23 +158,22 @@
         <button class="start-cta" data-pack="Mexican Spanish">Start studying →</button>
       </header>
 
-      <section>
-        <p class="sec">Your packs</p>
-        <div class="pgrid">
-          <button class="pcard" data-accent="mint" data-pack="Mexican Spanish">
-            <div class="pcard__row"><span class="pcard__icon"><i></i></span><div><div class="pcard__name">Mexican Spanish</div><div class="pcard__sub"><b>7 due</b> · voice</div></div></div>
-            <div class="bar"><i style="width:64%"></i></div>
-            <div class="pcard__foot"><span>164 of 248 mastered</span><span class="pcard__go">Open →</span></div>
-          </button>
-          <button class="pcard" data-accent="cyan" data-pack="Learn recallit">
-            <div class="pcard__row"><span class="pcard__icon"><i></i></span><div><div class="pcard__name">Learn recallit</div><div class="pcard__sub"><b>3 due</b> · text</div></div></div>
-            <div class="bar"><i style="width:38%"></i></div>
-            <div class="pcard__foot"><span>9 of 24 mastered</span><span class="pcard__go">Open →</span></div>
-          </button>
-        </div>
-      </section>
-
-      <div class="m-lower">
+      <div class="m-col">
+        <section>
+          <p class="sec">Your packs</p>
+          <div class="pgrid">
+            <button class="pcard" data-accent="mint" data-pack="Mexican Spanish">
+              <div class="pcard__row"><span class="pcard__icon"><i></i></span><div><div class="pcard__name">Mexican Spanish</div><div class="pcard__sub"><b>7 due</b> · voice</div></div></div>
+              <div class="bar"><i style="width:64%"></i></div>
+              <div class="pcard__foot"><span>164 of 248 mastered</span><span class="pcard__go">Open →</span></div>
+            </button>
+            <button class="pcard" data-accent="cyan" data-pack="Learn recallit">
+              <div class="pcard__row"><span class="pcard__icon"><i></i></span><div><div class="pcard__name">Learn recallit</div><div class="pcard__sub"><b>3 due</b> · text</div></div></div>
+              <div class="bar"><i style="width:38%"></i></div>
+              <div class="pcard__foot"><span>9 of 24 mastered</span><span class="pcard__go">Open →</span></div>
+            </button>
+          </div>
+        </section>
         <section>
           <p class="sec">Next up</p>
           <ul class="nextup">
@@ -183,7 +182,9 @@
             <li><button class="nx" data-pack="Learn recallit"><span class="nx__dot cyan"></span><span class="nx__txt"><b>Why is the engine topic-agnostic?</b><span>Learn recallit</span></span><span class="nx__when">2h</span></button></li>
           </ul>
         </section>
-        <aside class="m-side">
+      </div>
+
+      <aside class="m-side">
           <div class="card statcard">
             <p class="sec">Status</p>
             <div class="stat3"><div><b>10</b><span>due now</span></div><div><b>92%</b><span>kept</span></div><div><b>248</b><span>known</span></div></div>
@@ -197,7 +198,6 @@
             </div>
           </div>
         </aside>
-      </div>
     </main>
   </div>
 
