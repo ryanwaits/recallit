@@ -1,6 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="recallit">
-  <!-- Plume brand-dot motif: warm cream tile, rose dot with a soft halo -->
-  <rect width="32" height="32" rx="8" fill="#f4eee3" />
-  <circle cx="16" cy="16" r="9.5" fill="#f6d8dc" />
-  <circle cx="16" cy="16" r="6" fill="#d97f88" />
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" role="img" aria-label="recallit">
+  <!-- favicon: the recallit card mark on a pale-mint tile so it reads in a browser tab -->
+  <rect width="64" height="64" rx="15" fill="#dff0e3"/>
+  <defs><clipPath id="fav-card"><rect x="17" y="13" width="30" height="38" rx="8"/></clipPath></defs>
+  <g clip-path="url(#fav-card)">
+    <rect x="17" y="13" width="30" height="38" fill="#faf6ee"/>
+    <path d="M17 36 Q32 30 47 36 V51 H17 Z" fill="#67d29b"/>
+  </g>
+  <rect x="17" y="13" width="30" height="38" rx="8" fill="none" stroke="#1c1e24" stroke-width="3"/>
+  <path d="M26 41 l4 4 l7.5 -9" fill="none" stroke="#faf6ee" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>

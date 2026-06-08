@@ -325,7 +325,7 @@ em, .hl {
 }
 
 /* ═══ recallit additions: brand mark + the cited-line proof card ═══ */
-.rec-mark { width: 19px; height: 19px; border-radius: 6px; background: var(--color-mint); box-shadow: 0 2.5px 0 -0.5px var(--color-mint-deep); flex: 0 0 auto; }
+.rec-mark { width: 22px; height: 26px; background: url(mark.svg) center / contain no-repeat; flex: 0 0 auto; }
 .proof { width: 100%; max-width: 360px; background: var(--color-paper); border: 1.5px solid var(--color-rule); border-radius: var(--radius-card); padding: 1.3rem 1.45rem; box-shadow: var(--shadow-card); display: grid; gap: 0.5rem; }
 .proof__q { font-family: var(--font-display); font-weight: 600; font-size: 1.0625rem; line-height: 1.25; letter-spacing: -0.01em; color: var(--color-ink); }
 .proof__label { font-family: var(--font-label); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-muted); margin-top: 0.45rem; }
