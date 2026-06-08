@@ -28,6 +28,26 @@ export interface TopicConfig {
  *  CourseConfig while the on-disk + internal topic naming is retired incrementally. */
 export type CourseConfig = TopicConfig;
 
+/** How a tutor's agent runs. Manifest values are DEFAULTS; a per-call RunOptions
+ *  overrides them (see mergeAgentOptions). */
+export interface AgentConfig {
+  model?: string;
+  maxTurns?: number;
+  maxBudgetUsd?: number;
+  /** Prose constraints injected into the tutor's system prompt. */
+  guardrails?: string[];
+}
+
+/** A deployable tutor: a course (knowledge + style + modality) plus how its agent
+ *  runs and which generative-UI surfaces it exposes. The portable artifact the
+ *  runtime + surfaces consume. Agent/surfaces are optional fields on course.json,
+ *  so an ordinary course loads as a tutor with engine defaults. */
+export interface TutorManifest extends CourseConfig {
+  agent?: AgentConfig;
+  /** Generative-UI-registry surface ids this tutor exposes (Sprint 3). */
+  surfaces?: string[];
+}
+
 export interface RecallCard {
   id: string;
   /** Card shape, e.g. "vocab" | "sentence" | "basic". Free-form. */

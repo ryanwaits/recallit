@@ -90,6 +90,7 @@ export {
   updateTopicConfig,
 } from "./topic.ts";
 export type {
+  AgentConfig,
   CourseConfig,
   EvalRating,
   EvalResult,
@@ -100,5 +101,6 @@ export type {
   RecallCard,
   ReviewLogEntry,
   TopicConfig,
+  TutorManifest,
 } from "./types.ts";
 export { Rating, State } from "./types.ts";
