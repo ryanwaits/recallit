@@ -17,10 +17,11 @@
 
     .phone { position: relative; width: min(100vw, 400px); height: min(100dvh, 820px); background: var(--color-paper); overflow: hidden; border: 1px solid var(--color-rule); }
     @media (min-width: 440px) { .phone { border-radius: 40px; box-shadow: 0 40px 80px -30px oklch(20% 0.012 250 / 0.35); border: 10px solid var(--color-ink); } }
-    .track { display: flex; width: 200%; height: 100%; transition: transform 340ms var(--ease-out); }
-    @media (prefers-reduced-motion: reduce) { .track { transition: none; } }
-    .phone[data-screen="session"] .track { transform: translateX(-50%); }
-    .screen { width: 50%; height: 100%; display: flex; flex-direction: column; }
+
+    /* screen stack — each parked off-right, the active one slides in */
+    .screen { position: absolute; inset: 0; display: flex; flex-direction: column; background: var(--color-paper); transform: translateX(100%); transition: transform 340ms var(--ease-out); }
+    .screen.active { transform: translateX(0); }
+    @media (prefers-reduced-motion: reduce) { .screen { transition: none; } }
 
     /* ── HOME / DASHBOARD ── */
     .g-top { display: flex; align-items: center; justify-content: space-between; padding: 1.25rem 1.25rem 0.75rem; }
@@ -44,46 +45,53 @@
     .stat3 b { display: block; font-family: var(--font-display); font-weight: 700; font-size: 1.55rem; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
     .stat3 span { font-family: var(--font-label); font-size: 9.5px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--color-muted); }
 
-    .packs { display: grid; gap: 0.75rem; }
-    .pcard { --pc: var(--color-mint); --pc-tint: var(--tint-mint); --pc-deep: var(--color-mint-deep);
-      display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 0.9rem;
-      width: 100%; text-align: left; padding: 1.05rem 1.2rem; border-radius: var(--radius-card);
-      border: 1.5px solid var(--color-rule); background: var(--color-paper); box-shadow: var(--shadow-card); transition: transform 140ms var(--ease-out); }
+    /* shared card-row (packs + next-up are the SAME width box) */
+    .row { display: flex; align-items: center; gap: 0.9rem; width: 100%; text-align: left; padding: 1.05rem 1.2rem; border-radius: var(--radius-card); border: 1.5px solid var(--color-rule); background: var(--color-paper); box-shadow: var(--shadow-card); transition: transform 140ms var(--ease-out); }
+    .row:active { transform: scale(0.985); }
+    .packs, .nextup { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.8rem; }
+    .pcard { --pc: var(--color-mint); --pc-tint: var(--tint-mint); --pc-deep: var(--color-mint-deep); }
     .pcard[data-accent="cyan"] { --pc: var(--color-accent-2); --pc-tint: var(--tint-cyan); --pc-deep: var(--color-accent-2-deep); }
-    .pcard:active { transform: scale(0.98); }
-    .pcard__icon { width: 40px; height: 40px; border-radius: 12px; background: var(--pc-tint); display: grid; place-items: center; }
+    .pcard__icon { width: 40px; height: 40px; border-radius: 12px; background: var(--pc-tint); display: grid; place-items: center; flex: 0 0 auto; }
     .pcard__icon i { width: 13px; height: 13px; border-radius: 4px; background: var(--pc); }
-    .pcard__txt { display: grid; gap: 0.15rem; min-width: 0; }
+    .pcard__txt, .nx__txt { flex: 1; display: grid; gap: 0.15rem; min-width: 0; }
     .pcard__name { font-family: var(--font-display); font-weight: 700; font-size: 1.0625rem; letter-spacing: -0.01em; }
-    .pcard__due { font-family: var(--font-label); font-size: 11px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--color-muted); }
+    .pcard__due, .nx__txt span { font-family: var(--font-label); font-size: 11px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--color-muted); }
     .pcard__due b { color: var(--pc-deep); }
-    .pcard__go { color: var(--pc-deep); font-size: 1.2rem; }
-
-    .nextup { list-style: none; display: grid; gap: 0.5rem; }
-    .nx { display: flex; align-items: center; gap: 0.75rem; padding: 0.8rem 1rem; border-radius: 14px; border: 1.5px solid var(--color-rule); background: var(--color-paper); width: 100%; text-align: left; transition: transform 140ms var(--ease-out); }
-    .nx:active { transform: scale(0.99); }
+    .pcard__go { color: var(--pc-deep); font-size: 1.2rem; flex: 0 0 auto; }
     .nx__dot { width: 9px; height: 9px; border-radius: 999px; flex: 0 0 auto; }
     .nx__dot.mint { background: var(--color-mint); } .nx__dot.cyan { background: var(--color-accent-2); }
-    .nx__txt { flex: 1; display: grid; gap: 0.1rem; min-width: 0; }
     .nx__txt b { font-weight: 600; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .nx__txt span { font-family: var(--font-label); font-size: 10px; letter-spacing: 0.04em; text-transform: uppercase; color: var(--color-muted); }
     .nx__when { font-family: var(--font-label); font-size: 11px; color: var(--color-mint-deep); flex: 0 0 auto; }
 
-    .talk { margin: 0.4rem 1.25rem calc(1.1rem + env(safe-area-inset-bottom)); display: grid; justify-items: center; gap: 0.35rem; }
+    .talk { padding: 0.4rem 1.25rem calc(1.1rem + env(safe-area-inset-bottom)); display: grid; justify-items: center; gap: 0.35rem; }
     .talk__btn { display: inline-flex; align-items: center; gap: 0.55em; padding: 0.85rem 1.7rem; border-radius: 999px; border: 0; background: var(--color-lavender); color: var(--color-ink); font-family: var(--font-body); font-weight: 700; font-size: 1.0625rem; box-shadow: 0 5px 0 -1px var(--color-lavender-deep), 0 12px 22px -8px oklch(64% 0.18 305 / 0.5); transition: transform 120ms var(--ease-out), box-shadow 120ms; }
     .talk__btn:active { transform: translateY(3px); box-shadow: 0 1px 0 -1px var(--color-lavender-deep); }
     .talk__btn svg { width: 19px; height: 19px; }
     .talk__cap { font-family: var(--font-label); font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--color-muted); }
 
-    /* ── SESSION ── */
+    /* ── PACK LANDING ── */
     .top { display: flex; align-items: center; gap: 0.75rem; padding: 1.1rem 1.25rem 0.5rem; }
-    .x { width: 36px; height: 36px; border: 0; background: transparent; color: var(--color-muted); font-size: 1.1rem; border-radius: 999px; }
+    .x { width: 36px; height: 36px; border: 0; background: transparent; color: var(--color-muted); font-size: 1.2rem; border-radius: 999px; }
     .x:active { background: var(--color-paper-2); }
+    .top .pack { flex: 1; text-align: center; font-family: var(--font-label); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-muted); }
+    .pack-body { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.4rem; padding: 1.5rem 1.75rem calc(1.5rem + env(safe-area-inset-bottom)); text-align: center; }
+    .pack-big { width: 84px; height: 84px; border-radius: 24px; background: var(--pl-tint, var(--tint-mint)); display: grid; place-items: center; }
+    .pack-big i { width: 30px; height: 30px; border-radius: 9px; background: var(--pl, var(--color-mint)); }
+    .pack-name { font-family: var(--font-display); font-weight: 700; font-size: 1.9rem; letter-spacing: -0.02em; }
+    .pack-status { font-family: var(--font-label); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--color-muted); }
+    .pack-status b { color: var(--pl-deep, var(--color-mint-deep)); }
+    .pl-actions { display: grid; gap: 0.75rem; width: 100%; max-width: 300px; margin-top: 0.5rem; }
+    .start { padding: 1.05rem; border-radius: 999px; border: 0; background: var(--color-mint); color: var(--color-accent-ink); font-weight: 700; font-size: 1.1rem; box-shadow: 0 5px 0 -1px var(--color-mint-deep), 0 12px 22px -8px oklch(70% 0.18 150 / 0.5); transition: transform 120ms var(--ease-out), box-shadow 120ms; }
+    .start:active { transform: translateY(3px); box-shadow: 0 1px 0 -1px var(--color-mint-deep); }
+    .pl-talk { padding: 0.9rem; border-radius: 999px; border: 1.5px solid var(--color-lavender-deep); background: transparent; color: var(--color-lavender-deep); font-weight: 700; display: inline-flex; align-items: center; justify-content: center; gap: 0.5em; }
+    .pl-talk svg { width: 18px; height: 18px; }
+    .browse { background: 0; border: 0; color: var(--color-ink-2); font-size: 0.85rem; text-decoration: underline; text-underline-offset: 3px; }
+
+    /* ── SESSION ── */
     .dots { flex: 1; display: flex; justify-content: center; gap: 6px; }
     .dot { width: 7px; height: 7px; border-radius: 999px; background: var(--color-rule-2); opacity: 0.5; transition: all 240ms var(--ease-out); }
     .dot.done { background: var(--color-mint); opacity: 1; }
     .dot.now { background: var(--color-mint-deep); opacity: 1; transform: scale(1.35); }
-    .pack { font-family: var(--font-label); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-muted); }
     .stage { flex: 1; display: grid; align-content: center; gap: 1.25rem; padding: 1.5rem; text-align: center; touch-action: pan-y; }
     .eyebrow { font-family: var(--font-label); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--color-mint-deep); }
     .prompt { font-family: var(--font-display); font-weight: 700; font-size: clamp(1.6rem, 7vw, 2.2rem); line-height: 1.15; letter-spacing: -0.02em; }
@@ -111,88 +119,105 @@
   </style>
 </head>
 <body>
-  <p class="note">mock · home dashboard · tap a pack or item → session · hold the mic · swipe · ✕ home</p>
-  <div class="phone" data-screen="gallery">
-    <div class="track">
+  <p class="note">mock · home → pack → session · hold the mic · swipe · ← back</p>
+  <div class="phone">
 
-      <!-- HOME / DASHBOARD -->
-      <section class="screen gallery">
-        <div class="g-top">
-          <span class="brand"><span class="mark"></span>recallit</span>
-          <span class="streak"><svg class="flame" viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path d="M12 2c4 4 6 7 6 11a6 6 0 0 1-12 0c0-2 1-3.6 2.2-4.9C9.6 10 11 8 12 2Z" fill="#f15f4c"/><path d="M12 9.2c1.9 1.9 2.7 3.4 2.7 5a2.7 2.7 0 0 1-5.4 0c0-1.4 1.1-2.7 2.7-5Z" fill="#edc845"/></svg>5</span>
+    <!-- HOME / DASHBOARD -->
+    <section class="screen active" id="home">
+      <div class="g-top">
+        <span class="brand"><span class="mark"></span>recallit</span>
+        <span class="streak"><svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path d="M12 2c4 4 6 7 6 11a6 6 0 0 1-12 0c0-2 1-3.6 2.2-4.9C9.6 10 11 8 12 2Z" fill="#f15f4c"/><path d="M12 9.2c1.9 1.9 2.7 3.4 2.7 5a2.7 2.7 0 0 1-5.4 0c0-1.4 1.1-2.7 2.7-5Z" fill="#edc845"/></svg>5</span>
+      </div>
+      <div class="g-scroll">
+        <div class="streakcard">
+          <div class="week"><span class="day done">M</span><span class="day done">T</span><span class="day done">W</span><span class="day done">T</span><span class="day now">F</span><span class="day">S</span><span class="day">S</span></div>
+          <p class="streakcap"><b>5-day streak.</b> Two more for your record.</p>
         </div>
-        <div class="g-scroll">
-          <div class="streakcard">
-            <div class="week">
-              <span class="day done">M</span><span class="day done">T</span><span class="day done">W</span><span class="day done">T</span><span class="day now">F</span><span class="day">S</span><span class="day">S</span>
-            </div>
-            <p class="streakcap"><b>5-day streak.</b> Two more for your record.</p>
-          </div>
-
-          <div class="stats3">
-            <div class="stat3"><b>10</b><span>due now</span></div>
-            <div class="stat3"><b>92%</b><span>kept</span></div>
-            <div class="stat3"><b>248</b><span>known</span></div>
-          </div>
-
-          <div class="group">
-            <p class="sec">Your packs</p>
-            <div class="packs">
-              <button class="pcard" data-accent="mint" data-pack="Mexican Spanish">
-                <span class="pcard__icon"><i></i></span>
-                <span class="pcard__txt"><span class="pcard__name">Mexican Spanish</span><span class="pcard__due"><b>7 due</b> · voice</span></span>
-                <span class="pcard__go">→</span>
-              </button>
-              <button class="pcard" data-accent="cyan" data-pack="Learn recallit">
-                <span class="pcard__icon"><i></i></span>
-                <span class="pcard__txt"><span class="pcard__name">Learn recallit</span><span class="pcard__due"><b>3 due</b> · text</span></span>
-                <span class="pcard__go">→</span>
-              </button>
-            </div>
-          </div>
-
-          <div class="group">
-            <p class="sec">Next up</p>
-            <ul class="nextup">
-              <li><button class="nx" data-pack="Mexican Spanish"><span class="nx__dot mint"></span><span class="nx__txt"><b>¿Qué onda?</b><span>Mexican Spanish</span></span><span class="nx__when">now</span></button></li>
-              <li><button class="nx" data-pack="Mexican Spanish"><span class="nx__dot mint"></span><span class="nx__txt"><b>Order al pastor, no onions</b><span>Mexican Spanish · from your chat</span></span><span class="nx__when">now</span></button></li>
-              <li><button class="nx" data-pack="Learn recallit"><span class="nx__dot cyan"></span><span class="nx__txt"><b>Why is the engine topic-agnostic?</b><span>Learn recallit</span></span><span class="nx__when">2h</span></button></li>
-            </ul>
+        <div class="stats3">
+          <div class="stat3"><b>10</b><span>due now</span></div>
+          <div class="stat3"><b>92%</b><span>kept</span></div>
+          <div class="stat3"><b>248</b><span>known</span></div>
+        </div>
+        <div class="group">
+          <p class="sec">Your packs</p>
+          <div class="packs">
+            <button class="row pcard" data-accent="mint" data-pack="Mexican Spanish" data-due="7" data-mode="pack">
+              <span class="pcard__icon"><i></i></span>
+              <span class="pcard__txt"><span class="pcard__name">Mexican Spanish</span><span class="pcard__due"><b>7 due</b> · voice</span></span>
+              <span class="pcard__go">→</span>
+            </button>
+            <button class="row pcard" data-accent="cyan" data-pack="Learn recallit" data-due="3" data-mode="pack">
+              <span class="pcard__icon"><i></i></span>
+              <span class="pcard__txt"><span class="pcard__name">Learn recallit</span><span class="pcard__due"><b>3 due</b> · text</span></span>
+              <span class="pcard__go">→</span>
+            </button>
           </div>
         </div>
-        <div class="talk">
-          <button class="talk__btn" data-pack="Mexican Spanish">
+        <div class="group">
+          <p class="sec">Next up</p>
+          <ul class="nextup">
+            <li><button class="row nx" data-pack="Mexican Spanish" data-mode="session"><span class="nx__dot mint"></span><span class="nx__txt"><b>¿Qué onda?</b><span>Mexican Spanish</span></span><span class="nx__when">now</span></button></li>
+            <li><button class="row nx" data-pack="Mexican Spanish" data-mode="session"><span class="nx__dot mint"></span><span class="nx__txt"><b>Order al pastor, no onions</b><span>Mexican Spanish · from your chat</span></span><span class="nx__when">now</span></button></li>
+            <li><button class="row nx" data-pack="Learn recallit" data-mode="session"><span class="nx__dot cyan"></span><span class="nx__txt"><b>Why is the engine topic-agnostic?</b><span>Learn recallit</span></span><span class="nx__when">2h</span></button></li>
+          </ul>
+        </div>
+      </div>
+      <div class="talk">
+        <button class="talk__btn" data-pack="Mexican Spanish" data-mode="session">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-12.3 7.5L3 21l2-5.7A8.4 8.4 0 1 1 21 11.5Z"/></svg>
+          Just talk
+        </button>
+        <span class="talk__cap">no grading, just practice</span>
+      </div>
+    </section>
+
+    <!-- PACK LANDING -->
+    <section class="screen" id="pack">
+      <div class="top">
+        <button class="x" data-to="home" aria-label="Back">←</button>
+        <span class="pack">Pack</span>
+        <span style="width:36px"></span>
+      </div>
+      <div class="pack-body" id="plBody">
+        <div class="pack-big"><i></i></div>
+        <div style="display:grid;gap:0.4rem">
+          <h1 class="pack-name" id="plName">Mexican Spanish</h1>
+          <p class="pack-status" id="plStatus"><b>7 due now</b> · 248 known · 92% kept</p>
+        </div>
+        <div class="pl-actions">
+          <button class="start" data-to="session">Start · 7 due</button>
+          <button class="pl-talk" data-to="session">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-12.3 7.5L3 21l2-5.7A8.4 8.4 0 1 1 21 11.5Z"/></svg>
             Just talk
           </button>
-          <span class="talk__cap">no grading, just practice</span>
+          <button class="browse">Browse all cards</button>
         </div>
-      </section>
+      </div>
+    </section>
 
-      <!-- SESSION -->
-      <section class="screen session">
-        <div class="top">
-          <button class="x" id="x" aria-label="Back to home">✕</button>
-          <div class="dots" id="dots"></div>
-          <span class="pack" id="packLabel">Mexican Spanish</span>
-        </div>
-        <main class="stage" id="stage">
-          <p class="eyebrow" id="eyebrow">Recall, in your words</p>
-          <h1 class="prompt" id="prompt"></h1>
-          <div class="fb" id="fb"></div>
-        </main>
-        <div class="bottom">
-          <button class="mic" id="mic" aria-label="Hold to speak">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>
-          </button>
-          <p class="micLabel" id="micLabel">Hold to speak</p>
-          <button class="typeBtn" id="typeBtn">type instead</button>
-          <form class="typeRow" id="typeRow" hidden><input id="typeInput" placeholder="type your answer" autocomplete="off" /><button type="submit" aria-label="Send">↑</button></form>
-          <span class="swipehint">← swipe for the next →</span>
-        </div>
-      </section>
+    <!-- SESSION -->
+    <section class="screen" id="session">
+      <div class="top">
+        <button class="x" data-to="home" aria-label="End session">✕</button>
+        <div class="dots" id="dots"></div>
+        <span class="pack" id="packLabel">Mexican Spanish</span>
+      </div>
+      <main class="stage" id="stage">
+        <p class="eyebrow" id="eyebrow">Recall, in your words</p>
+        <h1 class="prompt" id="prompt"></h1>
+        <div class="fb" id="fb"></div>
+      </main>
+      <div class="bottom">
+        <button class="mic" id="mic" aria-label="Hold to speak">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>
+        </button>
+        <p class="micLabel" id="micLabel">Hold to speak</p>
+        <button class="typeBtn" id="typeBtn">type instead</button>
+        <form class="typeRow" id="typeRow" hidden><input id="typeInput" placeholder="type your answer" autocomplete="off" /><button type="submit" aria-label="Send">↑</button></form>
+        <span class="swipehint">← swipe for the next →</span>
+      </div>
+    </section>
 
-    </div>
   </div>
 
   <script>
@@ -202,12 +227,26 @@
       { eyebrow: "You fumbled this one", prompt: "Tell your wife you'll be home late.", answer: "voy a llegar tarde", grade: "Almost", note: "back tomorrow" },
     ];
     const $ = (s) => document.querySelector(s);
-    const phone = $(".phone"), dots = $("#dots"), stage = $("#stage"), mic = $("#mic"), micLabel = $("#micLabel"), fb = $("#fb");
+    const dots = $("#dots"), stage = $("#stage"), mic = $("#mic"), micLabel = $("#micLabel"), fb = $("#fb");
     let i = 0, recording = false, busy = false;
 
-    function enter(pack) { $("#packLabel").textContent = pack; i = 0; render(); phone.dataset.screen = "session"; }
-    document.querySelectorAll(".pcard, .nx, .talk__btn").forEach((b) => b.addEventListener("click", () => enter(b.dataset.pack)));
-    $("#x").addEventListener("click", () => { phone.dataset.screen = "gallery"; });
+    function show(id) { document.querySelectorAll(".screen").forEach((s) => s.classList.toggle("active", s.id === id)); }
+    function openPack(pack, accent, due) {
+      $("#plName").textContent = pack;
+      $("#plStatus").innerHTML = `<b>${due} due now</b> · 248 known · 92% kept`;
+      $(".start").textContent = `Start · ${due} due`;
+      const tint = accent === "cyan" ? "var(--tint-cyan)" : "var(--tint-mint)";
+      const c = accent === "cyan" ? "var(--color-accent-2)" : "var(--color-mint)";
+      const cd = accent === "cyan" ? "var(--color-accent-2-deep)" : "var(--color-mint-deep)";
+      const b = $("#plBody"); b.style.setProperty("--pl-tint", tint); b.style.setProperty("--pl", c); b.style.setProperty("--pl-deep", cd);
+      show("pack");
+    }
+    function startSession(pack) { $("#packLabel").textContent = pack; i = 0; render(); show("session"); }
+
+    document.querySelectorAll("[data-mode='pack']").forEach((b) => b.addEventListener("click", () => openPack(b.dataset.pack, b.dataset.accent, b.dataset.due)));
+    document.querySelectorAll("[data-mode='session']").forEach((b) => b.addEventListener("click", () => startSession(b.dataset.pack)));
+    document.querySelectorAll(".pl-actions .start, .pl-actions .pl-talk").forEach((b) => b.addEventListener("click", () => startSession($("#plName").textContent)));
+    document.querySelectorAll("[data-to='home']").forEach((b) => b.addEventListener("click", () => show("home")));
 
     function render() {
       const p = prompts[i];
