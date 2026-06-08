@@ -93,6 +93,24 @@ interface TutorManifest {
 - **Compliance assessment** (the compliance style + a code-graded assessment surface).
 - Later (riskier, optional): fuller **model-generated** surfaces — held to the same code-owned-grade invariant.
 
+## Packaging & deployment model (resolved 2026-06-08)
+
+**The portable unit is a tutor BUNDLE — `manifest + knowledge` — run by our engine. We never hand over the Agent SDK code.** The Claude Agent SDK is the *engine's* internals (`agent.ts`: tools, loop, graders); the deliverable is data. This is deliberate: **keeping the engine ours is what keeps grades honest after deployment** — a handed-over SDK bundle could have its code-owned grader stripped. So "engine stays ours, tutor travels as data" is the moat *and* the honesty guarantee. (The bundle still exports freely → no lock-in.)
+
+```
+my-tutor/
+  manifest.json   # course + style + agent config + modality + surfaces
+  knowledge/      # cards, rubrics, scenarios, audio, corpus-of-record
+# → run by the recallit engine, rendered into a surface, packaged for a target:
+recallit deploy my-tutor --target pwa --surface voice
+```
+
+The tutor bundle is **today's pack/export, evolved** — the "keep export as the portable artifact" decision and this converge.
+
+- **An "end" = surface × deployment target × modality.** PWA language app, desktop cert course, org onboarding/compliance are the same bundle deployed to different ends. The eventual registry of ends = a catalog of target packagers.
+- **Engine location = both, per target.** PWA/desktop ends may **embed a local engine** (offline, BYO-key); org/hosted ends use a **central engine** we run. The surface is a thin shell over whichever engine.
+- **Secondary channel (dev-only):** a tutor *may also* be emitted as an MCP/skill for consumers who run their own Agent SDK harness — a bonus distribution, never the packaging model (it can't serve non-technical PWA/course/onboarding consumers).
+
 ## What this is NOT
 
 - **Not a model that grades itself or improves its own grading.** Self-improvement touches knowledge + pedagogy only (invariant #2). A tutor that could edit its grade is the one thing we will never ship.
