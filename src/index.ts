@@ -74,6 +74,14 @@ export {
   updateCard,
 } from "./store.ts";
 export {
+  DEFAULT_STYLE,
+  type DoneCriterion,
+  getStyle,
+  registerStyle,
+  type StyleDefinition,
+  styleName,
+} from "./styles/registry.ts";
+export {
   createTopic,
   getActiveTopic,
   listTopics,
