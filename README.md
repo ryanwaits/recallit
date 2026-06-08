@@ -9,6 +9,16 @@ The engine knows nothing about any subject. A topic is a plug-in: config + cards
 - **Grading:** deterministic rubric (`evaluateAnswer`) — code decides the rating, not the agent, so FSRS stays consistent
 - **Stack:** Bun + TypeScript
 
+## Quick start
+
+One command — seeds a starter pack (Conversational Mexican Spanish), boots the app, opens your browser:
+
+```bash
+bunx @waits/recallit start
+```
+
+Keyless by default: real cards, real grading, **no API spend**. Paste an `ANTHROPIC_API_KEY` at the prompt (or set it in your environment) to enable the live AI tutor. Data persists to `~/.recallit`.
+
 ## Layout
 
 ```
@@ -29,7 +39,7 @@ src/
   cli.ts        headless CLI harness
 ```
 
-Data lives under `./data` (override with `RECALLIT_DATA_DIR`). Subjects ship as **packs** under `packs/<id>/`; install with `topic add` (see ARCHITECTURE.md → *Topic packs*).
+Data lives under `~/.recallit` (override with `RECALLIT_DATA_DIR`). Subjects ship as **packs** under `packs/<id>/`; install with `topic add` (see ARCHITECTURE.md → *Topic packs*).
 
 ## Develop
 
