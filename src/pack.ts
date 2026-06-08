@@ -20,6 +20,8 @@ export const PackManifestSchema = z.object({
   name: z.string().min(1),
   modality: ModalitySchema,
   recallStyle: z.string().optional(),
+  /** Pedagogy template id (see styles/registry.ts). Absent => "recallit". */
+  style: z.string().optional(),
   goalMetric: z.string().optional(),
   meta: z.record(z.string(), z.unknown()).default({}),
 });

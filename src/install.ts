@@ -82,6 +82,7 @@ async function installFromDir(source: string, opts: InstallOptions): Promise<Ins
     name: pack.manifest.name,
     modality: pack.manifest.modality,
     recallStyle: pack.manifest.recallStyle,
+    style: pack.manifest.style,
     goalMetric: pack.manifest.goalMetric,
     meta: pack.manifest.meta,
   };

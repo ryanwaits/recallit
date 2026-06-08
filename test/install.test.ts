@@ -7,7 +7,8 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { getDueCardIds } from "../src/db.ts";
 import { assertEngineSatisfied, installPack } from "../src/install.ts";
-import { cardAttemptFile } from "../src/paths.ts";
+import { cardAttemptFile, topicConfigFile } from "../src/paths.ts";
+import { styleName } from "../src/styles/registry.ts";
 import { getActiveTopic, readTopicConfig } from "../src/topic.ts";
 
 const FIXTURE = join(import.meta.dir, "fixtures", "pack-min");
@@ -72,5 +73,31 @@ describe("installPack", () => {
 
   test("rejects a pack whose engine range the core can't satisfy", async () => {
     await expect(installPack(FIXTURE, { coreVersion: "0.0.1" })).rejects.toThrow(/engine/);
+  });
+
+  test("style: a style-less pack defaults to recallit and writes no style key", async () => {
+    const cfg = await readTopicConfig("pack-min");
+    expect(styleName(cfg ?? {})).toBe("recallit");
+    // Bit-identical: existing packs gain no style field on disk.
+    expect(await Bun.file(topicConfigFile("pack-min")).text()).not.toContain('"style"');
+  });
+
+  test("style: a manifest style is written to the installed course config", async () => {
+    const pdir = await mkdtemp(join(tmpdir(), "recallit-stylepack-"));
+    await Bun.write(
+      join(pdir, "manifest.json"),
+      JSON.stringify({
+        schemaVersion: 1,
+        engine: "*",
+        id: "styled",
+        name: "Styled",
+        modality: "text",
+        style: "recallit",
+      }),
+    );
+    await Bun.write(join(pdir, "cards.json"), JSON.stringify([{ front: "q", back: "a" }]));
+    await installPack(pdir);
+    expect((await readTopicConfig("styled"))?.style).toBe("recallit");
+    await rm(pdir, { recursive: true, force: true });
   });
 });

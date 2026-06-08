@@ -14,6 +14,9 @@ export interface TopicConfig {
   modality: Modality;
   /** Free-text pedagogy hint surfaced to the agent (e.g. "i+1 sentences, speak aloud"). */
   recallStyle?: string;
+  /** Pedagogy template id (see styles/registry.ts) that shapes the session + "done".
+   *  Absent => "recallit". Distinct from recallStyle (a free-text agent hint). */
+  style?: string;
   /** The north-star metric this topic optimizes (e.g. "minutes_spoken"). */
   goalMetric?: string;
   /** Free-form domain config (e.g. { dialect: "mx-rgv" }). Never typed by the engine. */
