@@ -120,7 +120,7 @@ describe("regimen — learner-chosen modality over a consistent grade", () => {
         expect(phases).toBeUndefined(); // "full" = fall back to the pack's modality default
         continue;
       }
-      expect(phases && phases.length).toBeGreaterThan(0);
+      expect(phases?.length).toBeGreaterThan(0);
       for (const p of phases ?? []) expect(guided.has(p)).toBe(true);
     }
   });
