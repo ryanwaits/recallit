@@ -54,7 +54,7 @@ function head(title: string, desc: string, cssDepth: string): string {
           <a href="index.html">Packs</a>
         </nav>
         <div class="nav__actions">
-          <a class="btn btn--mint btn--sm" href="https://github.com/ryanwaits/recallit">★ Star</a>
+          <a class="btn btn--mint btn--sm" href="${cssDepth}demo/index.html">Try the demo</a>
         </div>
       </div>
     </header>`;
