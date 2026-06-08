@@ -2,13 +2,21 @@
 
 A copy-pasteable cookbook for recallit — the topic-agnostic, honest-by-construction spaced-repetition recall engine. Every flow below uses real command, file, and env names from the codebase. Where a capability costs money or is platform-limited, it is marked.
 
-recallit is **one deploy = one user** (not a SaaS): your data lives on disk under `RECALLIT_DATA_DIR` (default `./data`). "Sync across devices" = put that directory in your own git/Dropbox.
+recallit is **one deploy = one user** (not a SaaS): your data lives on disk under `RECALLIT_DATA_DIR` (default `~/.recallit`). "Sync across devices" = put that directory in your own git/Dropbox.
 
 ---
 
-## 0. Install / invoke
+## 0. Get started
 
-recallit is **Bun-only** (the engine imports `bun:sqlite`). The CLI bin is `recallit`.
+From zero — `start` seeds a starter pack (Conversational Mexican Spanish), boots the app, and opens your browser:
+
+```bash
+bunx @waits/recallit start
+```
+
+Keyless by default (real cards, real grading, **no API spend**). Paste an `ANTHROPIC_API_KEY` at the prompt — or set it in your environment — to enable the live AI tutor; voiced practice also needs `ELEVENLABS_API_KEY`. Data persists to `~/.recallit`. Headless/CI runs skip the browser and just print the URL.
+
+For everything else, drive the CLI directly. recallit is **Bun-only** (the engine imports `bun:sqlite`). The CLI bin is `recallit`.
 
 ```bash
 # One-off via the published package (no install)

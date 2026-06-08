@@ -60,7 +60,7 @@ Two principles drive every decision:
 Files are the **source of truth** (transparent, inspectable, agent-editable). A derived SQLite index makes due-queries `O(due)` instead of scanning every card; it is rebuildable from the files at any time.
 
 ```
-data/
+~/.recallit/                 # data root (override with RECALLIT_DATA_DIR)
   context.md                 # global learner notes (agent reads at session start)
   user.json                  # active topic + learner-level prefs
   topics/{topicId}/

@@ -2,6 +2,12 @@
 
 > Paste this whole file as the opening prompt in a fresh session (or say "read docs/design/kickoff-onboarding-hosted.md and start"). It is self-contained.
 
+## Status (2026-06-08)
+
+- ✅ **Track 1 DONE + SHIPPED** — `@waits/recallit@0.4.0` published. `bunx @waits/recallit start` verified end-to-end (seeds the Spanish starter pack into `~/.recallit`, boots the keyless SPA, opens the browser). Both sprints (the 3 package fixes + the `start` wizard) are landed on `main`. **Skip Track 1; start at Track 2.**
+- ⬜ **Track 2 NOT STARTED** — hosted `recallit-onebox` Sprint 1 (subprocess-per-session tenancy + magic-link auth + annual-license Stripe), BYO-key only. Awaiting explicit go-ahead.
+- ⚠️ The leaked npm token is **still un-rotated** — rotate at npmjs.com → Access Tokens.
+
 ## Mission
 
 Turn recallit's **product-side** (currently plan-only) into working software, in two tracks:

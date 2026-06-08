@@ -32,7 +32,7 @@ src/
   topic.ts      topic CRUD + active-topic selection
   store.ts      card CRUD + reviewCard (file + index + log, consistent)
   pack.ts       topic-pack spec: manifest/card schemas + loadPack
-  install.ts    installPack: validate + materialize a pack into ./data
+  install.ts    installPack: validate + materialize a pack into ~/.recallit
   resolve.ts    resolve `topic add` source (dir/tarball/git/npm) to a pack dir
   server.ts     Bun HTTP+WS voice host
   index.ts      public API barrel (also the engine's importable package surface)
