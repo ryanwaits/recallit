@@ -105,6 +105,24 @@ body { margin: 0; }
 }
 .msg.user .bubble { background: var(--ink); color: var(--paper); border-color: transparent; border-bottom-right-radius: 5px; }
 .msg.assistant .bubble { border-bottom-left-radius: 5px; }
+.ledger { border: 1px solid var(--rule); border-radius: 12px; background: var(--paper-2); padding: 0.85rem 1rem; margin: 0.2rem 0; }
+.ledger-head { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; margin-bottom: 0.6rem; }
+.ledger-count { font: 600 11px var(--mono); color: var(--sage-deep); }
+.ledger-steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.35rem; }
+.lstep { display: flex; align-items: center; gap: 0.55rem; font: 500 12.5px var(--ui); color: var(--muted); }
+.lstep-ic { width: 15px; font: 600 12px var(--mono); }
+.lstep.done { color: var(--ink-2); }
+.lstep.done .lstep-ic { color: var(--sage); }
+.lstep.active { color: var(--ink); font-weight: 600; }
+.lstep.active .lstep-ic { color: var(--sage-deep); animation: tick 1s steps(1) infinite; }
+@keyframes tick { 50% { opacity: 0.3; } }
+.ledger-err { font: 500 11.5px var(--mono); color: var(--coral, oklch(60% 0.2 25)); margin: 0.5rem 0 0; }
+.reviewbtn { margin-top: 0.7rem; padding: 0.4rem 0.75rem; border: 1px solid var(--rule); border-radius: 9px; background: var(--card); font: 600 11.5px var(--mono); color: var(--sage-deep); cursor: pointer; }
+.reviewbtn:hover { border-color: var(--sage); }
+.heldlist { list-style: none; margin: 0.6rem 0 0; padding: 0; display: grid; gap: 0.5rem; }
+.heldlist li { display: grid; gap: 0.15rem; padding: 0.5rem 0.6rem; border: 1px solid var(--rule); border-radius: 9px; background: var(--card); }
+.held-front { font: 600 12.5px var(--ui); }
+.held-reason { font: 500 10.5px var(--mono); color: var(--muted); }
 .toolpart { display: flex; align-items: center; gap: 0.5rem; font: 500 11.5px var(--mono); color: var(--ink-2); padding: 0.3rem 0; }
 .toolpart + .toolpart { border-top: 1px dashed var(--rule); }
 .tp-ic { color: var(--sage-deep); width: 14px; }

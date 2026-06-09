@@ -1,8 +1,8 @@
-// recallit Studio backend (Bun). A3: the build chat is a Vercel AI SDK agent
-// (streamText + tools) whose tools wrap the recallit engine (the Claude Agent SDK
-// lives inside runPackAuthor/runPackEditor). attach_source reads a source into the
-// corpus (no spend); author_tutor drafts cards + runs the honesty gate (keyed);
-// shape revises + re-gates. The live ledger (intra-author streaming) is A4.
+// recallit Studio backend (Bun). A4: the build chat is a Vercel AI SDK agent
+// (streamText + tools) wrapping the recallit engine (Claude Agent SDK lives inside
+// runPackAuthor/runPackEditor). author_tutor streams a LIVE honesty-ledger data part
+// (reading -> drafting -> gating -> N ready / K held), reconciled by a stable id, so
+// the chat fills in as the author runs — our honest take on Honen's build sidebar.
 //
 // server.ts is Bun-run and imports ../src directly; engine deps resolve from the
 // repo-root node_modules. Run from the repo root so author writes packs to ./packs:
@@ -11,7 +11,17 @@ import { anthropic } from "@ai-sdk/anthropic";
 import { mkdtemp } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { convertToModelMessages, jsonSchema, stepCountIs, streamText, tool, type UIMessage } from "ai";
+import {
+  convertToModelMessages,
+  createUIMessageStream,
+  createUIMessageStreamResponse,
+  jsonSchema,
+  stepCountIs,
+  streamText,
+  tool,
+  type UIMessage,
+  type UIMessageStreamWriter,
+} from "ai";
 import { prepareSource, runPackAuthor, runPackEditor } from "../src/packgen/author.ts";
 
 const DIST = join(import.meta.dir, "dist");
@@ -37,76 +47,114 @@ const BUILD_SYSTEM = [
   "Style: concise and plain. No emoji, no hype. 1–3 short sentences. Don't restate the request.",
 ].join("\n");
 
-// Tools wrapping the engine. The model passes a `scope` from the conversation;
-// pedagogy-style dispatch into authoring is deferred to S4 (avoids the known
-// opts.style card-shape collision), so we don't thread pedagogy style here.
-const TOOLS = {
-  attach_source: tool({
-    description: "Read an attached source (file path or url) into the corpus of record. No spend.",
-    inputSchema: jsonSchema<{ path: string }>({
-      type: "object",
-      properties: { path: { type: "string", description: "server file path or url of the source" } },
-      required: ["path"],
-      additionalProperties: false,
-    }),
-    execute: async ({ path }) => {
-      const p = await prepareSource(path);
-      const out = { ok: true, kind: p.kind, source: p.sourceLabel };
-      await p.cleanup?.();
-      return out;
-    },
-  }),
-  author_tutor: tool({
-    description:
-      "Draft the tutor's cards from a source and run the honesty gate. Slow + costs money; call once after sources are attached.",
-    inputSchema: jsonSchema<{ source: string; scope?: string }>({
-      type: "object",
-      properties: {
-        source: { type: "string", description: "source path or url to author from" },
-        scope: { type: "string", description: "what to focus the cards on" },
+const LEDGER_PHASES = ["Reading the source", "Drafting cards", "Running the honesty gate"];
+const stepsAt = (phase: number) =>
+  LEDGER_PHASES.map((label, i) => ({
+    label,
+    state: i < phase ? "done" : i === phase ? "active" : "todo",
+  }));
+
+// Tools wrapping the engine. `writer` lets author_tutor stream the live ledger.
+// Pedagogy-style dispatch into authoring is deferred to S4 (avoids the opts.style
+// card-shape collision), so we don't thread pedagogy style here.
+function buildTools(writer: UIMessageStreamWriter) {
+  return {
+    attach_source: tool({
+      description: "Read an attached source (file path or url) into the corpus of record. No spend.",
+      inputSchema: jsonSchema<{ path: string }>({
+        type: "object",
+        properties: { path: { type: "string", description: "server file path or url of the source" } },
+        required: ["path"],
+        additionalProperties: false,
+      }),
+      execute: async ({ path }) => {
+        const p = await prepareSource(path);
+        const out = { ok: true, kind: p.kind, source: p.sourceLabel };
+        await p.cleanup?.();
+        return out;
       },
-      required: ["source"],
-      additionalProperties: false,
     }),
-    execute: async ({ source, scope }) => {
-      const res = await runPackAuthor(source, { scope, maxBudgetUsd: MAX_BUDGET, maxTurns: 30 });
-      const v = res.verdict;
-      if (!v) return { error: "no pack written", stopReason: res.stopReason, costUsd: res.costUsd };
-      return {
-        packId: res.packId,
-        ready: v.ready,
-        total: v.total,
-        held: v.needsReview.map((r) => ({ front: r.card.front, reasons: r.reasons })),
-        grounding: v.grounding,
-        costUsd: res.costUsd,
-      };
-    },
-  }),
-  shape: tool({
-    description: "Revise the drafted pack and re-run the honesty gate.",
-    inputSchema: jsonSchema<{ packId: string; instruction: string }>({
-      type: "object",
-      properties: {
-        packId: { type: "string" },
-        instruction: { type: "string", description: "what to change" },
+    author_tutor: tool({
+      description:
+        "Draft the tutor's cards from a source and run the honesty gate. Slow + costs money; call once after sources are attached.",
+      inputSchema: jsonSchema<{ source: string; scope?: string }>({
+        type: "object",
+        properties: {
+          source: { type: "string", description: "source path or url to author from" },
+          scope: { type: "string", description: "what to focus the cards on" },
+        },
+        required: ["source"],
+        additionalProperties: false,
+      }),
+      execute: async ({ source, scope }) => {
+        let phase = 0;
+        writer.write({ type: "data-ledger", id: "ledger", data: { steps: stepsAt(phase) } });
+        const res = await runPackAuthor(source, {
+          scope,
+          maxBudgetUsd: MAX_BUDGET,
+          maxTurns: 30,
+          onEvent: (e) => {
+            if (e.kind !== "tool_use") return;
+            const name = (e.data as { name: string }).name;
+            if (name === "save_source" && phase < 1) phase = 1;
+            else if (name === "write_pack" && phase < 2) phase = 2;
+            else return;
+            writer.write({ type: "data-ledger", id: "ledger", data: { steps: stepsAt(phase) } });
+          },
+        });
+        const v = res.verdict;
+        if (!v) {
+          writer.write({
+            type: "data-ledger",
+            id: "ledger",
+            data: { steps: stepsAt(0), error: "no pack written" },
+          });
+          return { error: "no pack written", stopReason: res.stopReason, costUsd: res.costUsd };
+        }
+        const held = v.needsReview.map((r) => ({ front: r.card.front, reasons: r.reasons }));
+        writer.write({
+          type: "data-ledger",
+          id: "ledger",
+          data: {
+            steps: LEDGER_PHASES.map((label) => ({ label, state: "done" })),
+            done: true,
+            packId: res.packId,
+            ready: v.ready,
+            total: v.total,
+            held,
+            grounding: v.grounding,
+            costUsd: res.costUsd,
+          },
+        });
+        return { packId: res.packId, ready: v.ready, total: v.total, held, grounding: v.grounding };
       },
-      required: ["packId", "instruction"],
-      additionalProperties: false,
     }),
-    execute: async ({ packId, instruction }) => {
-      const res = await runPackEditor(packId, instruction, { maxBudgetUsd: MAX_BUDGET });
-      const v = res.verdict;
-      if (!v) return { error: "no change written", stopReason: res.stopReason, costUsd: res.costUsd };
-      return {
-        packId: res.packId,
-        ready: v.ready,
-        total: v.total,
-        held: v.needsReview.map((r) => ({ front: r.card.front, reasons: r.reasons })),
-        costUsd: res.costUsd,
-      };
-    },
-  }),
-};
+    shape: tool({
+      description: "Revise the drafted pack and re-run the honesty gate.",
+      inputSchema: jsonSchema<{ packId: string; instruction: string }>({
+        type: "object",
+        properties: {
+          packId: { type: "string" },
+          instruction: { type: "string", description: "what to change" },
+        },
+        required: ["packId", "instruction"],
+        additionalProperties: false,
+      }),
+      execute: async ({ packId, instruction }) => {
+        const res = await runPackEditor(packId, instruction, { maxBudgetUsd: MAX_BUDGET });
+        const v = res.verdict;
+        if (!v) return { error: "no change written", stopReason: res.stopReason, costUsd: res.costUsd };
+        return {
+          packId: res.packId,
+          ready: v.ready,
+          total: v.total,
+          held: v.needsReview.map((r) => ({ front: r.card.front, reasons: r.reasons })),
+          costUsd: res.costUsd,
+        };
+      },
+    }),
+  };
+}
 
 Bun.serve({
   port: PORT,
@@ -133,14 +181,19 @@ Bun.serve({
         );
       }
       const { messages } = (await req.json()) as { messages: UIMessage[] };
-      const result = streamText({
-        model: anthropic("claude-sonnet-4-6"),
-        system: BUILD_SYSTEM,
-        messages: await convertToModelMessages(messages),
-        tools: TOOLS,
-        stopWhen: stepCountIs(6),
+      const stream = createUIMessageStream({
+        execute: async ({ writer }) => {
+          const result = streamText({
+            model: anthropic("claude-sonnet-4-6"),
+            system: BUILD_SYSTEM,
+            messages: await convertToModelMessages(messages),
+            tools: buildTools(writer),
+            stopWhen: stepCountIs(6),
+          });
+          writer.merge(result.toUIMessageStream());
+        },
       });
-      return result.toUIMessageStreamResponse();
+      return createUIMessageStreamResponse({ stream });
     }
 
     // Static: serve the built Vite app (SPA fallback).

@@ -35,6 +35,62 @@ function summarizeTool(o?: ToolOutput): string {
   return "done";
 }
 
+type LedgerStep = { label: string; state: "done" | "active" | "todo" };
+type LedgerData = {
+  steps?: LedgerStep[];
+  done?: boolean;
+  ready?: number;
+  total?: number;
+  held?: { front: string; reasons: string[] }[];
+  error?: string;
+};
+
+// The live honesty ledger: fills in as the author runs (reading -> drafting ->
+// gating), then shows verified vs held with a "Review now" expand for held cards.
+function Ledger({ d }: { d?: LedgerData }) {
+  const [showHeld, setShowHeld] = useState(false);
+  if (!d) return null;
+  const heldCount = d.held?.length ?? 0;
+  return (
+    <div className="ledger">
+      <div className="ledger-head">
+        <span className="eyebrow">Honesty ledger</span>
+        {d.done && typeof d.ready === "number" && (
+          <span className="ledger-count">
+            {d.ready}/{d.total} verified · {heldCount} held
+          </span>
+        )}
+      </div>
+      <ul className="ledger-steps">
+        {(d.steps ?? []).map((s) => (
+          <li key={s.label} className={`lstep ${s.state}`}>
+            <span className="lstep-ic">{s.state === "done" ? "✓" : s.state === "active" ? "▸" : "·"}</span>
+            {s.label}
+          </li>
+        ))}
+      </ul>
+      {d.error && <p className="ledger-err">{d.error}</p>}
+      {d.done && heldCount > 0 && (
+        <>
+          <button type="button" className="reviewbtn" onClick={() => setShowHeld((v) => !v)}>
+            {showHeld ? "Hide held cards" : `Review now — ${heldCount} held`}
+          </button>
+          {showHeld && (
+            <ul className="heldlist">
+              {d.held?.map((h) => (
+                <li key={h.front}>
+                  <span className="held-front">{h.front}</span>
+                  <span className="held-reason">{h.reasons.join(", ")}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
+
 export function App() {
   const [step, setStep] = useState(1);
   const [topic, setTopic] = useState("");
@@ -245,6 +301,11 @@ export function App() {
                 <div className="bubble">
                   {m.parts.map((part, i) => {
                     if (part.type === "text") return <span key={`${m.id}-${i}`}>{part.text}</span>;
+                    if (part.type === "data-ledger") {
+                      return <Ledger key={`${m.id}-${i}`} d={(part as { data?: LedgerData }).data} />;
+                    }
+                    // The ledger supersedes the author_tutor tool chip (richer view).
+                    if (part.type === "tool-author_tutor") return null;
                     if (part.type.startsWith("tool-")) {
                       const tp = part as { state?: string; output?: ToolOutput };
                       const done = tp.state === "output-available";
