@@ -51,6 +51,11 @@ const BUILD_SYSTEM = [
   "weren't in your sources.' Use shape for changes. When the user is happy, finalize_tutor,",
   "then say it's ready. Only ready cards install; held cards stay out until grounded.",
   "",
+  "Whenever you end a turn asking the user to choose or confirm something, ALSO call",
+  "propose_actions with 2–4 one-click choices (short label; message = exactly what they'd",
+  "reply). The draft result already shows Install/Reshape buttons — don't duplicate those two;",
+  "propose actions for other decisions (scope, card mix, depth, what to do next).",
+  "",
   "Style: concise and plain. No emoji, no hype. 1–3 short sentences. Don't restate the request.",
 ].join("\n");
 
@@ -217,6 +222,36 @@ function buildTools(writer: UIMessageStreamWriter, sources: string[], pedagogySt
         });
         return { packId: res.packId, ready: v.ready, total: v.total, held };
       },
+    }),
+    propose_actions: tool({
+      description:
+        "Render one-click choice buttons in the chat instead of making the user type. Call when you ask the user to choose/confirm. 2-4 actions; label is short; message is exactly what the user would have replied.",
+      inputSchema: jsonSchema<{ question?: string; actions: { label: string; message: string }[] }>(
+        {
+          type: "object",
+          properties: {
+            question: { type: "string", description: "optional one-line framing of the choice" },
+            actions: {
+              type: "array",
+              minItems: 2,
+              maxItems: 4,
+              items: {
+                type: "object",
+                properties: {
+                  label: { type: "string", description: "short button label (2-5 words)" },
+                  message: { type: "string", description: "the reply this button sends as the user" },
+                },
+                required: ["label", "message"],
+                additionalProperties: false,
+              },
+            },
+          },
+          required: ["actions"],
+          additionalProperties: false,
+        },
+      ),
+      // Pure UI side-effect: the FE renders the tool part's input as buttons.
+      execute: async ({ actions }) => ({ shown: actions.length }),
     }),
     finalize_tutor: tool({
       description:

@@ -99,6 +99,46 @@ function TutorReady({ out }: { out: FinalizeOutput }) {
   );
 }
 
+type ProposedAction = { label: string; message: string };
+
+// Agent-proposed one-click choices (the propose_actions tool): clicking sends the
+// action's message as the user's reply. Stale rows (conversation moved on) disable.
+function ActionRow({
+  question,
+  actions,
+  disabled,
+  onAction,
+}: {
+  question?: string;
+  actions: ProposedAction[];
+  disabled: boolean;
+  onAction: (text: string) => void;
+}) {
+  const [picked, setPicked] = useState<string | null>(null);
+  return (
+    <div className="actionrow">
+      {question && <p className="actionrow-q">{question}</p>}
+      <div className="actionrow-btns">
+        {actions.map((a) => (
+          <button
+            key={a.label}
+            type="button"
+            className={`lg-btn ${picked === a.label ? "picked" : ""}`}
+            disabled={disabled || picked !== null}
+            onClick={() => {
+              setPicked(a.label);
+              onAction(a.message);
+            }}
+          >
+            {picked === a.label ? "✓ " : ""}
+            {a.label}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 type LedgerStep = { label: string; state: "done" | "active" | "todo" };
 type LedgerData = {
   steps?: LedgerStep[];
@@ -500,6 +540,28 @@ export function App() {
                     // The ledger supersedes the author_tutor tool chip (richer view).
                     if (part.type === "tool-author_tutor" || part.type === "tool-shape")
                       return null;
+                    if (part.type === "tool-propose_actions") {
+                      const tp = part as {
+                        state?: string;
+                        input?: { question?: string; actions?: ProposedAction[] };
+                      };
+                      // Render only once the input has fully streamed; stale rows
+                      // (an older message) stay visible but disabled.
+                      if (tp.state !== "input-available" && tp.state !== "output-available")
+                        return null;
+                      const acts = tp.input?.actions;
+                      if (!acts?.length) return null;
+                      const isLast = m.id === messages[messages.length - 1]?.id;
+                      return (
+                        <ActionRow
+                          key={`${m.id}-${i}`}
+                          question={tp.input?.question}
+                          actions={acts}
+                          disabled={busy || !isLast}
+                          onAction={sendAction}
+                        />
+                      );
+                    }
                     if (part.type === "tool-finalize_tutor") {
                       const out = (part as { output?: FinalizeOutput }).output;
                       if (!out?.installed) return null;

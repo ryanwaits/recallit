@@ -153,6 +153,11 @@ body { margin: 0; }
 .lg-btn.primary { background: var(--sage); color: var(--paper); border-color: var(--sage); box-shadow: 0 2px 0 -1px var(--sage-deep); }
 .lg-btn.primary:active { transform: translateY(1px); box-shadow: 0 1px 0 -1px var(--sage-deep); }
 .lg-btn:hover { filter: brightness(0.98); }
+.lg-btn:disabled { opacity: 0.55; cursor: default; }
+.lg-btn.picked { border-color: var(--sage); color: var(--sage-deep); background: var(--sage-tint); opacity: 1; }
+.actionrow { margin: 0.4rem 0 0.1rem; }
+.actionrow-q { font: 600 12px var(--ui); color: var(--ink-2); margin: 0 0 0.45rem; }
+.actionrow-btns { display: flex; gap: 0.45rem; flex-wrap: wrap; }
 .toolpart { display: flex; align-items: center; gap: 0.5rem; font: 500 11.5px var(--mono); color: var(--ink-2); padding: 0.3rem 0; }
 .toolpart + .toolpart { border-top: 1px dashed var(--rule); }
 .tp-ic { color: var(--sage-deep); width: 14px; }
