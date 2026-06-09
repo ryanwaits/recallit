@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>recallit · PWA voice end — mock</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --paper:   oklch(98% 0.01 95);
+    --paper-2: oklch(95.5% 0.014 95);
+    --ink:     oklch(21% 0.012 250);
+    --ink-2:   oklch(40% 0.012 250);
+    --muted:   oklch(56% 0.01 90);
+    --rule:    oklch(89% 0.01 90);
+    --mint:    oklch(76% 0.15 158);
+    --mint-deep: oklch(64% 0.15 158);
+    --mint-tint: oklch(76% 0.15 158 / 0.16);
+    --coral:   oklch(66% 0.21 22);
+    --coral-deep: oklch(56% 0.22 22);
+    --pear:    oklch(82% 0.13 95);
+    --ui: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, monospace;
+    --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh; font-family: var(--ui); color: var(--ink);
+    background:
+      radial-gradient(120% 90% at 50% -10%, oklch(86% 0.07 158 / 0.5), transparent 60%),
+      radial-gradient(90% 70% at 90% 110%, oklch(86% 0.06 95 / 0.55), transparent 55%),
+      oklch(96% 0.012 95);
+    -webkit-font-smoothing: antialiased; font-variant-numeric: tabular-nums;
+    display: grid; place-items: center; padding: 3rem 1.25rem;
+  }
+  h1,h2,h3,p { margin: 0; }
+  .stage-wrap { width: 100%; max-width: 880px; }
+  .stage-head { text-align: center; margin-bottom: 2rem; }
+  .stage-head .eyebrow { font: 600 11px var(--mono); letter-spacing: 0.14em; text-transform: uppercase; color: var(--mint-deep); }
+  .stage-head h1 { font-weight: 800; font-size: clamp(1.5rem, 3.4vw, 2rem); letter-spacing: -0.03em; margin-top: 0.4rem; }
+  .stage-head h1 em { font-style: normal; background: linear-gradient(var(--mint-tint) 0 0) no-repeat 0 78% / 100% 0.34em; }
+  .stage-head p { color: var(--ink-2); margin-top: 0.5rem; font-size: 0.95rem; }
+  .phones { display: flex; gap: 2.4rem; justify-content: center; flex-wrap: wrap; }
+  .flow-label { text-align: center; font: 600 10.5px var(--mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.75rem; }
+
+  /* ── phone frame ────────────────────────────────────────── */
+  .phone {
+    width: 332px; border-radius: 46px; padding: 11px; background: oklch(28% 0.012 250);
+    box-shadow: 0 2px 4px oklch(20% 0.02 250 / 0.3), 0 40px 80px -30px oklch(20% 0.02 250 / 0.55), inset 0 0 0 1.5px oklch(40% 0.01 250);
+    position: relative;
+  }
+  .screen { position: relative; border-radius: 36px; background: var(--paper); overflow: hidden; height: 660px; display: flex; flex-direction: column; }
+  .notch { position: absolute; top: 9px; left: 50%; transform: translateX(-50%); width: 116px; height: 27px; background: oklch(28% 0.012 250); border-radius: 999px; z-index: 9; }
+  .statusbar { display: flex; justify-content: space-between; align-items: center; padding: 0.7rem 1.4rem 0.2rem; font: 600 12px var(--mono); color: var(--ink); }
+  .statusbar .r { display: flex; gap: 0.3rem; align-items: center; }
+
+  /* app header */
+  .appbar { display: flex; align-items: center; justify-content: space-between; padding: 0.55rem 1.1rem 0.6rem; }
+  .appbar .who { display: flex; align-items: center; gap: 0.5rem; }
+  .appbar .mark { width: 26px; height: 26px; border-radius: 8px; background: var(--mint); box-shadow: 0 2px 0 -0.5px var(--mint-deep); display: grid; place-items: center; font-weight: 800; color: var(--ink); font-size: 13px; }
+  .appbar .name { font-weight: 700; font-size: 0.95rem; letter-spacing: -0.01em; }
+  .appbar .name small { display: block; font: 500 9.5px var(--mono); color: var(--muted); letter-spacing: 0.04em; }
+  .streak { display: inline-flex; align-items: center; gap: 0.3em; font: 700 12px var(--mono); color: var(--coral-deep); background: oklch(66% 0.21 22 / 0.12); padding: 0.3rem 0.55rem; border-radius: 999px; }
+
+  /* phase pills */
+  .phases { display: flex; gap: 0.3rem; padding: 0 1.1rem 0.5rem; }
+  .pp { flex: 1; text-align: center; font: 600 8.5px var(--mono); letter-spacing: 0.03em; text-transform: uppercase; color: var(--muted); padding: 0.34rem 0.2rem; border-radius: 7px; background: var(--paper-2); }
+  .pp.done { color: var(--mint-deep); }
+  .pp.done::before { content: "✓ "; }
+  .pp.on { background: var(--ink); color: var(--paper); }
+
+  .body { flex: 1; padding: 0.5rem 1.1rem; display: flex; flex-direction: column; overflow: hidden; }
+  .offline { display: inline-flex; align-self: center; align-items: center; gap: 0.4rem; font: 600 9.5px var(--mono); color: var(--muted); background: var(--paper-2); padding: 0.25rem 0.6rem; border-radius: 999px; margin-bottom: 0.7rem; }
+  .offline .d { width: 6px; height: 6px; border-radius: 50%; background: var(--mint); }
+
+  /* prompt card */
+  .prompt { background: var(--paper-2); border: 1.5px solid var(--rule); border-radius: 20px; padding: 1.1rem; }
+  .prompt .q-lbl { font: 600 9.5px var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--mint-deep); }
+  .prompt .q { font-weight: 700; font-size: 1.18rem; letter-spacing: -0.01em; margin-top: 0.35rem; line-height: 1.25; }
+  .audio { display: inline-flex; align-items: center; gap: 0.5rem; margin-top: 0.9rem; padding: 0.4rem 0.7rem 0.4rem 0.45rem; background: var(--paper); border: 1.5px solid var(--rule); border-radius: 999px; font: 600 11px var(--mono); color: var(--ink-2); }
+  .audio .play { width: 22px; height: 22px; border-radius: 50%; background: var(--ink); color: var(--paper); display: grid; place-items: center; font-size: 9px; }
+  .wave { display: inline-flex; align-items: center; gap: 2px; height: 14px; }
+  .wave i { width: 2.5px; background: var(--mint-deep); border-radius: 2px; }
+
+  /* your answer bubble */
+  .you { align-self: flex-end; margin-top: 0.8rem; max-width: 78%; background: var(--ink); color: var(--paper); padding: 0.6rem 0.85rem; border-radius: 16px 16px 4px 16px; font-family: var(--mono); font-size: 0.92rem; }
+  .you .lbl { display: block; font-size: 8.5px; letter-spacing: 0.08em; text-transform: uppercase; color: oklch(80% 0.02 95); margin-bottom: 0.2rem; }
+
+  /* grade receipt — the honesty motif */
+  .receipt { margin-top: 0.85rem; border: 1.5px solid var(--mint-deep); background: var(--mint-tint); border-radius: 18px; padding: 0.9rem 1rem; }
+  .receipt__top { display: flex; align-items: center; gap: 0.6rem; }
+  .badge { font: 800 12px var(--ui); letter-spacing: -0.01em; padding: 0.25rem 0.6rem; border-radius: 8px; background: var(--mint); color: var(--ink); box-shadow: 0 2px 0 -0.5px var(--mint-deep); }
+  .receipt__why { font-weight: 600; font-size: 0.9rem; }
+  .cite { margin-top: 0.65rem; font: 500 11.5px/1.5 var(--mono); color: var(--ink-2); }
+  .cite .hl { background: linear-gradient(oklch(82% 0.16 158 / 0.55) 0 0) no-repeat; box-decoration-break: clone; padding: 0.05em 0.15em; border-radius: 3px; color: var(--ink); }
+  .receipt__next { display: flex; align-items: center; gap: 0.4rem; margin-top: 0.7rem; font: 600 11px var(--mono); color: var(--mint-deep); }
+
+  .spacer { flex: 1; }
+
+  /* mic dock */
+  .dock { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; padding: 0.6rem 0 1.2rem; }
+  .mic { width: 78px; height: 78px; border-radius: 50%; display: grid; place-items: center; border: 0; position: relative; box-shadow: 0 6px 0 -1px var(--mint-deep), 0 16px 28px -8px oklch(76% 0.15 158 / 0.55); background: var(--mint); }
+  .mic svg { width: 30px; height: 30px; color: var(--ink); }
+  .mic.rec { background: var(--coral); box-shadow: 0 6px 0 -1px var(--coral-deep), 0 16px 30px -8px oklch(66% 0.21 22 / 0.6); }
+  .mic.rec svg { color: var(--paper); }
+  .mic.rec::before { content: ""; position: absolute; inset: -9px; border-radius: 50%; border: 3px solid var(--coral); opacity: 0.55; animation: ring 1.3s var(--ease) infinite; }
+  @keyframes ring { 0%{ transform: scale(1); opacity: .55;} 100%{ transform: scale(1.45); opacity: 0;} }
+  .mic-lbl { font: 600 11px var(--mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+  .mic-lbl.rec { color: var(--coral-deep); }
+  .home-ind { width: 120px; height: 5px; border-radius: 999px; background: oklch(60% 0.01 250 / 0.5); margin: 0.1rem auto 0.5rem; }
+
+  .arrow { align-self: center; display: grid; place-items: center; font: 700 28px var(--ui); color: var(--mint-deep); }
+  @media (max-width: 760px) { .arrow { transform: rotate(90deg); } }
+
+  .foot { text-align: center; margin-top: 2rem; font: 500 11.5px/1.6 var(--mono); color: var(--muted); }
+  .foot b { color: var(--ink-2); }
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; } }
+</style>
+</head>
+<body>
+  <div class="stage-wrap">
+    <div class="stage-head">
+      <div class="eyebrow">Deployed end · PWA · voice surface</div>
+      <h1>The same tutor, <em>on a phone.</em></h1>
+      <p>spanish-mx-rgv deployed to a mobile PWA — local engine, offline, on your key. The grade is the same code-owned grade the Studio shows.</p>
+    </div>
+
+    <div class="phones">
+
+      <!-- PHONE 1 — listening -->
+      <figure style="margin:0">
+        <div class="flow-label">① recall it aloud</div>
+        <div class="phone"><div class="notch"></div><div class="screen">
+          <div class="statusbar"><span>9:41</span><span class="r mono">5G ▰▰▰ 87%</span></div>
+          <div class="appbar">
+            <div class="who"><span class="mark">S</span><span class="name">Spanish<small>RGV · voice</small></span></div>
+            <span class="streak">🔥 12</span>
+          </div>
+          <div class="phases">
+            <span class="pp done">Shadow</span><span class="pp on">Review</span><span class="pp">Roleplay</span><span class="pp">Reflect</span>
+          </div>
+          <div class="body">
+            <span class="offline"><span class="d"></span>offline · on your key</span>
+            <div class="prompt">
+              <div class="q-lbl">3 of 9 due · recall</div>
+              <div class="q">How do you say "you're right" in Mexican Spanish?</div>
+              <span class="audio"><span class="play">▶</span> hear it
+                <span class="wave"><i style="height:5px"></i><i style="height:11px"></i><i style="height:14px"></i><i style="height:8px"></i><i style="height:12px"></i><i style="height:4px"></i></span>
+              </span>
+            </div>
+            <div class="spacer"></div>
+            <div class="dock">
+              <button class="mic rec" aria-label="recording"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button>
+              <span class="mic-lbl rec">listening…</span>
+            </div>
+          </div>
+          <div class="home-ind"></div>
+        </div></div>
+      </figure>
+
+      <div class="arrow">→</div>
+
+      <!-- PHONE 2 — graded -->
+      <figure style="margin:0">
+        <div class="flow-label">② get the honest grade</div>
+        <div class="phone"><div class="notch"></div><div class="screen">
+          <div class="statusbar"><span>9:41</span><span class="r mono">5G ▰▰▰ 87%</span></div>
+          <div class="appbar">
+            <div class="who"><span class="mark">S</span><span class="name">Spanish<small>RGV · voice</small></span></div>
+            <span class="streak">🔥 12</span>
+          </div>
+          <div class="phases">
+            <span class="pp done">Shadow</span><span class="pp on">Review</span><span class="pp">Roleplay</span><span class="pp">Reflect</span>
+          </div>
+          <div class="body">
+            <span class="offline"><span class="d"></span>offline · on your key</span>
+            <div class="prompt" style="padding-bottom:0.9rem">
+              <div class="q-lbl">3 of 9 due · recall</div>
+              <div class="q" style="font-size:1.05rem">How do you say "you're right"?</div>
+            </div>
+            <div class="you"><span class="lbl">you said</span>tienes razón</div>
+            <div class="receipt">
+              <div class="receipt__top"><span class="badge">Good</span><span class="receipt__why">Matched the native phrasing.</span></div>
+              <div class="cite">checked against: “…<span class="hl">tienes razón</span>” — claro, tienes razón, vámonos.</div>
+              <div class="receipt__next">↻ comes back in 4 days</div>
+            </div>
+            <div class="spacer"></div>
+            <div class="dock">
+              <button class="mic" aria-label="next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+              <span class="mic-lbl">next card →</span>
+            </div>
+          </div>
+          <div class="home-ind"></div>
+        </div></div>
+      </figure>
+
+    </div>
+
+    <p class="foot"><b>One loop, two halves:</b> this learner end is generated from the surface registry; the grade you see here is the <b>same code-owned grade</b> the Studio's Observe screen aggregates. Build once → deploy the surface → watch what sticks.</p>
+  </div>
+</body>
+</html>

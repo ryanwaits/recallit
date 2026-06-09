@@ -1,0 +1,545 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>recallit · Studio — mock</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,800&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --paper:   oklch(97.5% 0.012 92);
+    --paper-2: oklch(95% 0.016 92);
+    --paper-3: oklch(92.5% 0.02 90);
+    --ink:     oklch(22% 0.014 250);
+    --ink-2:   oklch(40% 0.014 250);
+    --muted:   oklch(56% 0.012 90);
+    --rule:    oklch(86% 0.012 90);
+    --rule-2:  oklch(78% 0.014 88);
+    --mint:    oklch(57% 0.092 150);    /* verified / honest — muted sage */
+    --mint-2:  oklch(68% 0.092 150 / 0.18);
+    --amber:   oklch(72% 0.13 75);      /* held / needs-review */
+    --amber-2: oklch(78% 0.12 75 / 0.18);
+    --coral:   oklch(60% 0.2 25);       /* alert */
+    --coral-2: oklch(64% 0.2 25 / 0.14);
+    --ink-fill: oklch(24% 0.014 250);
+    --display: "Fraunces", Georgia, serif;
+    --ui: "Hanken Grotesk", ui-sans-serif, system-ui, sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, monospace;
+    --shadow: 0 1px 2px oklch(22% 0.014 250 / 0.05), 0 14px 36px -22px oklch(22% 0.014 250 / 0.3);
+    --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0; background: var(--paper); color: var(--ink);
+    font: 15px/1.5 var(--ui); font-variant-numeric: tabular-nums;
+    -webkit-font-smoothing: antialiased;
+    background-image:
+      radial-gradient(oklch(22% 0.014 250 / 0.022) 1px, transparent 1px);
+    background-size: 22px 22px;
+  }
+  h1,h2,h3,p,ul,figure { margin: 0; }
+  button { font: inherit; color: inherit; cursor: pointer; background: none; border: 0; }
+  a { color: inherit; }
+  ::selection { background: var(--mint-2); }
+  .mono { font-family: var(--mono); }
+  .label { font: 600 10.5px/1 var(--mono); letter-spacing: 0.13em; text-transform: uppercase; color: var(--muted); }
+
+  /* ── shell ─────────────────────────────────────────────── */
+  .top {
+    display: flex; align-items: center; gap: 1.25rem;
+    padding: 0.85rem 1.4rem; border-bottom: 1px solid var(--rule);
+    background: oklch(97.5% 0.012 92 / 0.85); backdrop-filter: blur(10px);
+    position: sticky; top: 0; z-index: 30;
+  }
+  .brand { display: inline-flex; align-items: baseline; gap: 0.5rem; font-family: var(--display); font-weight: 800; font-size: 1.32rem; letter-spacing: -0.02em; }
+  .brand b { font-weight: 800; }
+  .brand .slash { color: var(--rule-2); font-weight: 400; }
+  .brand .studio { font-style: italic; font-weight: 500; color: var(--ink-2); }
+  .brand .dot { width: 9px; height: 9px; border-radius: 3px; background: var(--mint); align-self: center; box-shadow: 0 0 0 3px var(--mint-2); }
+
+  .tutor-pick {
+    margin-left: 0.5rem; display: inline-flex; align-items: center; gap: 0.55rem;
+    padding: 0.34rem 0.7rem 0.34rem 0.55rem; border: 1px solid var(--rule-2); border-radius: 9px;
+    background: var(--paper); font-family: var(--mono); font-size: 12.5px; font-weight: 500;
+    box-shadow: var(--shadow);
+  }
+  .tutor-pick .k { width: 18px; height: 18px; border-radius: 5px; background: var(--ink); color: var(--paper); display: grid; place-items: center; font-size: 10px; }
+  .tutor-pick .car { color: var(--muted); }
+  .spacer { flex: 1; }
+  .live { display: inline-flex; align-items: center; gap: 0.45rem; font: 600 11px var(--mono); letter-spacing: 0.04em; color: var(--ink-2); }
+  .live .pulse { width: 7px; height: 7px; border-radius: 50%; background: var(--mint); box-shadow: 0 0 0 0 var(--mint); animation: pulse 2.4s var(--ease) infinite; }
+  @keyframes pulse { 0%{ box-shadow: 0 0 0 0 oklch(64% 0.13 158 / 0.5);} 70%{ box-shadow: 0 0 0 7px oklch(64% 0.13 158 / 0);} 100%{ box-shadow:0 0 0 0 oklch(64% 0.13 158 / 0);} }
+  .btn {
+    display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 0.95rem;
+    border-radius: 9px; font-weight: 600; font-size: 13.5px; border: 1px solid transparent;
+    transition: transform 0.12s var(--ease), box-shadow 0.12s, background 0.12s;
+  }
+  .btn--ink { background: var(--ink-fill); color: var(--paper); box-shadow: 0 3px 0 -1px oklch(22% 0.014 250 / 0.55); }
+  .btn--ink:hover { transform: translateY(-1px); }
+  .btn--ink:active { transform: translateY(2px); box-shadow: 0 1px 0 -1px oklch(22% 0.014 250 / 0.55); }
+  .btn--ghost { border-color: var(--rule-2); background: var(--paper); }
+  .btn--ghost:hover { background: var(--paper-2); }
+
+  .body { display: grid; grid-template-columns: 250px 1fr; min-height: calc(100vh - 57px); }
+
+  /* ── lifecycle rail (the spine) ─────────────────────────── */
+  .rail { border-right: 1px solid var(--rule); padding: 1.4rem 1rem; display: flex; flex-direction: column; gap: 0.2rem; position: sticky; top: 57px; align-self: start; height: calc(100vh - 57px); }
+  .rail__head { padding: 0 0.6rem 0.7rem; }
+  .stage {
+    position: relative; display: grid; grid-template-columns: 30px 1fr; gap: 0.7rem; align-items: start;
+    padding: 0.7rem 0.6rem; border-radius: 11px; text-align: left; width: 100%; transition: background 0.15s;
+  }
+  .stage:hover { background: var(--paper-2); }
+  .stage__num { font-family: var(--mono); font-weight: 600; font-size: 12px; width: 30px; height: 30px; display: grid; place-items: center; border: 1px solid var(--rule-2); border-radius: 9px; background: var(--paper); color: var(--ink-2); z-index: 1; transition: all 0.18s var(--ease); }
+  .stage__line { position: absolute; left: 21px; top: 38px; bottom: -2px; width: 2px; background: var(--rule); }
+  .stage:last-of-type .stage__line { display: none; }
+  .stage__t { display: block; font-weight: 700; font-size: 14.5px; letter-spacing: -0.01em; }
+  .stage__s { display: block; font: 500 11px/1.35 var(--mono); color: var(--muted); margin-top: 2px; }
+  .stage.active { background: var(--ink); }
+  .stage.active .stage__num { background: var(--mint); border-color: var(--mint); color: var(--ink); box-shadow: 0 0 0 4px var(--mint-2); }
+  .stage.active .stage__t { color: var(--paper); }
+  .stage.active .stage__s { color: oklch(80% 0.02 90); }
+  .stage.done .stage__num { background: var(--mint-2); border-color: var(--mint); color: var(--mint); }
+  .stage.done .stage__num::after { content: "✓"; }
+  .stage.done .stage__numtext { display: none; }
+
+  .rail__foot { margin-top: auto; padding: 0.8rem 0.6rem 0; border-top: 1px dashed var(--rule); }
+  .minituts { display: grid; gap: 0.3rem; margin-top: 0.5rem; }
+  .minitut { display: flex; align-items: center; gap: 0.5rem; font: 500 12px var(--mono); color: var(--ink-2); padding: 0.3rem 0.4rem; border-radius: 7px; }
+  .minitut:hover { background: var(--paper-2); }
+  .minitut .d { width: 7px; height: 7px; border-radius: 2px; }
+
+  /* ── canvas / screens ───────────────────────────────────── */
+  .canvas { padding: 1.9rem clamp(1.2rem, 3vw, 2.6rem) 4rem; max-width: 1180px; }
+  .screen { display: none; animation: rise 0.5s var(--ease) both; }
+  .screen.active { display: block; }
+  @keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+  .screen__head { display: flex; align-items: flex-end; justify-content: space-between; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.4rem; }
+  .screen__title { font-family: var(--display); font-weight: 600; font-size: clamp(1.7rem, 3.2vw, 2.3rem); letter-spacing: -0.025em; line-height: 1.05; }
+  .screen__title em { font-style: italic; font-weight: 500; color: var(--mint); }
+  .screen__sub { color: var(--ink-2); margin-top: 0.4rem; max-width: 46ch; }
+
+  .card { background: var(--paper); border: 1px solid var(--rule); border-radius: 15px; box-shadow: var(--shadow); }
+  .pad { padding: 1.25rem; }
+  .cap { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 0.9rem 1.1rem; border-bottom: 1px solid var(--rule); }
+  .cap h3 { font-size: 14px; font-weight: 700; letter-spacing: -0.01em; }
+
+  /* ── BUILD ──────────────────────────────────────────────── */
+  .build { display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 1.1rem; align-items: start; }
+  .drop { border: 1.5px dashed var(--rule-2); border-radius: 13px; padding: 1.4rem; text-align: center; background: linear-gradient(var(--paper-2), var(--paper)); }
+  .drop__ico { width: 44px; height: 44px; margin: 0 auto 0.6rem; border-radius: 12px; background: var(--ink); color: var(--paper); display: grid; place-items: center; }
+  .drop p { font-weight: 600; }
+  .drop small { color: var(--muted); font-family: var(--mono); font-size: 11px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.85rem; justify-content: center; }
+  .src { display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.3rem 0.6rem; border: 1px solid var(--rule-2); border-radius: 999px; font: 500 11.5px var(--mono); background: var(--paper); }
+  .src .x { color: var(--muted); }
+
+  .thread { margin-top: 1.1rem; display: grid; gap: 0.7rem; }
+  .msg { padding: 0.7rem 0.85rem; border-radius: 12px; font-size: 13.5px; max-width: 92%; }
+  .msg.you { background: var(--paper-3); align-self: end; border-bottom-right-radius: 4px; font-family: var(--mono); font-size: 12.5px; }
+  .msg.bot { background: var(--ink); color: var(--paper); align-self: start; border-bottom-left-radius: 4px; }
+  .msg.bot b { color: var(--mint); font-weight: 600; }
+  .ask { display: flex; gap: 0.5rem; margin-top: 0.9rem; }
+  .ask input { flex: 1; min-height: 42px; padding: 0 0.85rem; border: 1px solid var(--rule-2); border-radius: 10px; background: var(--paper); font: inherit; }
+  .ask input:focus-visible { outline: 2px solid var(--mint); outline-offset: 1px; }
+
+  /* honesty ledger */
+  .ledger__meter { display: flex; align-items: stretch; height: 9px; border-radius: 999px; overflow: hidden; margin: 0 0 0.1rem; }
+  .ledger__meter i { display: block; }
+  .ledger__meter .v { background: var(--mint); flex: 38; }
+  .ledger__meter .h { background: var(--amber); flex: 3; }
+  .ledger__legend { display: flex; gap: 1.1rem; font: 600 11.5px var(--mono); margin: 0.7rem 0 0.4rem; }
+  .ledger__legend span { display: inline-flex; align-items: center; gap: 0.4rem; }
+  .ledger__legend .sw { width: 10px; height: 10px; border-radius: 3px; }
+  .kn { display: grid; gap: 0; }
+  .kn__row { display: grid; grid-template-columns: 22px 1fr auto; gap: 0.6rem; align-items: start; padding: 0.7rem 0.2rem; border-top: 1px solid var(--rule); }
+  .kn__row:first-child { border-top: 0; }
+  .kn__st { width: 18px; height: 18px; border-radius: 6px; display: grid; place-items: center; font-size: 11px; margin-top: 1px; }
+  .kn__st.v { background: var(--mint-2); color: var(--mint); }
+  .kn__st.h { background: var(--amber-2); color: var(--amber); }
+  .kn__q { font-weight: 600; font-size: 13px; }
+  .kn__cite { font: 500 11px/1.4 var(--mono); color: var(--ink-2); margin-top: 0.25rem; padding-left: 0.55rem; border-left: 2px solid var(--mint); }
+  .kn__row.held .kn__cite { border-color: var(--amber); color: var(--muted); }
+  .kn__tag { font: 600 9.5px var(--mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
+
+  /* ── SHAPE ──────────────────────────────────────────────── */
+  .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.85rem; }
+  .style { text-align: left; border: 1px solid var(--rule); border-radius: 13px; padding: 1rem; background: var(--paper); transition: all 0.16s var(--ease); position: relative; }
+  .style:hover { border-color: var(--rule-2); transform: translateY(-2px); }
+  .style.sel { border-color: var(--ink); box-shadow: 0 0 0 2px var(--ink); }
+  .style.sel::after { content: "✓"; position: absolute; top: 0.7rem; right: 0.8rem; width: 18px; height: 18px; background: var(--ink); color: var(--paper); border-radius: 50%; display: grid; place-items: center; font-size: 11px; }
+  .style h4 { font-family: var(--display); font-weight: 600; font-size: 1.12rem; }
+  .style .done { font: 600 10.5px var(--mono); color: var(--mint); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 0.5rem; }
+  .style p { font-size: 12.5px; color: var(--ink-2); margin-top: 0.3rem; }
+  .seg { display: inline-flex; border: 1px solid var(--rule-2); border-radius: 10px; overflow: hidden; }
+  .seg button { padding: 0.45rem 0.9rem; font: 600 12.5px var(--mono); color: var(--muted); }
+  .seg button.on { background: var(--ink); color: var(--paper); }
+  .guard { display: flex; align-items: center; gap: 0.6rem; padding: 0.6rem 0.2rem; border-top: 1px solid var(--rule); font-size: 13px; }
+  .guard:first-child { border-top: 0; }
+  .guard .mono { color: var(--ink-2); }
+
+  /* ── DEPLOY ─────────────────────────────────────────────── */
+  .deploy { display: grid; grid-template-columns: 1fr 360px; gap: 1.1rem; align-items: start; }
+  .surf-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.7rem; }
+  .surf { text-align: left; border: 1px solid var(--rule); border-radius: 13px; padding: 0.9rem; background: var(--paper); display: grid; gap: 0.4rem; transition: all 0.16s var(--ease); position: relative; overflow: hidden; }
+  .surf:hover { transform: translateY(-2px); border-color: var(--rule-2); }
+  .surf.sel { border-color: var(--mint); box-shadow: 0 0 0 2px var(--mint), var(--shadow); }
+  .surf.sel::before { content: "slotted"; position: absolute; top: 0; right: 0; font: 600 9px var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink); background: var(--mint); padding: 2px 7px; border-bottom-left-radius: 8px; }
+  .surf__ico { width: 34px; height: 34px; border-radius: 9px; background: var(--paper-3); display: grid; place-items: center; }
+  .surf h4 { font-size: 14px; font-weight: 700; }
+  .surf small { color: var(--muted); font: 500 11px var(--mono); }
+  .surf .modes { display: flex; gap: 0.3rem; margin-top: 0.2rem; }
+  .surf .modes span { font: 600 9px var(--mono); text-transform: uppercase; letter-spacing: 0.05em; padding: 2px 5px; border-radius: 5px; background: var(--paper-2); color: var(--muted); }
+
+  .toggles { display: grid; gap: 0.8rem; margin-top: 1.1rem; }
+  .toggle-row { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+  .toggle-row .label { color: var(--ink-2); }
+
+  /* bundle / cartridge output */
+  .bundle { position: sticky; top: 76px; }
+  .bundle__top { padding: 0.9rem 1.1rem; border-bottom: 1px solid var(--rule); display: flex; align-items: center; gap: 0.6rem; }
+  .bundle__top .k { width: 26px; height: 26px; border-radius: 7px; background: var(--ink); color: var(--paper); display: grid; place-items: center; }
+  .bundle__name { font-family: var(--mono); font-weight: 600; font-size: 13px; }
+  .manifest { font-family: var(--mono); font-size: 11.5px; line-height: 1.7; padding: 1rem 1.1rem; color: var(--ink-2); background:
+      repeating-linear-gradient(transparent, transparent 1.69rem, oklch(86% 0.012 90 / 0.5) 1.69rem, oklch(86% 0.012 90 / 0.5) calc(1.7rem)); }
+  .manifest .k { color: var(--muted); }
+  .manifest .s { color: var(--mint); }
+  .manifest .a { color: var(--coral); }
+  .cmd { margin: 0 1.1rem 1.1rem; padding: 0.7rem 0.8rem; border-radius: 9px; background: var(--ink); color: oklch(92% 0.02 90); font: 500 12px var(--mono); display: flex; align-items: center; gap: 0.5rem; overflow-x: auto; }
+  .cmd .p { color: var(--mint); }
+  .deploy-cta { padding: 0 1.1rem 1.2rem; }
+
+  /* ── OBSERVE ────────────────────────────────────────────── */
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.8rem; margin-bottom: 1.1rem; }
+  .stat { padding: 1rem; }
+  .stat b { display: block; font-family: var(--display); font-weight: 600; font-size: 1.85rem; letter-spacing: -0.02em; }
+  .stat .trend { font: 600 11px var(--mono); color: var(--mint); }
+  .stat .trend.down { color: var(--coral); }
+  .obs2 { display: grid; grid-template-columns: 1.3fr 1fr; gap: 1.1rem; align-items: start; }
+  .shaky { display: grid; gap: 0; }
+  .shaky__row { display: grid; grid-template-columns: 1fr 120px 46px; gap: 0.7rem; align-items: center; padding: 0.7rem 0.2rem; border-top: 1px solid var(--rule); }
+  .shaky__row:first-child { border-top: 0; }
+  .shaky__q { font-size: 13px; font-weight: 600; }
+  .shaky__q small { display: block; font: 500 10.5px var(--mono); color: var(--muted); font-weight: 500; }
+  .bar { height: 7px; border-radius: 999px; background: var(--paper-3); overflow: hidden; }
+  .bar i { display: block; height: 100%; background: var(--coral); border-radius: 999px; }
+  .bar.ok i { background: var(--mint); }
+  .shaky__pct { font: 600 12px var(--mono); text-align: right; }
+  .health { display: grid; gap: 0.6rem; }
+  .health__row { display: flex; align-items: center; justify-content: space-between; gap: 0.7rem; padding: 0.65rem 0.7rem; border: 1px solid var(--rule); border-radius: 10px; }
+  .health__l { display: flex; align-items: center; gap: 0.55rem; font: 600 12.5px var(--mono); }
+  .health__d { width: 8px; height: 8px; border-radius: 50%; background: var(--mint); }
+  .health__d.warn { background: var(--amber); }
+  .health__v { font: 500 11.5px var(--mono); color: var(--muted); }
+
+  .hint { margin-top: 1.4rem; font: 500 11.5px/1.6 var(--mono); color: var(--muted); padding: 0.8rem 1rem; border: 1px dashed var(--rule-2); border-radius: 11px; background: var(--paper-2); }
+  .hint b { color: var(--ink-2); }
+
+  @media (max-width: 920px) {
+    .body { grid-template-columns: 1fr; }
+    .rail { position: static; height: auto; flex-direction: row; overflow-x: auto; gap: 0.4rem; }
+    .stage__line, .rail__head, .rail__foot { display: none; }
+    .stage { grid-template-columns: 1fr; min-width: 130px; }
+    .stage__num { display: none; }
+    .build, .deploy, .obs2 { grid-template-columns: 1fr; }
+    .stats, .grid3, .surf-grid { grid-template-columns: 1fr 1fr; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <span class="brand"><span class="dot"></span><b>recallit</b><span class="slash">/</span><span class="studio">studio</span></span>
+  <button class="tutor-pick"><span class="k">S</span> spanish-mx-rgv <span class="car">▾</span></button>
+  <span class="spacer"></span>
+  <span class="live"><span class="pulse"></span>2 ends live</span>
+  <button class="btn btn--ghost">Preview</button>
+  <button class="btn btn--ink" onclick="go('deploy')">Deploy ▸</button>
+</header>
+
+<div class="body">
+
+  <!-- lifecycle spine -->
+  <aside class="rail">
+    <div class="rail__head label">Tutor lifecycle</div>
+    <button class="stage done" data-go="build">
+      <span class="stage__num"><span class="stage__numtext">01</span></span><span class="stage__line"></span>
+      <span><span class="stage__t">Build</span><span class="stage__s">ground the knowledge</span></span>
+    </button>
+    <button class="stage done" data-go="shape">
+      <span class="stage__num"><span class="stage__numtext">02</span></span><span class="stage__line"></span>
+      <span><span class="stage__t">Shape</span><span class="stage__s">style · modality · agent</span></span>
+    </button>
+    <button class="stage active" data-go="deploy">
+      <span class="stage__num"><span class="stage__numtext">03</span></span><span class="stage__line"></span>
+      <span><span class="stage__t">Deploy</span><span class="stage__s">surfaces &amp; ends</span></span>
+    </button>
+    <button class="stage" data-go="observe">
+      <span class="stage__num"><span class="stage__numtext">04</span></span><span class="stage__line"></span>
+      <span><span class="stage__t">Observe</span><span class="stage__s">mastery · cost · health</span></span>
+    </button>
+
+    <div class="rail__foot">
+      <div class="label">Your tutors</div>
+      <div class="minituts">
+        <div class="minitut"><span class="d" style="background:var(--mint)"></span>spanish-mx-rgv</div>
+        <div class="minitut"><span class="d" style="background:var(--amber)"></span>are-pcm</div>
+        <div class="minitut"><span class="d" style="background:var(--coral)"></span>soc2-onboarding</div>
+        <div class="minitut" style="color:var(--muted)"><span class="d" style="background:var(--rule-2)"></span>+ new tutor</div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="canvas">
+
+    <!-- ① BUILD ───────────────────────────────────────────── -->
+    <section class="screen" id="screen-build">
+      <div class="screen__head">
+        <div>
+          <h2 class="screen__title">Ground the <em>knowledge.</em></h2>
+          <p class="screen__sub">Bring resources or just describe it. The agent drafts the knowledge base — and the honesty gate holds back anything it can't tie to a source.</p>
+        </div>
+        <button class="btn btn--ghost">Re-run gate</button>
+      </div>
+
+      <div class="build">
+        <div class="card pad">
+          <div class="drop">
+            <div class="drop__ico">＋</div>
+            <p>Drop PDFs, audio, a repo — or paste a link</p>
+            <small>pdf · md · mp3/mp4 · github: · url · or describe a topic</small>
+          </div>
+          <div class="chips">
+            <span class="src">📄 NCARB-Model-Law.pdf <span class="x">✕</span></span>
+            <span class="src">📄 Rules-of-Conduct.pdf <span class="x">✕</span></span>
+            <span class="src">🔗 ncarb.org/pcm <span class="x">✕</span></span>
+          </div>
+
+          <div class="thread">
+            <div class="msg you">build judgment cards — decode / trap / principle-selection. ground every rubric checkpoint.</div>
+            <div class="msg bot">Drafted <b>22 cards</b> across 4 sections. Each checkpoint cites a verbatim line from your sources. <b>3 held</b> — their answer spans aren't in the corpus, so I won't ship them as verified.</div>
+            <div class="msg you">why is card 19 held?</div>
+            <div class="msg bot">Its rubric quotes <span class="mono">"CM-at-Risk delivery"</span> — that phrase isn't in any uploaded source. Add a source that defines it, or I'll keep it in review.</div>
+          </div>
+          <div class="ask">
+            <input placeholder="Ask the agent to add, fix, or re-ground a card…" />
+            <button class="btn btn--ink">Send</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="cap"><h3>Honesty ledger</h3><span class="label">course of record</span></div>
+          <div class="pad">
+            <div class="ledger__meter" aria-hidden="true"><i class="v"></i><i class="h"></i></div>
+            <div class="ledger__legend">
+              <span><i class="sw" style="background:var(--mint)"></i>38 verified</span>
+              <span><i class="sw" style="background:var(--amber)"></i>3 held</span>
+              <span style="margin-left:auto;color:var(--muted)">$1.14 · 41 drafted</span>
+            </div>
+            <div class="kn">
+              <div class="kn__row">
+                <span class="kn__st v">✓</span>
+                <div><div class="kn__q">Seal only what you control</div>
+                  <div class="kn__cite">"an architect shall not seal… not prepared by them or under their responsible control"</div></div>
+                <span class="kn__tag">principle</span>
+              </div>
+              <div class="kn__row">
+                <span class="kn__st v">✓</span>
+                <div><div class="kn__q">Developer pushes you to approve on schedule</div>
+                  <div class="kn__cite">"…the standard of care… shall not be diminished by client or schedule pressure"</div></div>
+                <span class="kn__tag">trap</span>
+              </div>
+              <div class="kn__row held">
+                <span class="kn__st h">⏸</span>
+                <div><div class="kn__q">CM-at-Risk vs. design-bid-build liability</div>
+                  <div class="kn__cite">no source grounds "CM-at-Risk" — held for review</div></div>
+                <span class="kn__tag">held</span>
+              </div>
+              <div class="kn__row held">
+                <span class="kn__st h">⏸</span>
+                <div><div class="kn__q">Specific E&amp;O insurance limits</div>
+                  <div class="kn__cite">numeric claim not in corpus — held</div></div>
+                <span class="kn__tag">held</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="hint"><b>Why this matters:</b> the gate is the one thing a course generator can't fake. Verified cards ship; held cards never auto-deploy. The same ledger travels inside the tutor bundle.</p>
+    </section>
+
+    <!-- ② SHAPE ───────────────────────────────────────────── -->
+    <section class="screen" id="screen-shape">
+      <div class="screen__head">
+        <div>
+          <h2 class="screen__title">Shape how it <em>teaches.</em></h2>
+          <p class="screen__sub">Pedagogy is data. Pick a style, a modality, and the agent's guardrails — the grade stays code-owned no matter what you choose.</p>
+        </div>
+      </div>
+
+      <div class="label" style="margin-bottom:0.6rem">Style</div>
+      <div class="grid3">
+        <button class="style sel">
+          <h4>Spaced retention</h4>
+          <p>Drill &amp; converse over cards; FSRS scheduling.</p>
+          <div class="done">done · durable recall</div>
+        </button>
+        <button class="style">
+          <h4>Compliance</h4>
+          <p>Modules + reading + a code-graded assessment.</p>
+          <div class="done">done · passes the gate</div>
+        </button>
+        <button class="style">
+          <h4>Onboarding</h4>
+          <p>Applied scenarios &amp; roleplay to ramp fast.</p>
+          <div class="done">done · scenarios complete</div>
+        </button>
+      </div>
+
+      <div class="card" style="margin-top:1.1rem">
+        <div class="cap"><h3>Modality &amp; agent</h3><span class="label">manifest.agent</span></div>
+        <div class="pad" style="display:grid;gap:1rem">
+          <div class="toggle-row"><span class="label">Modality</span>
+            <span class="seg"><button>Text</button><button class="on">Voice</button><button>Both</button></span></div>
+          <div class="toggle-row"><span class="label">Model</span>
+            <span class="seg"><button class="on">Sonnet</button><button>Haiku</button><button>Opus</button></span></div>
+          <div>
+            <div class="label" style="margin-bottom:0.5rem">Guardrails (prompt-injected, never the grade)</div>
+            <div class="guard"><span style="color:var(--mint)">✓</span> <span>Speak Mexican (RGV) Spanish; correct gently, <span class="mono">recast → explicit</span></span></div>
+            <div class="guard"><span style="color:var(--mint)">✓</span> <span>Keep turns short; maximize the learner's production time</span></div>
+            <div class="guard"><span style="color:var(--muted)">＋</span> <span class="mono" style="color:var(--muted)">add a constraint…</span></div>
+          </div>
+        </div>
+      </div>
+      <p class="hint"><b>Honest boundary:</b> guardrails shape tone &amp; scope. They can never change a rating — grading dispatches in code, off the card, never off the prompt.</p>
+    </section>
+
+    <!-- ③ DEPLOY ──────────────────────────────────────────── -->
+    <section class="screen active" id="screen-deploy">
+      <div class="screen__head">
+        <div>
+          <h2 class="screen__title">Slot it into an <em>end.</em></h2>
+          <p class="screen__sub">Same tutor, many surfaces. Pick a surface, a target, and where the engine runs — recallit packages the bundle.</p>
+        </div>
+      </div>
+
+      <div class="deploy">
+        <div>
+          <div class="label" style="margin-bottom:0.6rem">Surface</div>
+          <div class="surf-grid">
+            <button class="surf sel" onclick="pick(this)">
+              <span class="surf__ico">🎧</span><h4>Voice / SRS</h4>
+              <small>push-to-talk · shadow · roleplay</small>
+              <div class="modes"><span>voice</span><span>both</span></div>
+            </button>
+            <button class="surf" onclick="pick(this)">
+              <span class="surf__ico">🗂</span><h4>Study app</h4>
+              <small>flip-cards · drill · progress</small>
+              <div class="modes"><span>text</span><span>voice</span></div>
+            </button>
+            <button class="surf" onclick="pick(this)">
+              <span class="surf__ico">🎓</span><h4>Cert / comprehension</h4>
+              <small>judgment cards · examiner</small>
+              <div class="modes"><span>text</span></div>
+            </button>
+            <button class="surf" onclick="pick(this)">
+              <span class="surf__ico">🏢</span><h4>Onboarding / compliance</h4>
+              <small>modules · gated assessment</small>
+              <div class="modes"><span>text</span></div>
+            </button>
+          </div>
+
+          <div class="card pad toggles" style="margin-top:1.1rem">
+            <div class="toggle-row"><span class="label">Target</span>
+              <span class="seg"><button class="on">Mobile PWA</button><button>Desktop</button><button>Hosted</button></span></div>
+            <div class="toggle-row"><span class="label">Engine</span>
+              <span class="seg"><button class="on">Local (offline · BYO-key)</button><button>Central (we run it)</button></span></div>
+            <div class="toggle-row"><span class="label">Access</span>
+              <span class="seg"><button class="on">Just me</button><button>Link</button><button>Org seats</button></span></div>
+          </div>
+        </div>
+
+        <!-- the bundle / cartridge -->
+        <div class="card bundle">
+          <div class="bundle__top"><span class="k">▣</span><span class="bundle__name">spanish-mx-rgv.tutor</span><span class="label" style="margin-left:auto">bundle</span></div>
+          <div class="manifest"><span class="k">style</span>   recallit<br><span class="k">modality</span> voice<br><span class="k">surface</span>  <span class="s">voice-srs</span><br><span class="k">target</span>   pwa · <span class="s">local engine</span><br><span class="k">knowledge</span> 38 cards · 41 audio<br><span class="k">gate</span>     <span class="s">38 verified</span> · <span class="a">3 held</span></div>
+          <div class="cmd"><span class="p">$</span> recallit deploy spanish-mx-rgv --target pwa --surface voice</div>
+          <div class="deploy-cta"><button class="btn btn--ink" style="width:100%;justify-content:center">Package &amp; deploy ▸</button></div>
+        </div>
+      </div>
+      <p class="hint"><b>The artifact is portable:</b> <span class="mono">manifest + knowledge</span>, run by our engine. The PWA embeds a local engine for offline; org ends call a central one. Export anytime — no lock-in.</p>
+    </section>
+
+    <!-- ④ OBSERVE ──────────────────────────────────────────── -->
+    <section class="screen" id="screen-observe">
+      <div class="screen__head">
+        <div>
+          <h2 class="screen__title">See what actually <em>stuck.</em></h2>
+          <p class="screen__sub">Honest grades give you a signal a course generator can't: real mastery, and exactly where learners are shaky.</p>
+        </div>
+        <span class="seg"><button class="on">PWA</button><button>All ends</button></span>
+      </div>
+
+      <div class="stats">
+        <div class="card stat"><span class="label">Learners</span><b>214</b><span class="trend">▲ 18 this week</span></div>
+        <div class="card stat"><span class="label">Sessions / wk</span><b>1,392</b><span class="trend">▲ 6%</span></div>
+        <div class="card stat"><span class="label">7-day retention</span><b>82%</b><span class="trend">▲ 3pt</span></div>
+        <div class="card stat"><span class="label">Spend / learner</span><b>$0.11</b><span class="trend down">▲ $0.01</span></div>
+      </div>
+
+      <div class="obs2">
+        <div class="card">
+          <div class="cap"><h3>What learners are shaky on</h3><span class="label">code-owned grade</span></div>
+          <div class="pad">
+            <div class="shaky">
+              <div class="shaky__row">
+                <div class="shaky__q">Subjunctive after "para que"<small>card · sentence</small></div>
+                <div class="bar"><i style="width:38%"></i></div><div class="shaky__pct">38%</div>
+              </div>
+              <div class="shaky__row">
+                <div class="shaky__q">"Pedir" vs "preguntar"<small>card · vocab</small></div>
+                <div class="bar"><i style="width:54%"></i></div><div class="shaky__pct">54%</div>
+              </div>
+              <div class="shaky__row">
+                <div class="shaky__q">Ordering al pastor, no onions<small>scenario · roleplay</small></div>
+                <div class="bar ok"><i style="width:71%"></i></div><div class="shaky__pct">71%</div>
+              </div>
+              <div class="shaky__row">
+                <div class="shaky__q">Past tense: preterite vs imperfect<small>card · sentence</small></div>
+                <div class="bar ok"><i style="width:88%"></i></div><div class="shaky__pct">88%</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="cap"><h3>Ends &amp; health</h3><span class="label">2 live</span></div>
+          <div class="pad health">
+            <div class="health__row"><span class="health__l"><span class="health__d"></span>pwa · local engine</span><span class="health__v">182 learners · ok</span></div>
+            <div class="health__row"><span class="health__l"><span class="health__d"></span>hosted · central</span><span class="health__v">32 learners · ok</span></div>
+            <div class="health__row"><span class="health__l"><span class="health__d warn"></span>desktop · local</span><span class="health__v">draft · not deployed</span></div>
+            <div class="health__row" style="border-style:dashed"><span class="health__l" style="color:var(--muted)">＋ deploy another end</span><span class="health__v"></span></div>
+          </div>
+        </div>
+      </div>
+      <p class="hint"><b>The moat, surfaced:</b> "what learners are shaky on" is real, code-owned retention data — an axis a breadth-first course tool structurally cannot show.</p>
+    </section>
+
+  </main>
+</div>
+
+<script>
+  function go(id){
+    document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active', s.id==='screen-'+id));
+    document.querySelectorAll('.stage').forEach(s=>s.classList.toggle('active', s.dataset.go===id));
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+  document.querySelectorAll('.stage').forEach(s=>s.addEventListener('click',()=>go(s.dataset.go)));
+  function pick(el){ el.parentElement.querySelectorAll('.surf').forEach(s=>s.classList.remove('sel')); el.classList.add('sel'); }
+</script>
+</body>
+</html>
