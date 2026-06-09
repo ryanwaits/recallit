@@ -406,7 +406,7 @@ export async function runPackAuthor(
   return runPackAuthorMulti([source], opts);
 }
 
-const EDIT_TOOLS = ["Read", "mcp__packauthor__write_pack"];
+const EDIT_TOOLS = ["Read", "mcp__packauthor__save_source", "mcp__packauthor__write_pack"];
 
 function buildEditPrompt(packId: string, packDir: string, instruction: string): string {
   return [
@@ -415,12 +415,15 @@ function buildEditPrompt(packId: string, packDir: string, instruction: string): 
     "",
     `1. Read the current cards (${join(packDir, "cards.json")}) and the grounding corpus (${join(packDir, ".author", "source.txt")}).`,
     `2. Apply this instruction exactly: ${instruction}`,
+    "   - If the instruction CONTAINS new source material (pasted text, a menu, a doc excerpt), first",
+    "     call save_source(text) with that material VERBATIM — it appends to the corpus — so cards can",
+    "     ground in it. Save only material the user provided; never write your own prose into the corpus.",
     "   - Edits AND any new cards must stay grounded: every card's meta.sourceQuote must be a VERBATIM substring of the corpus. Never invent facts, numbers, or names beyond the corpus.",
     "   - 'add N' = draft N more cards from the corpus; 'fix card X' = correct it while keeping its quote valid; 'split' = partition; 'merge' = combine + dedup.",
     "3. Call write_pack(manifest, cards) with the FULL updated card set (read the existing manifest.json; keep its id, update name only if asked). The gate re-checks every card.",
     "4. Report what changed (added/edited/removed, ready vs needs-review), then stop.",
     "",
-    "Do NOT save a new corpus — it is fixed. Quotes not present in the corpus get flagged needs-review.",
+    "The corpus only grows from user-provided material. Quotes not present in it get flagged needs-review.",
   ].join("\n");
 }
 
