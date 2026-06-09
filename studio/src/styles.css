@@ -126,6 +126,10 @@ body { margin: 0; }
 .heldlist li { display: grid; gap: 0.15rem; padding: 0.5rem 0.6rem; border: 1px solid var(--rule); border-radius: 9px; background: var(--card); }
 .held-front { font: 600 12.5px var(--ui); }
 .held-reason { font: 500 10.5px var(--mono); color: var(--muted); }
+.held-actions { display: flex; gap: 0.4rem; margin-top: 0.4rem; }
+.held-btn { padding: 0.25rem 0.6rem; border: 1px solid var(--sage); border-radius: 7px; background: var(--sage-tint); color: var(--sage-deep); font: 600 10.5px var(--mono); cursor: pointer; }
+.held-btn.ghost { border-color: var(--rule); background: var(--card); color: var(--muted); }
+.held-btn:hover { filter: brightness(0.97); }
 .toolpart { display: flex; align-items: center; gap: 0.5rem; font: 500 11.5px var(--mono); color: var(--ink-2); padding: 0.3rem 0; }
 .toolpart + .toolpart { border-top: 1px dashed var(--rule); }
 .tp-ic { color: var(--sage-deep); width: 14px; }
