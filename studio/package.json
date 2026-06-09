@@ -1,0 +1,26 @@
+{
+  "name": "recallit-studio",
+  "private": true,
+  "type": "module",
+  "description": "recallit Studio — the chat-driven build/deploy/observe control plane (Vite + React on Bun, AI SDK chat over the recallit engine).",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "serve": "bun run server.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@ai-sdk/anthropic": "^3.0.81",
+    "@ai-sdk/react": "^3.0.200",
+    "ai": "^6.0.198",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "@vitejs/plugin-react": "^6.0.2",
+    "typescript": "^5.9.0",
+    "vite": "^8.0.16"
+  }
+}
