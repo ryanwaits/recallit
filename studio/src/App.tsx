@@ -1,6 +1,8 @@
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
 import { type DragEvent, type FormEvent, useRef, useState } from "react";
+import Markdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 // A2: the 3-step build shell — ① topic + pedagogy style → ② materials → ③ chat.
 // The engine tools (attach_source/author_tutor/shape) + the live honesty ledger land
@@ -302,7 +304,14 @@ export function App() {
                 <span className="who">{m.role === "user" ? "you" : "assistant"}</span>
                 <div className="bubble">
                   {m.parts.map((part, i) => {
-                    if (part.type === "text") return <span key={`${m.id}-${i}`}>{part.text}</span>;
+                    if (part.type === "text")
+                      return m.role === "assistant" ? (
+                        <div className="md" key={`${m.id}-${i}`}>
+                          <Markdown remarkPlugins={[remarkGfm]}>{part.text}</Markdown>
+                        </div>
+                      ) : (
+                        <span key={`${m.id}-${i}`}>{part.text}</span>
+                      );
                     if (part.type === "data-ledger") {
                       return <Ledger key={`${m.id}-${i}`} d={(part as { data?: LedgerData }).data} />;
                     }
