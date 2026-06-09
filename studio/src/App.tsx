@@ -35,6 +35,8 @@ function summarizeTool(o?: ToolOutput): string {
   return "done";
 }
 
+type FinalizeOutput = { installed?: boolean; courseId?: string; cards?: number };
+
 type LedgerStep = { label: string; state: "done" | "active" | "todo" };
 type LedgerData = {
   steps?: LedgerStep[];
@@ -306,6 +308,18 @@ export function App() {
                     }
                     // The ledger supersedes the author_tutor tool chip (richer view).
                     if (part.type === "tool-author_tutor") return null;
+                    if (part.type === "tool-finalize_tutor") {
+                      const out = (part as { output?: FinalizeOutput }).output;
+                      if (!out?.installed) return null;
+                      return (
+                        <div className="tutorready" key={`${m.id}-${i}`}>
+                          <span className="tr-badge">✓ Tutor ready</span>
+                          <span className="tr-meta">
+                            {out.courseId} · {out.cards} cards · ready to study or deploy
+                          </span>
+                        </div>
+                      );
+                    }
                     if (part.type.startsWith("tool-")) {
                       const tp = part as { state?: string; output?: ToolOutput };
                       const done = tp.state === "output-available";

@@ -22,6 +22,7 @@ import {
   type UIMessage,
   type UIMessageStreamWriter,
 } from "ai";
+import { installPack } from "../src/install.ts";
 import { prepareSource, runPackAuthor, runPackEditor } from "../src/packgen/author.ts";
 
 const DIST = join(import.meta.dir, "dist");
@@ -40,9 +41,13 @@ const BUILD_SYSTEM = [
   "  money — call once, after sources are attached. Returns ready vs held counts (held = a",
   "  card couldn't be grounded in a source).",
   "- shape(packId, instruction): revise the drafted pack and re-run the gate.",
+  "- finalize_tutor(packId): install the drafted pack as a tutor the learner can study and",
+  "  deploy. Call it once the user is happy with the draft.",
   "",
   "Flow: attach the sources, author once, then report the result plainly — e.g. '18 of 22",
   "cards ready, 4 held because they weren't in your sources.' Use shape for follow-up changes.",
+  "When the user is happy, finalize_tutor to install it, then tell them it's ready to study or",
+  "deploy. Only the ready cards install; held cards stay out until grounded.",
   "",
   "Style: concise and plain. No emoji, no hype. 1–3 short sentences. Don't restate the request.",
 ].join("\n");
@@ -150,6 +155,27 @@ function buildTools(writer: UIMessageStreamWriter) {
           total: v.total,
           held: v.needsReview.map((r) => ({ front: r.card.front, reasons: r.reasons })),
           costUsd: res.costUsd,
+        };
+      },
+    }),
+    finalize_tutor: tool({
+      description:
+        "Install the drafted pack as a tutor the learner can study and deploy. Call once the user is happy with the draft. Only ready (gated) cards install.",
+      inputSchema: jsonSchema<{ packId: string }>({
+        type: "object",
+        properties: { packId: { type: "string" } },
+        required: ["packId"],
+        additionalProperties: false,
+      }),
+      execute: async ({ packId }) => {
+        const res = await installPack(join("packs", packId), { activate: true });
+        return {
+          installed: true,
+          courseId: res.topicId,
+          cards: res.cards,
+          audio: res.audio,
+          scenarios: res.scenarios,
+          heldForReview: res.heldForReview,
         };
       },
     }),

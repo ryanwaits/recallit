@@ -105,6 +105,9 @@ body { margin: 0; }
 }
 .msg.user .bubble { background: var(--ink); color: var(--paper); border-color: transparent; border-bottom-right-radius: 5px; }
 .msg.assistant .bubble { border-bottom-left-radius: 5px; }
+.tutorready { display: flex; align-items: center; gap: 0.7rem; flex-wrap: wrap; border: 1px solid var(--sage); border-radius: 12px; background: var(--sage-tint); padding: 0.8rem 1rem; margin: 0.3rem 0; }
+.tr-badge { font: 700 13px var(--ui); color: var(--sage-deep); }
+.tr-meta { font: 500 11.5px var(--mono); color: var(--ink-2); }
 .ledger { border: 1px solid var(--rule); border-radius: 12px; background: var(--paper-2); padding: 0.85rem 1rem; margin: 0.2rem 0; }
 .ledger-head { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; margin-bottom: 0.6rem; }
 .ledger-count { font: 600 11px var(--mono); color: var(--sage-deep); }
