@@ -7,6 +7,7 @@ import { mkdtemp } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { appendCorpus, buildPromptMulti, prepareSources } from "../src/packgen/author.ts";
+import { getStyle } from "../src/styles/registry.ts";
 
 describe("multi-source authoring", () => {
   test("appendCorpus: first write is plain; later writes append with a separator", async () => {
@@ -47,6 +48,21 @@ describe("multi-source authoring", () => {
     expect(prompt).toContain(b);
     expect(prompt).toContain("meta: { sources:");
     expect(prompt).toContain("Scope/focus: cost");
+    await Promise.all(preps.map((p) => p.cleanup()));
+  });
+
+  test("a pedagogy style injects its authorPrompt; default authoring has none", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "recallit-ped-"));
+    const a = join(dir, "a.txt");
+    await Bun.write(a, "one");
+    const preps = await prepareSources([a]);
+
+    expect(buildPromptMulti(preps, {})).not.toContain("PEDAGOGY");
+
+    const compliance = buildPromptMulti(preps, {}, getStyle("compliance"));
+    expect(compliance).toContain("PEDAGOGY (Compliance)");
+    expect(compliance).toContain("coverage"); // code-owned grading, not mcq
+    expect(getStyle("onboarding").authorPrompt).toBeTruthy();
     await Promise.all(preps.map((p) => p.cleanup()));
   });
 });

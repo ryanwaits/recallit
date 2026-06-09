@@ -133,7 +133,7 @@ agent [--topic id] [--model m] [--maxTurns n]   (run the interactive agent revie
 daily [--topic id] [--model m] [--regimen drill|converse|full]   (run today's session; pick how you practice)
 talk [--topic id] [--model m]                   (open conversation; mines phrases you can practice + be graded on later)
 quickstart <topic|source> [--model m]           (build or install a pack, then start today's session)
-pack <source> [--review|--dry-run|--auto] [--scope t] [--style t]   (generate a pack from a PDF/URL/repo/concept)
+pack <source> [--review|--dry-run|--auto] [--scope t] [--style t] [--pedagogy recallit|compliance|onboarding]   (generate a pack)
 pack edit <id> "<instruction>" [--dry-run]      (tweak a pack; additive edits preserve your review history)
 pack share <id>                                 (print the install string + URL to share a pack)
 pack export <id>                                (write a self-contained shareable HTML; opt-in)
@@ -322,7 +322,8 @@ async function main(argv: string[]): Promise<void> {
         );
         const res = await runPackAuthor(source, {
           scope: f.scope,
-          style: f.style,
+          cardStyleHint: f.style,
+          pedagogyStyle: f.pedagogy,
           model: f.model,
           maxBudgetUsd: f["max-budget"] ? Number(f["max-budget"]) : undefined,
           onEvent: (e) => {
@@ -589,7 +590,8 @@ async function main(argv: string[]): Promise<void> {
       );
       const built = await runPackAuthor(source, {
         scope: f.scope,
-        style: f.style,
+        cardStyleHint: f.style,
+        pedagogyStyle: f.pedagogy,
         model: f.model,
         maxBudgetUsd: f["max-budget"] ? Number(f["max-budget"]) : undefined,
         onEvent: (e) => {

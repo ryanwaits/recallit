@@ -76,7 +76,7 @@ const ACTION_LABEL: Record<string, string> = {
 // Tools wrapping the engine. `writer` lets author_tutor stream the live ledger.
 // Pedagogy-style dispatch into authoring is deferred to S4 (avoids the opts.style
 // card-shape collision), so we don't thread pedagogy style here.
-function buildTools(writer: UIMessageStreamWriter, sources: string[]) {
+function buildTools(writer: UIMessageStreamWriter, sources: string[], pedagogyStyle?: string) {
   return {
     author_tutor: tool({
       description:
@@ -111,6 +111,7 @@ function buildTools(writer: UIMessageStreamWriter, sources: string[]) {
         emit();
         const res = await runPackAuthorMulti(srcs, {
           scope,
+          pedagogyStyle,
           maxBudgetUsd: MAX_BUDGET,
           maxTurns: 30,
           onEvent: (e) => {
@@ -224,9 +225,10 @@ Bun.serve({
           { status: 503 },
         );
       }
-      const { messages, sources = [] } = (await req.json()) as {
+      const { messages, sources = [], pedagogyStyle } = (await req.json()) as {
         messages: UIMessage[];
         sources?: string[];
+        pedagogyStyle?: string;
       };
       const stream = createUIMessageStream({
         execute: async ({ writer }) => {
@@ -234,7 +236,7 @@ Bun.serve({
             model: anthropic("claude-sonnet-4-6"),
             system: BUILD_SYSTEM,
             messages: await convertToModelMessages(messages),
-            tools: buildTools(writer, sources),
+            tools: buildTools(writer, sources, pedagogyStyle),
             stopWhen: stepCountIs(6),
           });
           writer.merge(result.toUIMessageStream());

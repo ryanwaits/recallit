@@ -11,6 +11,7 @@ import { createSdkMcpServer, query, tool } from "@anthropic-ai/claude-agent-sdk"
 import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 import { z } from "zod";
 import { parseSource } from "../resolve.ts";
+import { getStyle, type StyleDefinition } from "../styles/registry.ts";
 import { type WriteVerdict, writePack } from "./gate.ts";
 
 const ok = (data: unknown): CallToolResult => ({
@@ -28,7 +29,11 @@ export interface PackAuthorEvent {
 
 export interface PackAuthorOptions {
   scope?: string;
-  style?: string;
+  /** Free-text CARD-SHAPE hint (e.g. "mnemonic", "code snippet"). NOT pedagogy. */
+  cardStyleHint?: string;
+  /** Pedagogy style id (recallit/compliance/onboarding) whose authorPrompt shapes
+   *  WHICH cards get drafted. Absent / "recallit" => no shaping (default authoring). */
+  pedagogyStyle?: string;
   model?: string;
   maxTurns?: number;
   maxBudgetUsd?: number;
@@ -247,10 +252,14 @@ const DRAFT_NOTE: Record<SourceKind, string> = {
     "Every card needs a quote from the evidence you fetched; anything you can't back with a fetched quote, leave out.",
 };
 
-function buildPrompt(prep: PreparedSource, opts: PackAuthorOptions): string {
+function buildPrompt(
+  prep: PreparedSource,
+  opts: PackAuthorOptions,
+  styleDef?: StyleDefinition,
+): string {
   const directives: string[] = [];
   if (opts.scope) directives.push(`Scope/focus: ${opts.scope}`);
-  if (opts.style) directives.push(`Card style preference: ${opts.style}`);
+  if (opts.cardStyleHint) directives.push(`Card style preference: ${opts.cardStyleHint}`);
   const grounding = prep.kind === "concept" ? "web" : "source";
   const refField = prep.sourceRef ? `, sourceRef: ${JSON.stringify(prep.sourceRef)}` : "";
   return [
@@ -275,6 +284,7 @@ function buildPrompt(prep: PreparedSource, opts: PackAuthorOptions): string {
     "       literally in the source or the gate holds the whole card.",
     `   Aim for ~15–30 sharp cards, mixing both kinds as the material warrants. ${DRAFT_NOTE[prep.kind]}`,
     ...(directives.length ? [`   Extra directives: ${directives.join(" · ")}`] : []),
+    ...(styleDef?.authorPrompt ? [`   PEDAGOGY (${styleDef.name}): ${styleDef.authorPrompt}`] : []),
     "3. WRITE. Call write_pack(manifest, cards):",
     `   manifest = { schemaVersion: 1, engine: ">=0.1.0", id: "${prep.packId}", name: <human title>, modality: "text",`,
     `     meta: { source: { kind: "${prep.kind}", ref: ${JSON.stringify(prep.sourceLabel)} }, grounding: "${grounding}"${refField} } }`,
@@ -287,10 +297,14 @@ function buildPrompt(prep: PreparedSource, opts: PackAuthorOptions): string {
 
 /** Author prompt for N>1 sources: ingest each, save_source per source (appends into
  *  one corpus), draft cards grounded in the combined text, manifest carries sources[]. */
-export function buildPromptMulti(preps: PreparedSource[], opts: PackAuthorOptions): string {
+export function buildPromptMulti(
+  preps: PreparedSource[],
+  opts: PackAuthorOptions,
+  styleDef?: StyleDefinition,
+): string {
   const directives: string[] = [];
   if (opts.scope) directives.push(`Scope/focus: ${opts.scope}`);
-  if (opts.style) directives.push(`Card style preference: ${opts.style}`);
+  if (opts.cardStyleHint) directives.push(`Card style preference: ${opts.cardStyleHint}`);
   const packId = preps[0]?.packId ?? "pack";
   const grounding = preps.some((p) => p.kind === "concept") ? "web" : "source";
   const sourcesMeta = preps.map((p) => ({ kind: p.kind, ref: p.sourceLabel }));
@@ -313,6 +327,7 @@ export function buildPromptMulti(preps: PreparedSource[], opts: PackAuthorOption
     "       Set back to a concise exemplar. Every checkpoint's sourceQuote must be literally in the corpus.",
     "   Aim for ~15–30 sharp cards across the sources. Fewer true cards beat many shaky ones.",
     ...(directives.length ? [`   Extra directives: ${directives.join(" · ")}`] : []),
+    ...(styleDef?.authorPrompt ? [`   PEDAGOGY (${styleDef.name}): ${styleDef.authorPrompt}`] : []),
     "3. WRITE. Call write_pack(manifest, cards):",
     `   manifest = { schemaVersion: 1, engine: ">=0.1.0", id: "${packId}", name: <human title>, modality: "text",`,
     `     meta: { sources: ${JSON.stringify(sourcesMeta)}, grounding: "${grounding}" } }`,
@@ -341,8 +356,11 @@ export async function runPackAuthorMulti(
 
   const capture: { verdict: WriteVerdict | null } = { verdict: null };
   const server = buildAuthorServer(packDir, capture);
+  const styleDef = opts.pedagogyStyle ? getStyle(opts.pedagogyStyle) : undefined;
   const systemPrompt =
-    preps.length === 1 ? buildPrompt(first, opts) : buildPromptMulti(preps, opts);
+    preps.length === 1
+      ? buildPrompt(first, opts, styleDef)
+      : buildPromptMulti(preps, opts, styleDef);
 
   let stopReason = "unknown";
   let costUsd = 0;

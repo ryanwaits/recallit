@@ -26,16 +26,14 @@ const STYLES: { id: StyleId; name: string; done: string; desc: string; soon?: bo
   {
     id: "compliance",
     name: "Compliance",
-    done: "passes the gate",
-    desc: "Modules + reading + a code-graded assessment.",
-    soon: true,
+    done: "applies the rules",
+    desc: "Recall + apply the rules; code-graded comprehension.",
   },
   {
     id: "onboarding",
     name: "Onboarding",
-    done: "scenarios complete",
-    desc: "Applied scenarios & roleplay to ramp fast.",
-    soon: true,
+    done: "handles real situations",
+    desc: "Grounded 'what do you do?' scenarios + key facts.",
   },
 ];
 
@@ -245,7 +243,7 @@ export function App() {
       : " No sources attached; author from the description.";
     sendMessage(
       { text: `Build a ${style} tutor. ${topic.trim()}.${cue}` },
-      { body: { sources: refs } },
+      { body: { sources: refs, pedagogyStyle: style } },
     );
   }
 

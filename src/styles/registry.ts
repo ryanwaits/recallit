@@ -54,9 +54,45 @@ const recallit: StyleDefinition = {
   done: { kind: "retention", stability: 21 },
 };
 
+// Compliance + onboarding share recallit's study loop (FSRS + code-owned graders);
+// they differ ONLY in how authoring shapes the cards (authorPrompt). The grade stays
+// coverage/lexical — code-owned, honest — so we never ship an unverifiable mcq quiz.
+const compliance: StyleDefinition = {
+  id: "compliance",
+  name: "Compliance",
+  regimen: recallit.regimen,
+  allowsRegimenOverride: true,
+  done: { kind: "retention", stability: 21 },
+  contentKinds: ["card"],
+  authorPrompt: [
+    "This is a COMPLIANCE tutor: the learner must reliably recall AND correctly APPLY the rules/",
+    "policies in the source. Favor CHECKABLE items (type:'explain', meta.grader:'coverage') framed",
+    "as 'what is the rule for X' and 'what do you do when Y' — each rubric checkpoint is a required",
+    "element of the correct action, grounded in a verbatim source quote. Add flashcards only for",
+    "must-know facts (names, thresholds, deadlines). Never invent a rule. Grading is code-owned",
+    "(coverage against the rubric); do NOT write multiple-choice or 'pick the best answer' cards.",
+  ].join(" "),
+};
+
+const onboarding: StyleDefinition = {
+  id: "onboarding",
+  name: "Onboarding",
+  regimen: recallit.regimen,
+  allowsRegimenOverride: true,
+  done: { kind: "retention", stability: 21 },
+  contentKinds: ["card"],
+  authorPrompt: [
+    "This is an ONBOARDING tutor: prepare the learner for real situations they'll face. Favor",
+    "CHECKABLE items (type:'explain', meta.grader:'coverage') framed as 'a situation arises — what",
+    "do you do?', where the rubric checkpoints are the correct steps/considerations, each grounded",
+    "in a verbatim source quote. Add flashcards for key facts they must know cold. Keep it practical",
+    "and grounded; never invent a procedure.",
+  ].join(" "),
+};
+
 export const DEFAULT_STYLE = "recallit";
 
-const REGISTRY: Record<string, StyleDefinition> = { recallit };
+const REGISTRY: Record<string, StyleDefinition> = { recallit, compliance, onboarding };
 
 /** The style a course uses; absent course.style => the recallit default. */
 export function styleName(course: { style?: string }): string {
