@@ -59,6 +59,19 @@ const stepsAt = (phase: number) =>
     state: i < phase ? "done" : i === phase ? "active" : "todo",
   }));
 
+// Friendly live-status labels for the author agent's tool calls (the ledger's
+// lastAction), so the long fetch/draft phases show motion instead of dead air.
+const ACTION_LABEL: Record<string, string> = {
+  Read: "reading the source…",
+  WebFetch: "fetching the source…",
+  WebSearch: "searching the web…",
+  Glob: "scanning files…",
+  Grep: "searching the source…",
+  save_source: "saving the source text…",
+  write_pack: "running the honesty gate…",
+};
+const shortLabel = (s: string) => (s.length > 48 ? `${s.slice(0, 47)}…` : s);
+
 // Tools wrapping the engine. `writer` lets author_tutor stream the live ledger.
 // Pedagogy-style dispatch into authoring is deferred to S4 (avoids the opts.style
 // card-shape collision), so we don't thread pedagogy style here.
@@ -93,7 +106,16 @@ function buildTools(writer: UIMessageStreamWriter) {
       }),
       execute: async ({ source, scope }) => {
         let phase = 0;
-        writer.write({ type: "data-ledger", id: "ledger", data: { steps: stepsAt(phase) } });
+        // Synthetic first action: onEvent is silent during the initial fetch, so
+        // seed a live label immediately, then update it on every author tool_use.
+        let lastAction = `reading ${shortLabel(source)}…`;
+        const emit = () =>
+          writer.write({
+            type: "data-ledger",
+            id: "ledger",
+            data: { steps: stepsAt(phase), lastAction },
+          });
+        emit();
         const res = await runPackAuthor(source, {
           scope,
           maxBudgetUsd: MAX_BUDGET,
@@ -101,10 +123,10 @@ function buildTools(writer: UIMessageStreamWriter) {
           onEvent: (e) => {
             if (e.kind !== "tool_use") return;
             const name = (e.data as { name: string }).name;
+            lastAction = ACTION_LABEL[name] ?? `running ${name}…`;
             if (name === "save_source" && phase < 1) phase = 1;
             else if (name === "write_pack" && phase < 2) phase = 2;
-            else return;
-            writer.write({ type: "data-ledger", id: "ledger", data: { steps: stepsAt(phase) } });
+            emit();
           },
         });
         const v = res.verdict;

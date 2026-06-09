@@ -46,6 +46,7 @@ type LedgerData = {
   ready?: number;
   total?: number;
   held?: { front: string; reasons: string[] }[];
+  lastAction?: string;
   error?: string;
 };
 
@@ -74,6 +75,7 @@ function Ledger({ d, onGround }: { d?: LedgerData; onGround?: (front: string) =>
           </li>
         ))}
       </ul>
+      {!d.done && d.lastAction && <p className="ledger-action">{d.lastAction}</p>}
       {d.error && <p className="ledger-err">{d.error}</p>}
       {d.done && heldCount > 0 && (
         <>

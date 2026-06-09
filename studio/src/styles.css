@@ -119,6 +119,8 @@ body { margin: 0; }
 .lstep.active { color: var(--ink); font-weight: 600; }
 .lstep.active .lstep-ic { color: var(--sage-deep); animation: tick 1s steps(1) infinite; }
 @keyframes tick { 50% { opacity: 0.3; } }
+.ledger-action { font: 500 11px var(--mono); color: var(--muted); margin: 0.5rem 0 0; padding-left: 0.4rem; }
+.ledger-action::before { content: "› "; color: var(--sage-deep); }
 .ledger-err { font: 500 11.5px var(--mono); color: var(--coral, oklch(60% 0.2 25)); margin: 0.5rem 0 0; }
 .reviewbtn { margin-top: 0.7rem; padding: 0.4rem 0.75rem; border: 1px solid var(--rule); border-radius: 9px; background: var(--card); font: 600 11.5px var(--mono); color: var(--sage-deep); cursor: pointer; }
 .reviewbtn:hover { border-color: var(--sage); }
