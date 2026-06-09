@@ -56,6 +56,10 @@ const BUILD_SYSTEM = [
   "reply). The draft result already shows Install/Reshape buttons — don't duplicate those two;",
   "propose actions for other decisions (scope, card mix, depth, what to do next).",
   "",
+  "If the user pastes source material into the chat (a menu, a doc excerpt), pass the FULL",
+  "pasted text through inside shape's instruction — the editor adds it to the grounding corpus",
+  "so new cards can cite it. Never summarize or trim it.",
+  "",
   "Style: concise and plain. No emoji, no hype. 1–3 short sentences. Don't restate the request.",
 ].join("\n");
 
@@ -74,9 +78,19 @@ const ACTION_LABEL: Record<string, string> = {
   WebSearch: "searching the web…",
   Glob: "scanning files…",
   Grep: "searching the source…",
+  ToolSearch: "preparing tools…",
   save_source: "saving the source text…",
   write_pack: "running the honesty gate…",
 };
+
+// Long author/edit runs can sit minutes between tool events; Bun's idleTimeout
+// (capped at 255s) would kill the stream and strand the UI on a stale frame.
+// Re-emitting the current ledger frame keeps bytes flowing (same id = reconciled,
+// no visual change). Returns a stop() to call in finally.
+function startHeartbeat(emit: () => void, ms = 15_000): () => void {
+  const t = setInterval(emit, ms);
+  return () => clearInterval(t);
+}
 
 // Tools wrapping the engine. `writer` lets author_tutor stream the live ledger.
 // Pedagogy-style dispatch into authoring is deferred to S4 (avoids the opts.style
@@ -114,20 +128,26 @@ function buildTools(writer: UIMessageStreamWriter, sources: string[], pedagogySt
             data: { steps: stepsAt(phase), lastAction },
           });
         emit();
-        const res = await runPackAuthorMulti(srcs, {
-          scope,
-          pedagogyStyle,
-          maxBudgetUsd: MAX_BUDGET,
-          maxTurns: 30,
-          onEvent: (e) => {
-            if (e.kind !== "tool_use") return;
-            const name = (e.data as { name: string }).name;
-            lastAction = ACTION_LABEL[name] ?? `running ${name}…`;
-            if (name === "save_source" && phase < 1) phase = 1;
-            else if (name === "write_pack" && phase < 2) phase = 2;
-            emit();
-          },
-        });
+        const stopHb = startHeartbeat(emit);
+        let res: Awaited<ReturnType<typeof runPackAuthorMulti>>;
+        try {
+          res = await runPackAuthorMulti(srcs, {
+            scope,
+            pedagogyStyle,
+            maxBudgetUsd: MAX_BUDGET,
+            maxTurns: 30,
+            onEvent: (e) => {
+              if (e.kind !== "tool_use") return;
+              const name = (e.data as { name: string }).name;
+              lastAction = ACTION_LABEL[name] ?? `running ${name}…`;
+              if (name === "save_source" && phase < 1) phase = 1;
+              else if (name === "write_pack" && phase < 2) phase = 2;
+              emit();
+            },
+          });
+        } finally {
+          stopHb();
+        }
         const v = res.verdict;
         if (!v) {
           writer.write({
@@ -184,16 +204,22 @@ function buildTools(writer: UIMessageStreamWriter, sources: string[], pedagogySt
             },
           });
         emit();
-        const res = await runPackEditor(packId, instruction, {
-          maxBudgetUsd: MAX_BUDGET,
-          onEvent: (e) => {
-            if (e.kind !== "tool_use") return;
-            const name = (e.data as { name: string }).name;
-            lastAction = ACTION_LABEL[name] ?? `running ${name}…`;
-            if (name === "write_pack" && phase < 1) phase = 1;
-            emit();
-          },
-        });
+        const stopHb = startHeartbeat(emit);
+        let res: Awaited<ReturnType<typeof runPackEditor>>;
+        try {
+          res = await runPackEditor(packId, instruction, {
+            maxBudgetUsd: MAX_BUDGET,
+            onEvent: (e) => {
+              if (e.kind !== "tool_use") return;
+              const name = (e.data as { name: string }).name;
+              lastAction = ACTION_LABEL[name] ?? `running ${name}…`;
+              if (name === "write_pack" && phase < 1) phase = 1;
+              emit();
+            },
+          });
+        } finally {
+          stopHb();
+        }
         const v = res.verdict;
         if (!v) {
           writer.write({
