@@ -105,6 +105,11 @@ body { margin: 0; }
 }
 .msg.user .bubble { background: var(--ink); color: var(--paper); border-color: transparent; border-bottom-right-radius: 5px; }
 .msg.assistant .bubble { border-bottom-left-radius: 5px; }
+.toolpart { display: flex; align-items: center; gap: 0.5rem; font: 500 11.5px var(--mono); color: var(--ink-2); padding: 0.3rem 0; }
+.toolpart + .toolpart { border-top: 1px dashed var(--rule); }
+.tp-ic { color: var(--sage-deep); width: 14px; }
+.tp-name { font-weight: 600; color: var(--ink); }
+.tp-sum { color: var(--muted); }
 .dots { display: inline-flex; gap: 4px; align-items: center; }
 .dots i { width: 6px; height: 6px; border-radius: 50%; background: var(--muted); animation: blink 1.2s infinite; }
 .dots i:nth-child(2) { animation-delay: 0.2s; }

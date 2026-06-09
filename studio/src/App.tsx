@@ -19,6 +19,22 @@ const STYLES: { id: StyleId; name: string; done: string; desc: string }[] = [
 
 const STEPS = ["Topic", "Materials", "Shape"] as const;
 
+type ToolOutput = {
+  ready?: number;
+  total?: number;
+  held?: { front: string }[];
+  kind?: string;
+  source?: string;
+  error?: string;
+};
+function summarizeTool(o?: ToolOutput): string {
+  if (!o) return "";
+  if (o.error) return o.error;
+  if (typeof o.ready === "number") return `${o.ready}/${o.total} ready · ${o.held?.length ?? 0} held`;
+  if (o.source) return `read ${o.source} (${o.kind})`;
+  return "done";
+}
+
 export function App() {
   const [step, setStep] = useState(1);
   const [topic, setTopic] = useState("");
@@ -43,14 +59,23 @@ export function App() {
     addFiles(e.dataTransfer.files);
   }
 
-  function startBuilding() {
+  async function startBuilding() {
     setStep(3);
     if (kicked.current) return;
     kicked.current = true;
-    const sources = files.length
-      ? ` Attached sources: ${files.map((f) => f.name).join(", ")}.`
-      : " (no sources attached — describe-only.)";
-    sendMessage({ text: `Build a ${style} tutor. ${topic.trim()}${sources}` });
+    let sources = " No sources attached; build from the description.";
+    if (files.length) {
+      const uploaded = await Promise.all(
+        files.map(async (f) => {
+          const fd = new FormData();
+          fd.append("file", f);
+          const r = await fetch("/api/sources", { method: "POST", body: fd });
+          return (await r.json()) as { path: string; name: string };
+        }),
+      );
+      sources = ` Source files: ${uploaded.map((u) => `${u.name} (${u.path})`).join("; ")}.`;
+    }
+    sendMessage({ text: `Build a ${style} tutor. ${topic.trim()}.${sources}` });
   }
 
   function submit(e: FormEvent) {
@@ -218,9 +243,21 @@ export function App() {
               <div key={m.id} className={`msg ${m.role}`}>
                 <span className="who">{m.role === "user" ? "you" : "assistant"}</span>
                 <div className="bubble">
-                  {m.parts.map((part, i) =>
-                    part.type === "text" ? <span key={`${m.id}-${i}`}>{part.text}</span> : null,
-                  )}
+                  {m.parts.map((part, i) => {
+                    if (part.type === "text") return <span key={`${m.id}-${i}`}>{part.text}</span>;
+                    if (part.type.startsWith("tool-")) {
+                      const tp = part as { state?: string; output?: ToolOutput };
+                      const done = tp.state === "output-available";
+                      return (
+                        <div className="toolpart" key={`${m.id}-${i}`}>
+                          <span className="tp-ic">{done ? "✓" : "▸"}</span>
+                          <span className="tp-name">{part.type.slice(5)}</span>
+                          <span className="tp-sum">{done ? summarizeTool(tp.output) : "running…"}</span>
+                        </div>
+                      );
+                    }
+                    return null;
+                  })}
                 </div>
               </div>
             ))}

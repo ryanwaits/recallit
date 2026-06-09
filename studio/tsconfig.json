@@ -12,5 +12,6 @@
     "verbatimModuleSyntax": true,
     "types": ["bun", "react", "react-dom"]
   },
-  "include": ["src", "server.ts", "vite.config.ts"]
+  "comment": "server.ts is excluded — it imports ../src (the Bun engine); Bun runs it directly. The FE (src) carries no engine types.",
+  "include": ["src", "vite.config.ts"]
 }
