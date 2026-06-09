@@ -239,7 +239,10 @@ function buildTools(writer: UIMessageStreamWriter, sources: string[], pedagogySt
                 type: "object",
                 properties: {
                   label: { type: "string", description: "short button label (2-5 words)" },
-                  message: { type: "string", description: "the reply this button sends as the user" },
+                  message: {
+                    type: "string",
+                    description: "the reply this button sends as the user",
+                  },
                 },
                 required: ["label", "message"],
                 additionalProperties: false,
@@ -303,7 +306,11 @@ Bun.serve({
           { status: 503 },
         );
       }
-      const { messages, sources = [], pedagogyStyle } = (await req.json()) as {
+      const {
+        messages,
+        sources = [],
+        pedagogyStyle,
+      } = (await req.json()) as {
         messages: UIMessage[];
         sources?: string[];
         pedagogyStyle?: string;

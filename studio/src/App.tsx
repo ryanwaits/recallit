@@ -230,7 +230,9 @@ function Ledger({ d, onAction }: { d?: LedgerData; onAction?: (text: string) => 
           <button
             type="button"
             className="lg-btn primary"
-            onClick={() => onAction(`Looks good — finalize and install the ${d.ready} ready cards.`)}
+            onClick={() =>
+              onAction(`Looks good — finalize and install the ${d.ready} ready cards.`)
+            }
           >
             Install {d.ready} cards →
           </button>
@@ -343,6 +345,7 @@ export function App() {
             const state = n === step ? "on" : n < step ? "done" : "";
             return (
               <button
+                type="button"
                 key={label}
                 className={`stepchip ${state}`}
                 disabled={n > step}
@@ -401,6 +404,7 @@ export function App() {
             <span className="seg">
               {(["text", "voice", "both"] as Modality[]).map((m) => (
                 <button
+                  type="button"
                   key={m}
                   className={m === modality ? "on" : ""}
                   onClick={() => setModality(m)}
@@ -412,7 +416,12 @@ export function App() {
           </div>
 
           <div className="navbtns">
-            <button className="btn primary" disabled={!topic.trim()} onClick={() => setStep(2)}>
+            <button
+              type="button"
+              className="btn primary"
+              disabled={!topic.trim()}
+              onClick={() => setStep(2)}
+            >
               Continue →
             </button>
           </div>
@@ -436,7 +445,7 @@ export function App() {
             <div className="dropico">＋</div>
             <p>
               Drop files here, or{" "}
-              <button className="linklike" onClick={() => fileInput.current?.click()}>
+              <button type="button" className="linklike" onClick={() => fileInput.current?.click()}>
                 choose
               </button>
             </p>
@@ -482,6 +491,7 @@ export function App() {
                   <span className="srcchip" key={`${s.name}-${i}`}>
                     {s.kind === "url" ? "🔗" : "📄"} {s.name}
                     <button
+                      type="button"
                       aria-label={`remove ${s.name}`}
                       onClick={() => setSources((prev) => prev.filter((_, j) => j !== i))}
                     >
@@ -494,10 +504,10 @@ export function App() {
           )}
 
           <div className="navbtns">
-            <button className="btn ghost" onClick={() => setStep(1)}>
+            <button type="button" className="btn ghost" onClick={() => setStep(1)}>
               ← Back
             </button>
-            <button className="btn primary" onClick={startBuilding}>
+            <button type="button" className="btn primary" onClick={startBuilding}>
               {sources.length ? "Start building →" : "Build from description →"}
             </button>
           </div>
