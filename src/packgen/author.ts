@@ -160,6 +160,23 @@ export function slugFromSource(source: string): string {
   return slug || "pack";
 }
 
+/** Prepare N sources (files/urls/repos/concepts). The caller MUST clean up all. */
+export async function prepareSources(sources: string[]): Promise<PreparedSource[]> {
+  return Promise.all(sources.map((s) => prepareSource(s)));
+}
+
+/** Append text to the pack's grounding corpus. The first call creates it; later
+ *  calls APPEND with a distinctive separator (so a card quote can't span two
+ *  sources, and so single-source authoring writes a byte-identical corpus). */
+export async function appendCorpus(packDir: string, text: string): Promise<number> {
+  await mkdir(join(packDir, ".author"), { recursive: true });
+  const file = join(packDir, ".author", "source.txt");
+  const prev = (await Bun.file(file).exists()) ? await Bun.file(file).text() : "";
+  const combined = prev ? `${prev}\n\n===== additional source =====\n\n${text}` : text;
+  await Bun.write(file, combined);
+  return combined.length;
+}
+
 function buildAuthorServer(packDir: string, capture: { verdict: WriteVerdict | null }) {
   return createSdkMcpServer({
     name: "packauthor",
@@ -167,12 +184,11 @@ function buildAuthorServer(packDir: string, capture: { verdict: WriteVerdict | n
     tools: [
       tool(
         "save_source",
-        "Save the raw extracted source text as the grounding corpus (call ONCE with the full text you read). Every card's quote is verified against this exact text.",
+        "Save extracted source text as the grounding corpus. Call once per source — repeated calls APPEND into one combined corpus. Every card's quote is verified against this exact text.",
         { text: z.string() },
         async (args) => {
-          await mkdir(join(packDir, ".author"), { recursive: true });
-          await Bun.write(join(packDir, ".author", "source.txt"), args.text);
-          return ok({ saved: true, chars: args.text.length });
+          const chars = await appendCorpus(packDir, args.text);
+          return ok({ saved: true, chars });
         },
       ),
       tool(
@@ -269,20 +285,63 @@ function buildPrompt(prep: PreparedSource, opts: PackAuthorOptions): string {
   ].join("\n");
 }
 
+/** Author prompt for N>1 sources: ingest each, save_source per source (appends into
+ *  one corpus), draft cards grounded in the combined text, manifest carries sources[]. */
+export function buildPromptMulti(preps: PreparedSource[], opts: PackAuthorOptions): string {
+  const directives: string[] = [];
+  if (opts.scope) directives.push(`Scope/focus: ${opts.scope}`);
+  if (opts.style) directives.push(`Card style preference: ${opts.style}`);
+  const packId = preps[0]?.packId ?? "pack";
+  const grounding = preps.some((p) => p.kind === "concept") ? "web" : "source";
+  const sourcesMeta = preps.map((p) => ({ kind: p.kind, ref: p.sourceLabel }));
+  const ingest = preps.map((p, i) => `   1.${i + 1} ${INGEST[p.kind](p).join("\n        ")}`);
+  return [
+    `You are recallit's pack author. Turn these ${preps.length} sources into ONE HONEST spaced-repetition pack on disk, then stop.`,
+    "You do NOT install the pack — that is the user's step. End after write_pack returns.",
+    "",
+    `Pack id: "${packId}" (the write tools are bound to this pack; your manifest.id must equal it).`,
+    "",
+    "1. INGEST EACH source below; after reading each, call save_source(text) with THAT source's text",
+    "   (repeated calls APPEND into one combined corpus). Do every source before drafting.",
+    ...ingest,
+    "   If a source yields no real text (image-only PDF, blocked page), skip it and say so. Never invent a corpus.",
+    "2. DRAFT cards grounded in the saved combined text. Two kinds, by what 'knowing it' means:",
+    "   (a) FLASHCARD — atomic recall. front, back, context (optional), tags (optional), and meta.sourceQuote:",
+    "       a VERBATIM span from the saved text (a literal substring). No quote → no card.",
+    "   (b) CHECKABLE ITEM — comprehension/free-recall. type:'explain', meta.grader:'coverage', meta.rubric =",
+    "       2–5 checkpoints, each { id, claim (your words), required (bool), sourceQuote (a VERBATIM substring) }.",
+    "       Set back to a concise exemplar. Every checkpoint's sourceQuote must be literally in the corpus.",
+    "   Aim for ~15–30 sharp cards across the sources. Fewer true cards beat many shaky ones.",
+    ...(directives.length ? [`   Extra directives: ${directives.join(" · ")}`] : []),
+    "3. WRITE. Call write_pack(manifest, cards):",
+    `   manifest = { schemaVersion: 1, engine: ">=0.1.0", id: "${packId}", name: <human title>, modality: "text",`,
+    `     meta: { sources: ${JSON.stringify(sourcesMeta)}, grounding: "${grounding}" } }`,
+    "   The gate flags any quote not literally present in the saved combined text (kept as needs-review).",
+    "4. Report briefly: how many cards are ready vs need review, then stop.",
+    "",
+    "Honesty is the whole point. The gate verifies your quotes are literally present in the combined source you saved.",
+  ].join("\n");
+}
+
 /**
- * Run the agent loop that authors a pack from `source`. Returns the write_pack
- * verdict; the caller decides whether/how to install. NEVER installs.
+ * Author a pack from N sources (files/urls/repos/concepts), grounding cards across
+ * the combined corpus. Single-source goes through the unchanged buildPrompt path, so
+ * `runPackAuthor(source)` is byte-identical. Returns the write_pack verdict; NEVER installs.
  */
-export async function runPackAuthor(
-  source: string,
+export async function runPackAuthorMulti(
+  sources: string[],
   opts: PackAuthorOptions = {},
 ): Promise<PackAuthorResult> {
-  const prep = await prepareSource(source);
-  const packDir = join(process.cwd(), "packs", prep.packId);
+  const preps = await prepareSources(sources);
+  const first = preps[0];
+  if (!first) throw new Error("no sources to author from");
+  const packId = first.packId;
+  const packDir = join(process.cwd(), "packs", packId);
   await mkdir(packDir, { recursive: true });
 
   const capture: { verdict: WriteVerdict | null } = { verdict: null };
   const server = buildAuthorServer(packDir, capture);
+  const systemPrompt = preps.length === 1 ? buildPrompt(first, opts) : buildPromptMulti(preps, opts);
 
   let stopReason = "unknown";
   let costUsd = 0;
@@ -295,7 +354,7 @@ export async function runPackAuthor(
         allowedTools: AUTHOR_TOOLS,
         // Headless: no human to approve; capability is constrained by allowedTools.
         permissionMode: "bypassPermissions",
-        systemPrompt: buildPrompt(prep, opts),
+        systemPrompt,
         model: opts.model ?? "claude-sonnet-4-6",
         maxTurns: opts.maxTurns ?? 40,
         maxBudgetUsd: opts.maxBudgetUsd ?? 1,
@@ -313,10 +372,19 @@ export async function runPackAuthor(
       }
     }
   } finally {
-    await prep.cleanup();
+    // Clean up ALL prepared sources, even if a mid-run throw occurred.
+    await Promise.all(preps.map((p) => p.cleanup()));
   }
 
-  return { packId: prep.packId, packDir, verdict: capture.verdict, stopReason, costUsd };
+  return { packId, packDir, verdict: capture.verdict, stopReason, costUsd };
+}
+
+/** Author a pack from a single source. Thin wrapper over runPackAuthorMulti. NEVER installs. */
+export async function runPackAuthor(
+  source: string,
+  opts: PackAuthorOptions = {},
+): Promise<PackAuthorResult> {
+  return runPackAuthorMulti([source], opts);
 }
 
 const EDIT_TOOLS = ["Read", "mcp__packauthor__write_pack"];
