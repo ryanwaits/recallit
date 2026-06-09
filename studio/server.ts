@@ -162,17 +162,60 @@ function buildTools(writer: UIMessageStreamWriter, sources: string[], pedagogySt
         additionalProperties: false,
       }),
       execute: async ({ packId, instruction }) => {
-        const res = await runPackEditor(packId, instruction, { maxBudgetUsd: MAX_BUDGET });
+        // Reshaping is a 1–2 min keyed run; stream a ledger so it isn't a dead spinner.
+        const PHASES = ["Revising the cards", "Running the honesty gate"];
+        let phase = 0;
+        let lastAction = "revising the draft…";
+        const emit = () =>
+          writer.write({
+            type: "data-ledger",
+            id: "ledger",
+            data: {
+              steps: PHASES.map((label, i) => ({
+                label,
+                state: i < phase ? "done" : i === phase ? "active" : "todo",
+              })),
+              lastAction,
+            },
+          });
+        emit();
+        const res = await runPackEditor(packId, instruction, {
+          maxBudgetUsd: MAX_BUDGET,
+          onEvent: (e) => {
+            if (e.kind !== "tool_use") return;
+            const name = (e.data as { name: string }).name;
+            lastAction = ACTION_LABEL[name] ?? `running ${name}…`;
+            if (name === "write_pack" && phase < 1) phase = 1;
+            emit();
+          },
+        });
         const v = res.verdict;
-        if (!v)
+        if (!v) {
+          writer.write({
+            type: "data-ledger",
+            id: "ledger",
+            data: {
+              steps: PHASES.map((label) => ({ label, state: "todo" })),
+              error: "no change written",
+            },
+          });
           return { error: "no change written", stopReason: res.stopReason, costUsd: res.costUsd };
-        return {
-          packId: res.packId,
-          ready: v.ready,
-          total: v.total,
-          held: v.needsReview.map((r) => ({ front: r.card.front, reasons: r.reasons })),
-          costUsd: res.costUsd,
-        };
+        }
+        const held = v.needsReview.map((r) => ({ front: r.card.front, reasons: r.reasons }));
+        writer.write({
+          type: "data-ledger",
+          id: "ledger",
+          data: {
+            steps: PHASES.map((label) => ({ label, state: "done" })),
+            done: true,
+            packId: res.packId,
+            ready: v.ready,
+            total: v.total,
+            held,
+            costUsd: res.costUsd,
+          },
+        });
+        return { packId: res.packId, ready: v.ready, total: v.total, held };
       },
     }),
     finalize_tutor: tool({
@@ -230,6 +273,11 @@ Bun.serve({
         sources?: string[];
         pedagogyStyle?: string;
       };
+      // Guard a malformed/empty request so streamText doesn't throw an uncaught
+      // AI_InvalidPromptError (which dumps a stack to the server log).
+      if (!messages?.length) {
+        return Response.json({ error: "messages must not be empty" }, { status: 400 });
+      }
       const stream = createUIMessageStream({
         execute: async ({ writer }) => {
           const result = streamText({

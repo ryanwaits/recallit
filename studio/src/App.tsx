@@ -103,6 +103,7 @@ type LedgerStep = { label: string; state: "done" | "active" | "todo" };
 type LedgerData = {
   steps?: LedgerStep[];
   done?: boolean;
+  packId?: string;
   ready?: number;
   total?: number;
   held?: { front: string; reasons: string[] }[];
@@ -112,7 +113,7 @@ type LedgerData = {
 
 // The live honesty ledger: fills in as the author runs (reading -> drafting ->
 // gating), then shows verified vs held with a "Review now" expand for held cards.
-function Ledger({ d, onGround }: { d?: LedgerData; onGround?: (front: string) => void }) {
+function Ledger({ d, onAction }: { d?: LedgerData; onAction?: (text: string) => void }) {
   const [showHeld, setShowHeld] = useState(false);
   const [dropped, setDropped] = useState<Set<string>>(new Set());
   if (!d) return null;
@@ -142,37 +143,71 @@ function Ledger({ d, onGround }: { d?: LedgerData; onGround?: (front: string) =>
       {d.done && heldCount > 0 && (
         <>
           <button type="button" className="reviewbtn" onClick={() => setShowHeld((v) => !v)}>
-            {showHeld ? "Hide held cards" : `Review now — ${heldCount} held`}
+            {showHeld ? "Hide held cards" : `Review ${heldCount} held`}
           </button>
           {showHeld && (
-            <ul className="heldlist">
-              {(d.held ?? [])
-                .filter((h) => !dropped.has(h.front))
-                .map((h) => (
-                  <li key={h.front}>
-                    <span className="held-front">{h.front}</span>
-                    <span className="held-reason">{h.reasons.join(", ")}</span>
-                    <div className="held-actions">
-                      <button
-                        type="button"
-                        className="held-btn"
-                        onClick={() => onGround?.(h.front)}
-                      >
-                        Ground it
-                      </button>
-                      <button
-                        type="button"
-                        className="held-btn ghost"
-                        onClick={() => setDropped((s) => new Set(s).add(h.front))}
-                      >
-                        Drop
-                      </button>
-                    </div>
-                  </li>
-                ))}
-            </ul>
+            <>
+              <p className="held-note">
+                Left out — couldn't be tied to your source. Nothing required; optionally fix or
+                dismiss.
+              </p>
+              <ul className="heldlist">
+                {(d.held ?? [])
+                  .filter((h) => !dropped.has(h.front))
+                  .map((h) => (
+                    <li key={h.front}>
+                      <span className="held-front">{h.front}</span>
+                      <span className="held-reason">{h.reasons.join(", ")}</span>
+                      <div className="held-actions">
+                        <button
+                          type="button"
+                          className="held-btn"
+                          onClick={() =>
+                            onAction?.(
+                              `Reshape the held card "${h.front}" to claim only what the source supports, so it grounds and gets included.`,
+                            )
+                          }
+                        >
+                          Fix it
+                        </button>
+                        <button
+                          type="button"
+                          className="held-btn ghost"
+                          onClick={() => setDropped((s) => new Set(s).add(h.front))}
+                        >
+                          Dismiss
+                        </button>
+                      </div>
+                    </li>
+                  ))}
+              </ul>
+            </>
           )}
         </>
+      )}
+      {d.done && d.packId && onAction && (
+        <div className="ledger-actions">
+          <button
+            type="button"
+            className="lg-btn primary"
+            onClick={() => onAction(`Looks good — finalize and install the ${d.ready} ready cards.`)}
+          >
+            Install {d.ready} cards →
+          </button>
+          {heldCount > 0 && (
+            <button
+              type="button"
+              className="lg-btn"
+              onClick={() =>
+                onAction(
+                  "Reshape the held cards with looser phrasing so they ground and get included.",
+                )
+              }
+            >
+              Reshape {heldCount} held
+            </button>
+          )}
+        </div>
       )}
     </div>
   );
@@ -187,20 +222,19 @@ export function App() {
   const [urlInput, setUrlInput] = useState("");
   const [input, setInput] = useState("");
   const fileInput = useRef<HTMLInputElement>(null);
-  const composerRef = useRef<HTMLInputElement>(null);
   const kicked = useRef(false);
-
-  // Held-card "Ground it": prefill the composer so the user can add a source; the
-  // agent then re-grounds via the existing shape path.
-  function groundHeld(front: string) {
-    setInput(`Ground the held card "${front}" — here's a source: `);
-    composerRef.current?.focus();
-  }
 
   const { messages, sendMessage, status } = useChat({
     transport: new DefaultChatTransport({ api: "/api/build" }),
   });
   const busy = status === "submitted" || status === "streaming";
+
+  // Inline action buttons (Install / Reshape / Fix held) send a chat message so the
+  // agent acts (finalize_tutor / shape) — the agent-native loop, no typing "yes".
+  const sendAction = (text: string) => {
+    if (busy) return;
+    sendMessage({ text });
+  };
 
   function addFiles(list: FileList | null) {
     if (!list) return;
@@ -459,12 +493,13 @@ export function App() {
                         <Ledger
                           key={`${m.id}-${i}`}
                           d={(part as { data?: LedgerData }).data}
-                          onGround={groundHeld}
+                          onAction={sendAction}
                         />
                       );
                     }
                     // The ledger supersedes the author_tutor tool chip (richer view).
-                    if (part.type === "tool-author_tutor") return null;
+                    if (part.type === "tool-author_tutor" || part.type === "tool-shape")
+                      return null;
                     if (part.type === "tool-finalize_tutor") {
                       const out = (part as { output?: FinalizeOutput }).output;
                       if (!out?.installed) return null;
@@ -501,7 +536,6 @@ export function App() {
           </main>
           <form className="composer" onSubmit={submit}>
             <input
-              ref={composerRef}
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="Tell the assistant what to change…"
