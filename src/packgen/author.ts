@@ -341,7 +341,8 @@ export async function runPackAuthorMulti(
 
   const capture: { verdict: WriteVerdict | null } = { verdict: null };
   const server = buildAuthorServer(packDir, capture);
-  const systemPrompt = preps.length === 1 ? buildPrompt(first, opts) : buildPromptMulti(preps, opts);
+  const systemPrompt =
+    preps.length === 1 ? buildPrompt(first, opts) : buildPromptMulti(preps, opts);
 
   let stopReason = "unknown";
   let costUsd = 0;
