@@ -13,7 +13,10 @@ import remarkGfm from "remark-gfm";
 type StyleId = "recallit" | "compliance" | "onboarding";
 type Modality = "text" | "voice" | "both";
 
-const STYLES: { id: StyleId; name: string; done: string; desc: string }[] = [
+// `soon` styles are shown for direction but not selectable — authoring doesn't yet
+// shape itself by pedagogy (S4: thread getStyle().authorPrompt into runPackAuthor),
+// so promising a compliance assessment / onboarding scenarios would overclaim.
+const STYLES: { id: StyleId; name: string; done: string; desc: string; soon?: boolean }[] = [
   {
     id: "recallit",
     name: "Spaced retention",
@@ -25,12 +28,14 @@ const STYLES: { id: StyleId; name: string; done: string; desc: string }[] = [
     name: "Compliance",
     done: "passes the gate",
     desc: "Modules + reading + a code-graded assessment.",
+    soon: true,
   },
   {
     id: "onboarding",
     name: "Onboarding",
     done: "scenarios complete",
     desc: "Applied scenarios & roleplay to ramp fast.",
+    soon: true,
   },
 ];
 
@@ -304,10 +309,15 @@ export function App() {
             {STYLES.map((s) => (
               <button
                 key={s.id}
-                className={`stylecard ${s.id === style ? "sel" : ""}`}
-                onClick={() => setStyle(s.id)}
+                type="button"
+                disabled={s.soon}
+                className={`stylecard ${s.id === style ? "sel" : ""} ${s.soon ? "soon" : ""}`}
+                onClick={() => !s.soon && setStyle(s.id)}
               >
-                <span className="stylename">{s.name}</span>
+                <span className="stylename">
+                  {s.name}
+                  {s.soon && <span className="soonbadge">coming</span>}
+                </span>
                 <span className="styledesc">{s.desc}</span>
                 <span className="styledone">done · {s.done}</span>
               </button>

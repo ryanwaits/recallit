@@ -60,6 +60,9 @@ body { margin: 0; }
 .stylecard { text-align: left; border: 1px solid var(--rule); border-radius: 13px; padding: 0.9rem; background: var(--card); cursor: pointer; display: grid; gap: 0.3rem; transition: transform 0.14s, border-color 0.14s; }
 .stylecard:hover { transform: translateY(-2px); }
 .stylecard.sel { border-color: var(--ink); box-shadow: 0 0 0 1.5px var(--ink); }
+.stylecard.soon { opacity: 0.5; cursor: default; }
+.stylecard.soon:hover { transform: none; }
+.soonbadge { font: 600 8.5px var(--mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); border: 1px solid var(--rule); border-radius: 999px; padding: 1px 5px; margin-left: 0.4rem; vertical-align: middle; }
 .stylename { font: 700 14px var(--ui); }
 .styledesc { font-size: 12px; color: var(--ink-2); line-height: 1.4; }
 .styledone { font: 600 10px var(--mono); text-transform: uppercase; letter-spacing: 0.04em; color: var(--sage-deep); margin-top: 0.2rem; }
