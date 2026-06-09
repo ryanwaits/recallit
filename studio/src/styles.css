@@ -105,9 +105,17 @@ body { margin: 0; }
 }
 .msg.user .bubble { background: var(--ink); color: var(--paper); border-color: transparent; border-bottom-right-radius: 5px; }
 .msg.assistant .bubble { border-bottom-left-radius: 5px; }
-.tutorready { display: flex; align-items: center; gap: 0.7rem; flex-wrap: wrap; border: 1px solid var(--sage); border-radius: 12px; background: var(--sage-tint); padding: 0.8rem 1rem; margin: 0.3rem 0; }
+.tutorready { display: grid; gap: 0.55rem; border: 1px solid var(--sage); border-radius: 12px; background: var(--sage-tint); padding: 0.85rem 1rem; margin: 0.3rem 0; }
+.tr-top { display: flex; align-items: center; gap: 0.7rem; }
 .tr-badge { font: 700 13px var(--ui); color: var(--sage-deep); }
 .tr-meta { font: 500 11.5px var(--mono); color: var(--ink-2); }
+.tr-label { font: 600 10px var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin: 0.1rem 0 0; }
+.tr-cmd { display: flex; align-items: center; gap: 0.5rem; background: var(--ink); border-radius: 9px; padding: 0.5rem 0.6rem; overflow: hidden; }
+.tr-cmd code { flex: 1; font: 500 11px var(--mono); color: oklch(92% 0.02 95); white-space: nowrap; overflow-x: auto; }
+.tr-cmd button { border: 0; border-radius: 7px; background: var(--sage); color: var(--paper); font: 600 11px var(--ui); padding: 0.3rem 0.6rem; cursor: pointer; flex: 0 0 auto; }
+.tr-actions { display: flex; gap: 0.4rem; }
+.tr-chip { font: 600 10.5px var(--mono); padding: 0.25rem 0.55rem; border-radius: 999px; border: 1px solid var(--rule); color: var(--muted); }
+.tr-chip.muted { background: var(--card); }
 .ledger { border: 1px solid var(--rule); border-radius: 12px; background: var(--paper-2); padding: 0.85rem 1rem; margin: 0.2rem 0; }
 .ledger-head { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; margin-bottom: 0.6rem; }
 .ledger-count { font: 600 11px var(--mono); color: var(--sage-deep); }

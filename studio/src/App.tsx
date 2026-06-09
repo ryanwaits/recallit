@@ -37,7 +37,44 @@ function summarizeTool(o?: ToolOutput): string {
   return "done";
 }
 
-type FinalizeOutput = { installed?: boolean; courseId?: string; cards?: number };
+type FinalizeOutput = {
+  installed?: boolean;
+  courseId?: string;
+  cards?: number;
+  dataDir?: string;
+};
+
+// The finalize result: a "Tutor ready" card with the exact copy-able study command
+// for this install. Deploy is a placeholder until the Deploy surface ships.
+function TutorReady({ out }: { out: FinalizeOutput }) {
+  const [copied, setCopied] = useState(false);
+  const cmd = `RECALLIT_DATA_DIR=${out.dataDir ?? "~/.recallit"} bun run src/cli.ts daily --topic ${out.courseId}`;
+  const copy = () => {
+    navigator.clipboard?.writeText(cmd);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
+  };
+  return (
+    <div className="tutorready">
+      <div className="tr-top">
+        <span className="tr-badge">✓ Tutor ready</span>
+        <span className="tr-meta">
+          {out.courseId} · {out.cards} cards
+        </span>
+      </div>
+      <p className="tr-label">Study it</p>
+      <div className="tr-cmd">
+        <code>{cmd}</code>
+        <button type="button" onClick={copy}>
+          {copied ? "Copied" : "Copy"}
+        </button>
+      </div>
+      <div className="tr-actions">
+        <span className="tr-chip muted">Deploy · coming</span>
+      </div>
+    </div>
+  );
+}
 
 type LedgerStep = { label: string; state: "done" | "active" | "todo" };
 type LedgerData = {
@@ -351,14 +388,7 @@ export function App() {
                     if (part.type === "tool-finalize_tutor") {
                       const out = (part as { output?: FinalizeOutput }).output;
                       if (!out?.installed) return null;
-                      return (
-                        <div className="tutorready" key={`${m.id}-${i}`}>
-                          <span className="tr-badge">✓ Tutor ready</span>
-                          <span className="tr-meta">
-                            {out.courseId} · {out.cards} cards · ready to study or deploy
-                          </span>
-                        </div>
-                      );
+                      return <TutorReady key={`${m.id}-${i}`} out={out} />;
                     }
                     if (part.type.startsWith("tool-")) {
                       const tp = part as { state?: string; output?: ToolOutput };

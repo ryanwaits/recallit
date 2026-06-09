@@ -198,6 +198,8 @@ function buildTools(writer: UIMessageStreamWriter) {
           audio: res.audio,
           scenarios: res.scenarios,
           heldForReview: res.heldForReview,
+          // So the FE can show the exact study command for this install.
+          dataDir: process.env.RECALLIT_DATA_DIR ?? "~/.recallit",
         };
       },
     }),
