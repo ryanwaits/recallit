@@ -7,10 +7,11 @@
 // server.ts is Bun-run and imports ../src directly; engine deps resolve from the
 // repo-root node_modules. Run from the repo root so author writes packs to ./packs:
 //   bun --env-file=.env studio/server.ts
-import { anthropic } from "@ai-sdk/anthropic";
+
 import { mkdtemp } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { anthropic } from "@ai-sdk/anthropic";
 import {
   convertToModelMessages,
   createUIMessageStream,
@@ -23,7 +24,7 @@ import {
   type UIMessageStreamWriter,
 } from "ai";
 import { installPack } from "../src/install.ts";
-import { prepareSource, runPackAuthor, runPackEditor } from "../src/packgen/author.ts";
+import { runPackAuthorMulti, runPackEditor } from "../src/packgen/author.ts";
 
 const DIST = join(import.meta.dir, "dist");
 const PORT = Number(process.env.PORT ?? 3001);
@@ -34,20 +35,21 @@ const BUILD_SYSTEM = [
   "every card cites a verbatim source line, and grades are computed in code — a model never",
   "decides a rating.",
   "",
-  "Tools:",
-  "- attach_source(path): read an attached source into the corpus. No spend. Call it for each",
-  "  source path the user gives, before authoring.",
-  "- author_tutor(source, scope): draft the cards and run the honesty gate. Slow and costs",
-  "  money — call once, after sources are attached. Returns ready vs held counts (held = a",
-  "  card couldn't be grounded in a source).",
-  "- shape(packId, instruction): revise the drafted pack and re-run the gate.",
-  "- finalize_tutor(packId): install the drafted pack as a tutor the learner can study and",
-  "  deploy. Call it once the user is happy with the draft.",
+  "The user's sources (files/links) are attached out-of-band — you don't have or need their",
+  "paths; the kickoff message names what's attached.",
   "",
-  "Flow: attach the sources, author once, then report the result plainly — e.g. '18 of 22",
-  "cards ready, 4 held because they weren't in your sources.' Use shape for follow-up changes.",
-  "When the user is happy, finalize_tutor to install it, then tell them it's ready to study or",
-  "deploy. Only the ready cards install; held cards stay out until grounded.",
+  "Tools:",
+  "- author_tutor(scope): draft cards from the attached sources and run the honesty gate. Slow",
+  "  + costs money — call ONCE. Returns ready vs held counts (held = a card couldn't be",
+  "  grounded). If NOTHING is attached and the user only described a topic, pass",
+  "  concept:'<the topic>' to research it instead.",
+  "- shape(packId, instruction): revise the drafted pack and re-run the gate.",
+  "- finalize_tutor(packId): install the drafted pack as a tutor the learner can study/deploy.",
+  "  Call it once the user is happy with the draft.",
+  "",
+  "Flow: author once, then report plainly — e.g. '18 of 22 cards ready, 4 held because they",
+  "weren't in your sources.' Use shape for changes. When the user is happy, finalize_tutor,",
+  "then say it's ready. Only ready cards install; held cards stay out until grounded.",
   "",
   "Style: concise and plain. No emoji, no hype. 1–3 short sentences. Don't restate the request.",
 ].join("\n");
@@ -70,45 +72,36 @@ const ACTION_LABEL: Record<string, string> = {
   save_source: "saving the source text…",
   write_pack: "running the honesty gate…",
 };
-const shortLabel = (s: string) => (s.length > 48 ? `${s.slice(0, 47)}…` : s);
 
 // Tools wrapping the engine. `writer` lets author_tutor stream the live ledger.
 // Pedagogy-style dispatch into authoring is deferred to S4 (avoids the opts.style
 // card-shape collision), so we don't thread pedagogy style here.
-function buildTools(writer: UIMessageStreamWriter) {
+function buildTools(writer: UIMessageStreamWriter, sources: string[]) {
   return {
-    attach_source: tool({
-      description: "Read an attached source (file path or url) into the corpus of record. No spend.",
-      inputSchema: jsonSchema<{ path: string }>({
-        type: "object",
-        properties: { path: { type: "string", description: "server file path or url of the source" } },
-        required: ["path"],
-        additionalProperties: false,
-      }),
-      execute: async ({ path }) => {
-        const p = await prepareSource(path);
-        const out = { ok: true, kind: p.kind, source: p.sourceLabel };
-        await p.cleanup?.();
-        return out;
-      },
-    }),
     author_tutor: tool({
       description:
-        "Draft the tutor's cards from a source and run the honesty gate. Slow + costs money; call once after sources are attached.",
-      inputSchema: jsonSchema<{ source: string; scope?: string }>({
+        "Draft the tutor's cards from the attached sources and run the honesty gate. Slow + costs money; call once.",
+      inputSchema: jsonSchema<{ scope?: string; concept?: string }>({
         type: "object",
         properties: {
-          source: { type: "string", description: "source path or url to author from" },
           scope: { type: "string", description: "what to focus the cards on" },
+          concept: {
+            type: "string",
+            description:
+              "ONLY if no sources are attached: the topic/concept to research + author from",
+          },
         },
-        required: ["source"],
         additionalProperties: false,
       }),
-      execute: async ({ source, scope }) => {
+      execute: async ({ scope, concept }) => {
+        const srcs = sources.length ? sources : concept ? [concept] : [];
+        if (srcs.length === 0) {
+          return { error: "no sources attached and no concept given — ask the user for a source." };
+        }
         let phase = 0;
         // Synthetic first action: onEvent is silent during the initial fetch, so
         // seed a live label immediately, then update it on every author tool_use.
-        let lastAction = `reading ${shortLabel(source)}…`;
+        let lastAction = `reading ${srcs.length} source${srcs.length > 1 ? "s" : ""}…`;
         const emit = () =>
           writer.write({
             type: "data-ledger",
@@ -116,7 +109,7 @@ function buildTools(writer: UIMessageStreamWriter) {
             data: { steps: stepsAt(phase), lastAction },
           });
         emit();
-        const res = await runPackAuthor(source, {
+        const res = await runPackAuthorMulti(srcs, {
           scope,
           maxBudgetUsd: MAX_BUDGET,
           maxTurns: 30,
@@ -170,7 +163,8 @@ function buildTools(writer: UIMessageStreamWriter) {
       execute: async ({ packId, instruction }) => {
         const res = await runPackEditor(packId, instruction, { maxBudgetUsd: MAX_BUDGET });
         const v = res.verdict;
-        if (!v) return { error: "no change written", stopReason: res.stopReason, costUsd: res.costUsd };
+        if (!v)
+          return { error: "no change written", stopReason: res.stopReason, costUsd: res.costUsd };
         return {
           packId: res.packId,
           ready: v.ready,
@@ -230,14 +224,17 @@ Bun.serve({
           { status: 503 },
         );
       }
-      const { messages } = (await req.json()) as { messages: UIMessage[] };
+      const { messages, sources = [] } = (await req.json()) as {
+        messages: UIMessage[];
+        sources?: string[];
+      };
       const stream = createUIMessageStream({
         execute: async ({ writer }) => {
           const result = streamText({
             model: anthropic("claude-sonnet-4-6"),
             system: BUILD_SYSTEM,
             messages: await convertToModelMessages(messages),
-            tools: buildTools(writer),
+            tools: buildTools(writer, sources),
             stopWhen: stepCountIs(6),
           });
           writer.merge(result.toUIMessageStream());

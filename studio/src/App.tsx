@@ -14,9 +14,24 @@ type StyleId = "recallit" | "compliance" | "onboarding";
 type Modality = "text" | "voice" | "both";
 
 const STYLES: { id: StyleId; name: string; done: string; desc: string }[] = [
-  { id: "recallit", name: "Spaced retention", done: "durable recall", desc: "Drill & converse over cards; FSRS scheduling." },
-  { id: "compliance", name: "Compliance", done: "passes the gate", desc: "Modules + reading + a code-graded assessment." },
-  { id: "onboarding", name: "Onboarding", done: "scenarios complete", desc: "Applied scenarios & roleplay to ramp fast." },
+  {
+    id: "recallit",
+    name: "Spaced retention",
+    done: "durable recall",
+    desc: "Drill & converse over cards; FSRS scheduling.",
+  },
+  {
+    id: "compliance",
+    name: "Compliance",
+    done: "passes the gate",
+    desc: "Modules + reading + a code-graded assessment.",
+  },
+  {
+    id: "onboarding",
+    name: "Onboarding",
+    done: "scenarios complete",
+    desc: "Applied scenarios & roleplay to ramp fast.",
+  },
 ];
 
 const STEPS = ["Topic", "Materials", "Shape"] as const;
@@ -32,10 +47,15 @@ type ToolOutput = {
 function summarizeTool(o?: ToolOutput): string {
   if (!o) return "";
   if (o.error) return o.error;
-  if (typeof o.ready === "number") return `${o.ready}/${o.total} ready · ${o.held?.length ?? 0} held`;
+  if (typeof o.ready === "number")
+    return `${o.ready}/${o.total} ready · ${o.held?.length ?? 0} held`;
   if (o.source) return `read ${o.source} (${o.kind})`;
   return "done";
 }
+
+type Source =
+  | { kind: "file"; name: string; file: File }
+  | { kind: "url"; name: string; url: string };
 
 type FinalizeOutput = {
   installed?: boolean;
@@ -107,7 +127,9 @@ function Ledger({ d, onGround }: { d?: LedgerData; onGround?: (front: string) =>
       <ul className="ledger-steps">
         {(d.steps ?? []).map((s) => (
           <li key={s.label} className={`lstep ${s.state}`}>
-            <span className="lstep-ic">{s.state === "done" ? "✓" : s.state === "active" ? "▸" : "·"}</span>
+            <span className="lstep-ic">
+              {s.state === "done" ? "✓" : s.state === "active" ? "▸" : "·"}
+            </span>
             {s.label}
           </li>
         ))}
@@ -128,7 +150,11 @@ function Ledger({ d, onGround }: { d?: LedgerData; onGround?: (front: string) =>
                     <span className="held-front">{h.front}</span>
                     <span className="held-reason">{h.reasons.join(", ")}</span>
                     <div className="held-actions">
-                      <button type="button" className="held-btn" onClick={() => onGround?.(h.front)}>
+                      <button
+                        type="button"
+                        className="held-btn"
+                        onClick={() => onGround?.(h.front)}
+                      >
                         Ground it
                       </button>
                       <button
@@ -154,7 +180,8 @@ export function App() {
   const [topic, setTopic] = useState("");
   const [style, setStyle] = useState<StyleId>("recallit");
   const [modality, setModality] = useState<Modality>("text");
-  const [files, setFiles] = useState<File[]>([]);
+  const [sources, setSources] = useState<Source[]>([]);
+  const [urlInput, setUrlInput] = useState("");
   const [input, setInput] = useState("");
   const fileInput = useRef<HTMLInputElement>(null);
   const composerRef = useRef<HTMLInputElement>(null);
@@ -174,30 +201,47 @@ export function App() {
 
   function addFiles(list: FileList | null) {
     if (!list) return;
-    setFiles((prev) => [...prev, ...Array.from(list)]);
+    setSources((prev) => [
+      ...prev,
+      ...Array.from(list).map((f) => ({ kind: "file" as const, name: f.name, file: f })),
+    ]);
   }
   function onDrop(e: DragEvent) {
     e.preventDefault();
     addFiles(e.dataTransfer.files);
+  }
+  function addUrl() {
+    const url = urlInput.trim();
+    if (!url) return;
+    setSources((prev) => [...prev, { kind: "url", name: url, url }]);
+    setUrlInput("");
   }
 
   async function startBuilding() {
     setStep(3);
     if (kicked.current) return;
     kicked.current = true;
-    let sources = " No sources attached; build from the description.";
-    if (files.length) {
-      const uploaded = await Promise.all(
-        files.map(async (f) => {
-          const fd = new FormData();
-          fd.append("file", f);
-          const r = await fetch("/api/sources", { method: "POST", body: fd });
-          return (await r.json()) as { path: string; name: string };
-        }),
-      );
-      sources = ` Source files: ${uploaded.map((u) => `${u.name} (${u.path})`).join("; ")}.`;
+    // Files upload to temp paths; urls pass through. The refs go in the request
+    // BODY (not the message text), so temp paths never reach the model — only the
+    // source names appear in the kickoff so the agent knows what's attached.
+    const refs: string[] = [];
+    for (const s of sources) {
+      if (s.kind === "url") {
+        refs.push(s.url);
+      } else {
+        const fd = new FormData();
+        fd.append("file", s.file);
+        const r = await fetch("/api/sources", { method: "POST", body: fd });
+        refs.push(((await r.json()) as { path: string }).path);
+      }
     }
-    sendMessage({ text: `Build a ${style} tutor. ${topic.trim()}.${sources}` });
+    const cue = sources.length
+      ? ` Attached sources: ${sources.map((s) => s.name).join(", ")}.`
+      : " No sources attached; author from the description.";
+    sendMessage(
+      { text: `Build a ${style} tutor. ${topic.trim()}.${cue}` },
+      { body: { sources: refs } },
+    );
   }
 
   function submit(e: FormEvent) {
@@ -274,7 +318,11 @@ export function App() {
             <span className="fieldlabel">Modality</span>
             <span className="seg">
               {(["text", "voice", "both"] as Modality[]).map((m) => (
-                <button key={m} className={m === modality ? "on" : ""} onClick={() => setModality(m)}>
+                <button
+                  key={m}
+                  className={m === modality ? "on" : ""}
+                  onClick={() => setModality(m)}
+                >
                   {m}
                 </button>
               ))}
@@ -320,16 +368,40 @@ export function App() {
             />
           </div>
 
-          {files.length > 0 && (
+          <div className="urlrow">
+            <input
+              className="urlinput"
+              value={urlInput}
+              onChange={(e) => setUrlInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  addUrl();
+                }
+              }}
+              placeholder="…or paste a link (https://…)"
+              aria-label="Paste a source link"
+            />
+            <button
+              type="button"
+              className="btn ghost"
+              onClick={addUrl}
+              disabled={!urlInput.trim()}
+            >
+              Add link
+            </button>
+          </div>
+
+          {sources.length > 0 && (
             <>
               <p className="fieldlabel">Sources</p>
               <div className="srcchips">
-                {files.map((f, i) => (
-                  <span className="srcchip" key={`${f.name}-${i}`}>
-                    📄 {f.name}
+                {sources.map((s, i) => (
+                  <span className="srcchip" key={`${s.name}-${i}`}>
+                    {s.kind === "url" ? "🔗" : "📄"} {s.name}
                     <button
-                      aria-label={`remove ${f.name}`}
-                      onClick={() => setFiles((prev) => prev.filter((_, j) => j !== i))}
+                      aria-label={`remove ${s.name}`}
+                      onClick={() => setSources((prev) => prev.filter((_, j) => j !== i))}
                     >
                       ✕
                     </button>
@@ -344,7 +416,7 @@ export function App() {
               ← Back
             </button>
             <button className="btn primary" onClick={startBuilding}>
-              {files.length ? "Start building →" : "Build from description →"}
+              {sources.length ? "Start building →" : "Build from description →"}
             </button>
           </div>
         </main>
@@ -357,7 +429,7 @@ export function App() {
             <span className="eyebrow">Step 03 · shape</span>
             <span className="ribbonmeta mono">
               {activeStyle?.name} · {modality}
-              {files.length ? ` · ${files.length} source${files.length > 1 ? "s" : ""}` : ""}
+              {sources.length ? ` · ${sources.length} source${sources.length > 1 ? "s" : ""}` : ""}
             </span>
           </div>
           <main className="chat">
@@ -397,7 +469,9 @@ export function App() {
                         <div className="toolpart" key={`${m.id}-${i}`}>
                           <span className="tp-ic">{done ? "✓" : "▸"}</span>
                           <span className="tp-name">{part.type.slice(5)}</span>
-                          <span className="tp-sum">{done ? summarizeTool(tp.output) : "running…"}</span>
+                          <span className="tp-sum">
+                            {done ? summarizeTool(tp.output) : "running…"}
+                          </span>
                         </div>
                       );
                     }

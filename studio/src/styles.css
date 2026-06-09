@@ -75,6 +75,10 @@ body { margin: 0; }
 .dropzone p { font-weight: 600; margin: 0; }
 .dropzone small { color: var(--muted); display: block; margin-top: 0.35rem; }
 .linklike { border: 0; background: none; color: var(--sage-deep); font: inherit; font-weight: 700; cursor: pointer; text-decoration: underline; padding: 0; }
+.urlrow { display: flex; gap: 0.5rem; margin-top: 0.8rem; }
+.urlinput { flex: 1; min-height: 42px; padding: 0 0.85rem; border: 1px solid var(--rule); border-radius: 11px; background: var(--card); font: inherit; color: inherit; }
+.urlinput:focus-visible { outline: 2px solid var(--sage); outline-offset: 1px; }
+.urlrow .btn { white-space: nowrap; }
 
 .srcchips { display: flex; flex-wrap: wrap; gap: 0.4rem; }
 .srcchip { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.35rem 0.4rem 0.35rem 0.65rem; border: 1px solid var(--rule); border-radius: 999px; background: var(--card); font: 500 12px var(--mono); }
