@@ -44,8 +44,11 @@ const BUILD_SYSTEM = [
   "",
   "Tools:",
   "- web_search: find real sources (a restaurant's menu page, an official doc) when the user",
-  "  named specific things but attached nothing. Find the best URLs, then propose them with",
-  "  propose_actions so the user can approve before any build spends money.",
+  "  named specific things but attached nothing.",
+  "- propose_sources: present found sources for PER-SOURCE approval (one entry per source:",
+  "  label = name + location, url, note = one line of what you found there). The user can",
+  "  reject individual ones; re-search ONLY the rejected ones, re-propose, then build with",
+  "  everything approved. Always use this for found sources, not propose_actions.",
   "- start_build(sources, scope): start a background build from approved source URLs. Use ONLY",
   "  after the user approves the sources (or explicitly asks you to build from them).",
   "- shape(packId, instruction): revise a drafted pack and re-run the honesty gate.",
@@ -214,6 +217,41 @@ function buildTools(writer: UIMessageStreamWriter) {
         });
         return { packId: res.packId, ready: v.ready, total: v.total, held };
       },
+    }),
+    propose_sources: tool({
+      description:
+        "Present found sources for per-source approval. Each entry renders as a row the user can keep or reject individually; their reply names the rejected ones so you can re-search just those. Use this (not propose_actions) whenever proposing sources you found.",
+      inputSchema: jsonSchema<{
+        question?: string;
+        sources: { label: string; url: string; note?: string }[];
+      }>({
+        type: "object",
+        properties: {
+          question: { type: "string", description: "optional one-line framing" },
+          sources: {
+            type: "array",
+            minItems: 1,
+            maxItems: 8,
+            items: {
+              type: "object",
+              properties: {
+                label: {
+                  type: "string",
+                  description: "name + location, e.g. 'Los Mangos (Austin)'",
+                },
+                url: { type: "string" },
+                note: { type: "string", description: "one line of what you found there" },
+              },
+              required: ["label", "url"],
+              additionalProperties: false,
+            },
+          },
+        },
+        required: ["sources"],
+        additionalProperties: false,
+      }),
+      // Pure UI side-effect: the FE renders the input as a per-source review card.
+      execute: async ({ sources }) => ({ shown: sources.length }),
     }),
     propose_actions: tool({
       description:

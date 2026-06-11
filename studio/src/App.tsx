@@ -140,6 +140,89 @@ function ActionRow({
   );
 }
 
+type ProposedSource = { label: string; url: string; note?: string };
+
+// Per-source approval (the propose_sources tool). Every row defaults to KEPT, so
+// approving everything is one click; rejecting is the exception. The composed
+// reply names rejected sources so the agent re-searches just those.
+function SourceReview({
+  question,
+  sources,
+  disabled,
+  onAction,
+}: {
+  question?: string;
+  sources: ProposedSource[];
+  disabled: boolean;
+  onAction: (text: string) => void;
+}) {
+  const [rejected, setRejected] = useState<Set<number>>(new Set());
+  const [used, setUsed] = useState(false);
+  const toggle = (i: number) =>
+    setRejected((s) => {
+      const n = new Set(s);
+      if (n.has(i)) n.delete(i);
+      else n.add(i);
+      return n;
+    });
+  const kept = sources.filter((_, i) => !rejected.has(i));
+  const bad = sources.filter((_, i) => rejected.has(i));
+  const confirm = () => {
+    let msg: string;
+    if (kept.length === 0) {
+      msg = `None of those sources are right (${bad.map((s) => s.label).join(", ")}). Search again and propose replacements.`;
+    } else {
+      msg = `Approved sources: ${kept.map((s) => s.url).join(", ")}.`;
+      msg += bad.length
+        ? ` Wrong: ${bad.map((s) => s.label).join(", ")}. Search again for the right ones, re-propose them, then build with everything approved.`
+        : " Start the build with these.";
+    }
+    setUsed(true);
+    onAction(msg);
+  };
+  const label =
+    kept.length === 0
+      ? "None are right, search again"
+      : bad.length === 0
+        ? `Looks right, build with all ${kept.length} →`
+        : `Build with ${kept.length}, replace ${bad.length} →`;
+  return (
+    <div className="srcreview">
+      <p className="actionrow-q">{question ?? "Check each source, then confirm:"}</p>
+      <ul className="srcreview-list">
+        {sources.map((s, i) => {
+          const isBad = rejected.has(i);
+          return (
+            <li key={s.url} className={`srcrow ${isBad ? "bad" : ""}`}>
+              <div className="srcrow-info">
+                <span className="srcrow-label">{s.label}</span>
+                <span className="srcrow-url">{s.url}</span>
+                {s.note && <span className="srcrow-note">{s.note}</span>}
+              </div>
+              <button
+                type="button"
+                className={`srcrow-toggle ${isBad ? "bad" : "ok"}`}
+                disabled={disabled || used}
+                onClick={() => toggle(i)}
+              >
+                {isBad ? "✗ wrong" : "✓ keep"}
+              </button>
+            </li>
+          );
+        })}
+      </ul>
+      <button
+        type="button"
+        className="lg-btn primary"
+        disabled={disabled || used}
+        onClick={confirm}
+      >
+        {used ? "✓ Sent" : label}
+      </button>
+    </div>
+  );
+}
+
 // Short, safe tray label for a job. Never throws: a "source" may be a URL, a
 // file path, or a whole topic sentence (description-only builds).
 function jobLabel(j: Job): string {
@@ -831,6 +914,26 @@ export function App() {
                         // The ledger supersedes the author_tutor tool chip (richer view).
                         if (part.type === "tool-author_tutor" || part.type === "tool-shape")
                           return null;
+                        if (part.type === "tool-propose_sources") {
+                          const tp = part as {
+                            state?: string;
+                            input?: { question?: string; sources?: ProposedSource[] };
+                          };
+                          if (tp.state !== "input-available" && tp.state !== "output-available")
+                            return null;
+                          const srcs = tp.input?.sources;
+                          if (!srcs?.length) return null;
+                          const isLast = m.id === messages[messages.length - 1]?.id;
+                          return (
+                            <SourceReview
+                              key={`${m.id}-${i}`}
+                              question={tp.input?.question}
+                              sources={srcs}
+                              disabled={busy || !isLast}
+                              onAction={sendAction}
+                            />
+                          );
+                        }
                         if (part.type === "tool-propose_actions") {
                           const tp = part as {
                             state?: string;
