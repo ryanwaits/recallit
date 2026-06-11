@@ -106,10 +106,14 @@ export function useJobs(setMessages: (fn: (prev: object[]) => object[]) => void)
       .then((r) => r.json() as Promise<Job[]>)
       .then((serverJobs) => {
         setJobs(serverJobs);
-        // Resume polling any that were mid-run when the tab closed.
         for (const j of serverJobs) {
           if (j.status === "queued" || j.status === "running") {
+            // Resume polling any that were mid-run when the tab closed.
             schedulePoll(j.id);
+          } else {
+            // Finished while we were away: bring the restored chat card up to
+            // date (swaps data-job -> data-ledger for done jobs).
+            setMessages((prev) => injectResult(prev, j.id, j));
           }
         }
       })
