@@ -57,18 +57,19 @@ function toJobData(job: Job): JobData {
   };
 }
 
-// Replace the data-job part in a message with the final data-ledger (for <Ledger>).
+// Replace the data-job part in a message with the final data-ledger (for <Ledger>),
+// plus a TEXT part: data parts are UI-only and never reach the model, so without
+// this the assistant doesn't know the build finished or what the packId is.
 function injectResult(messages: object[], jobId: string, job: Job): object[] {
   return messages.map((m: object) => {
     const msg = m as { id: string; parts: { type: string; id?: string }[] };
     if (msg.id !== `job-${jobId}`) return m;
-    return {
-      ...msg,
-      parts: msg.parts.map((p) => {
-        if (p.type !== "data-job" || p.id !== jobId) return p;
-        if (job.status === "done" && job.result) {
-          const v = job.result;
-          return {
+    const parts = msg.parts.flatMap((p): object[] => {
+      if (p.type !== "data-job" || p.id !== jobId) return [p];
+      if (job.status === "done" && job.result) {
+        const v = job.result;
+        return [
+          {
             type: "data-ledger",
             id: "ledger",
             data: {
@@ -85,12 +86,25 @@ function injectResult(messages: object[], jobId: string, job: Job): object[] {
               grounding: v.grounding,
               costUsd: v.costUsd,
             },
-          };
-        }
-        // Error: keep as data-job with error state so JobCard renders it.
-        return { ...p, data: toJobData(job) };
-      }),
-    };
+          },
+          {
+            type: "text",
+            text: `Build finished: pack "${v.packId}", ${v.ready} of ${v.total} cards verified${
+              v.held.length ? `, ${v.held.length} held by the gate` : ""
+            }.`,
+          },
+        ];
+      }
+      if (job.status === "error") {
+        return [
+          { ...p, data: toJobData(job) },
+          { type: "text", text: `Build failed: ${job.errorText ?? "unknown error"}.` },
+        ];
+      }
+      // Still in flight: just refresh the card data.
+      return [{ ...p, data: toJobData(job) }];
+    });
+    return { ...msg, parts };
   });
 }
 

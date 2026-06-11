@@ -293,7 +293,7 @@ function Ledger({ d, onAction }: { d?: LedgerData; onAction?: (text: string) => 
                           className="held-btn"
                           onClick={() =>
                             onAction?.(
-                              `Reshape the held card "${h.front}" to claim only what the source supports, so it grounds and gets included.`,
+                              `In pack "${d.packId ?? "the draft"}", reshape the held card "${h.front}" to claim only what the source supports, so it grounds and gets included.`,
                             )
                           }
                         >
@@ -320,7 +320,9 @@ function Ledger({ d, onAction }: { d?: LedgerData; onAction?: (text: string) => 
             type="button"
             className="lg-btn primary"
             onClick={() =>
-              onAction(`Looks good — finalize and install the ${d.ready} ready cards.`)
+              onAction(
+                `Looks good. Finalize and install the ${d.ready} ready cards from pack "${d.packId}".`,
+              )
             }
           >
             Install {d.ready} cards →
@@ -331,7 +333,7 @@ function Ledger({ d, onAction }: { d?: LedgerData; onAction?: (text: string) => 
               className="lg-btn"
               onClick={() =>
                 onAction(
-                  "Reshape the held cards with looser phrasing so they ground and get included.",
+                  `Reshape the held cards in pack "${d.packId}" with looser phrasing so they ground and get included.`,
                 )
               }
             >
