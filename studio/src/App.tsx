@@ -154,7 +154,7 @@ function jobLabel(j: Job): string {
       .split("/")
       .pop() ?? s;
   const label = tail.trim() || "tutor";
-  return label.length > 28 ? `${label.slice(0, 27)}…` : label;
+  return label.length > 22 ? `${label.slice(0, 21)}…` : label;
 }
 
 // ── Job card (in-flight and completed state, data-job part) ─────────────────
@@ -162,6 +162,7 @@ const BUILD_PHASES = ["Reading the source", "Drafting cards", "Running the hones
 
 function JobCard({ d }: { d?: JobData }) {
   const [elapsed, setElapsed] = useState(0);
+  // biome-ignore lint/correctness/useExhaustiveDependencies: depend on status/createdAt only, not the per-poll object identity
   useEffect(() => {
     if (!d || d.status !== "running") return;
     const start = new Date(d.createdAt).getTime();
@@ -372,6 +373,7 @@ export function App() {
       .catch(() => {});
   }, []);
   const doneCount = jobs.filter((j) => j.status === "done").length;
+  // biome-ignore lint/correctness/useExhaustiveDependencies: refresh on completion count, not the jobs array identity
   useEffect(() => {
     refreshTutors();
   }, [refreshTutors, doneCount]);
@@ -407,6 +409,7 @@ export function App() {
 
   // Load the current session's messages whenever the session changes (and once on
   // mount). Migrates the old single-thread key if present.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: run only when the session changes; setMessages is stable
   useEffect(() => {
     try {
       const legacy = sessionStorage.getItem("studio-messages");
@@ -519,8 +522,6 @@ export function App() {
     sendMessage({ text });
     setInput("");
   }
-
-  const activeStyle = STYLES.find((s) => s.id === style);
 
   return (
     <div className="app">
@@ -711,31 +712,16 @@ export function App() {
       {/* ③ SHAPE (chat) */}
       {step === 3 && (
         <>
-          <div className="shaperibbon">
-            <span className="eyebrow">Step 03 · shape</span>
-            <span className="ribbonmeta mono">
-              {activeStyle?.name} · {modality}
-              {sources.length ? ` · ${sources.length} source${sources.length > 1 ? "s" : ""}` : ""}
-            </span>
-          </div>
-          {jobs.length > 0 && (
+          {jobs.some((j) => j.status === "running" || j.status === "queued") && (
             <div className="job-tray" role="status" aria-live="polite">
-              <span className="tray-label">building</span>
-              {jobs.map((j: Job) => (
-                <span
-                  key={j.id}
-                  className={`tray-pill ${j.status}`}
-                  title={
-                    j.status === "done" && j.result
-                      ? `${j.result.ready}/${j.result.total} ready`
-                      : j.status
-                  }
-                >
-                  <span className="tray-pip" />
-                  {jobLabel(j)}
-                  {j.status === "done" && j.result && ` · ${j.result.ready}/${j.result.total}`}
-                </span>
-              ))}
+              {jobs
+                .filter((j) => j.status === "running" || j.status === "queued")
+                .map((j: Job) => (
+                  <span key={j.id} className={`tray-pill ${j.status}`} title={j.status}>
+                    <span className="tray-pip" />
+                    {jobLabel(j)}
+                  </span>
+                ))}
             </div>
           )}
           <div className="shape-cols">
