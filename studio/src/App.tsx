@@ -140,6 +140,18 @@ function ActionRow({
   );
 }
 
+// Short, safe tray label for a job. Never throws: a "source" may be a URL, a
+// file path, or a whole topic sentence (description-only builds).
+function jobLabel(j: Job): string {
+  if (j.packId) return j.packId;
+  const s = j.sources[0];
+  if (!s) return "tutor";
+  // URL or path: take the last meaningful segment. Plain text: truncate.
+  const tail = s.replace(/[?#].*$/, "").replace(/\/+$/, "").split("/").pop() ?? s;
+  const label = tail.trim() || "tutor";
+  return label.length > 28 ? `${label.slice(0, 27)}…` : label;
+}
+
 // ── Job card (in-flight and completed state, data-job part) ─────────────────
 const BUILD_PHASES = ["Reading the source", "Drafting cards", "Running the honesty gate"];
 
@@ -626,14 +638,7 @@ export function App() {
                   }
                 >
                   <span className="tray-pip" />
-                  {j.packId ??
-                    (j.sources[0]
-                      ? new URL(
-                          j.sources[0].startsWith("http") ? j.sources[0] : `file://${j.sources[0]}`,
-                        ).pathname
-                          .split("/")
-                          .pop()
-                      : "tutor")}
+                  {jobLabel(j)}
                   {j.status === "done" && j.result && ` · ${j.result.ready}/${j.result.total}`}
                 </span>
               ))}
