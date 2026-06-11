@@ -65,7 +65,8 @@ const BUILD_SYSTEM = [
   "pasted text through inside shape's instruction — the editor adds it to the grounding corpus",
   "so new cards can cite it. Never summarize or trim it.",
   "",
-  "Style: concise and plain. No emoji, no hype. 1–3 short sentences. Don't restate the request.",
+  "Style: concise and plain. No emoji, no hype, no em dashes (use commas, colons, periods).",
+  "1–3 short sentences. Don't restate the request.",
 ].join("\n");
 
 const LEDGER_PHASES = ["Reading the source", "Drafting cards", "Running the honesty gate"];
