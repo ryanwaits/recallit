@@ -21,8 +21,10 @@ import {
   type UIMessage,
   type UIMessageStreamWriter,
 } from "ai";
+import { countCards } from "../src/db.ts";
 import { installPack } from "../src/install.ts";
 import { runPackEditor } from "../src/packgen/author.ts";
+import { listTopics } from "../src/topic.ts";
 import { createJob, getJob, listJobs, runJobAsync, sweepStalledJobs } from "./jobs.ts";
 
 // Mark any jobs that were mid-run when the server last died as errored.
@@ -237,6 +239,20 @@ Bun.serve({
   idleTimeout: 240, // author runs can take a couple minutes
   async fetch(req) {
     const url = new URL(req.url);
+
+    // GET /api/tutors — installed tutors for the sidebar.
+    if (url.pathname === "/api/tutors" && req.method === "GET") {
+      const ids = await listTopics();
+      const tutors = ids.map((id) => {
+        try {
+          const { total, due } = countCards(id);
+          return { id, cards: total, due };
+        } catch {
+          return { id, cards: 0, due: 0 };
+        }
+      });
+      return Response.json(tutors);
+    }
 
     // ── Background job routes ──────────────────────────────────────────────
     // POST /api/jobs — start a background build; returns {jobId} immediately.

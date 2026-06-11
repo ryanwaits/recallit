@@ -1,6 +1,6 @@
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
-import { type DragEvent, type FormEvent, useEffect, useRef, useState } from "react";
+import { type DragEvent, type FormEvent, useCallback, useEffect, useRef, useState } from "react";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { type Job, type JobData, useJobs } from "./useJobs.ts";
@@ -147,7 +147,12 @@ function jobLabel(j: Job): string {
   const s = j.sources[0];
   if (!s) return "tutor";
   // URL or path: take the last meaningful segment. Plain text: truncate.
-  const tail = s.replace(/[?#].*$/, "").replace(/\/+$/, "").split("/").pop() ?? s;
+  const tail =
+    s
+      .replace(/[?#].*$/, "")
+      .replace(/\/+$/, "")
+      .split("/")
+      .pop() ?? s;
   const label = tail.trim() || "tutor";
   return label.length > 28 ? `${label.slice(0, 27)}…` : label;
 }
@@ -272,7 +277,7 @@ function Ledger({ d, onAction }: { d?: LedgerData; onAction?: (text: string) => 
           {showHeld && (
             <>
               <p className="held-note">
-                Left out — couldn't be tied to your source. Nothing required; optionally fix or
+                Left out: couldn't be tied to your source. Nothing required; optionally fix or
                 dismiss.
               </p>
               <ul className="heldlist">
@@ -355,6 +360,29 @@ export function App() {
   });
   const busy = status === "submitted" || status === "streaming";
   const { jobs, startJob } = useJobs(setMessages as (fn: (p: object[]) => object[]) => void);
+
+  // Sidebar: installed tutors, refreshed on mount and whenever a job completes.
+  const [tutors, setTutors] = useState<{ id: string; cards: number; due: number }[]>([]);
+  const refreshTutors = useCallback(() => {
+    fetch("/api/tutors")
+      .then((r) => r.json())
+      .then(setTutors)
+      .catch(() => {});
+  }, []);
+  const doneCount = jobs.filter((j) => j.status === "done").length;
+  useEffect(() => {
+    refreshTutors();
+  }, [refreshTutors, doneCount]);
+
+  // Completion banner: the most recent done job the user hasn't dismissed.
+  const [dismissed, setDismissed] = useState<Set<string>>(new Set());
+  const notifJob = jobs.find((j) => j.status === "done" && j.result && !dismissed.has(j.id));
+  const dismissNotif = (id: string) => setDismissed((s) => new Set(s).add(id));
+  const scrollToJob = (id: string) => {
+    document
+      .getElementById(`msg-job-${id}`)
+      ?.scrollIntoView({ behavior: "smooth", block: "center" });
+  };
 
   // Persist chat history and restore it on first render (survives page reload).
   const sessionRestored = useRef(false);
@@ -468,14 +496,14 @@ export function App() {
           </h1>
           <p className="lede">
             Describe it, and pick how it should teach. Every card will be grounded by the honesty
-            gate — you can't shape a claim the sources don't back.
+            gate: you can't shape a claim the sources don't back.
           </p>
 
           <textarea
             className="topicbox"
             value={topic}
             onChange={(e) => setTopic(e.target.value)}
-            placeholder="e.g. Onboard new hires on our incident-response runbook — detection, escalation, post-mortem."
+            placeholder="e.g. Onboard new hires on our incident-response runbook: detection, escalation, post-mortem."
             rows={3}
           />
 
@@ -536,7 +564,7 @@ export function App() {
             Add your <em>materials.</em>
           </h1>
           <p className="lede">
-            Drop in PDFs, notes, a repo, a link. recallit reads them — and every card it drafts will
+            Drop in PDFs, notes, a repo, a link. recallit reads them, and every card it drafts will
             cite a verbatim line from one of them.
           </p>
 
@@ -644,102 +672,164 @@ export function App() {
               ))}
             </div>
           )}
-          <main className="chat">
-            {messages.map((m) => (
-              <div key={m.id} className={`msg ${m.role}`}>
-                <span className="who">{m.role === "user" ? "you" : "assistant"}</span>
-                <div className="bubble">
-                  {m.parts.map((part, i) => {
-                    if (part.type === "text")
-                      return m.role === "assistant" ? (
-                        <div className="md" key={`${m.id}-${i}`}>
-                          <Markdown remarkPlugins={[remarkGfm]}>{part.text}</Markdown>
-                        </div>
-                      ) : (
-                        <span key={`${m.id}-${i}`}>{part.text}</span>
-                      );
-                    if (part.type === "data-job") {
-                      return <JobCard key={`${m.id}-${i}`} d={(part as { data?: JobData }).data} />;
-                    }
-                    if (part.type === "data-ledger") {
-                      return (
-                        <Ledger
-                          key={`${m.id}-${i}`}
-                          d={(part as { data?: LedgerData }).data}
-                          onAction={sendAction}
-                        />
-                      );
-                    }
-                    // The ledger supersedes the author_tutor tool chip (richer view).
-                    if (part.type === "tool-author_tutor" || part.type === "tool-shape")
-                      return null;
-                    if (part.type === "tool-propose_actions") {
-                      const tp = part as {
-                        state?: string;
-                        input?: { question?: string; actions?: ProposedAction[] };
-                      };
-                      // Render only once the input has fully streamed; stale rows
-                      // (an older message) stay visible but disabled.
-                      if (tp.state !== "input-available" && tp.state !== "output-available")
+          <div className="shape-cols">
+            <aside className="sidebar">
+              <p className="sidebar-section">Your tutors</p>
+              {jobs
+                .filter((j) => j.status === "running" || j.status === "queued")
+                .map((j) => (
+                  <div className="tutor-row" key={j.id}>
+                    <span className="trow-dot building" />
+                    <span className="trow-name">{jobLabel(j)}</span>
+                    <span className="trow-tag building">building</span>
+                  </div>
+                ))}
+              {tutors.map((t) => (
+                <div className="tutor-row" key={t.id}>
+                  <span className="trow-dot built" />
+                  <span className="trow-name">{t.id}</span>
+                  <span className="trow-tag ok">{t.due} due</span>
+                </div>
+              ))}
+              {tutors.length === 0 && jobs.length === 0 && (
+                <div className="tutor-row" style={{ color: "var(--muted)" }}>
+                  no tutors yet
+                </div>
+              )}
+            </aside>
+            <div className="main-col">
+              {notifJob?.result && (
+                // biome-ignore lint/a11y/useKeyWithClickEvents: the See-results button inside is keyboard-reachable
+                <div
+                  className="notif-banner"
+                  role="status"
+                  onClick={() => {
+                    scrollToJob(notifJob.id);
+                    dismissNotif(notifJob.id);
+                  }}
+                >
+                  <span className="notif-dot" />
+                  <span className="notif-text">
+                    <b>{notifJob.result.packId}</b> finished. {notifJob.result.ready} of{" "}
+                    {notifJob.result.total} cards ready
+                    {notifJob.result.held.length ? `, ${notifJob.result.held.length} held` : ""}.
+                  </span>
+                  <span style={{ font: "600 11px var(--mono)", color: "var(--mint-deep)" }}>
+                    See results →
+                  </span>
+                  <button
+                    type="button"
+                    className="notif-x"
+                    aria-label="Dismiss"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      dismissNotif(notifJob.id);
+                    }}
+                  >
+                    ✕
+                  </button>
+                </div>
+              )}
+              <main className="chat">
+                {messages.map((m) => (
+                  <div key={m.id} id={`msg-${m.id}`} className={`msg ${m.role}`}>
+                    <span className="who">{m.role === "user" ? "you" : "assistant"}</span>
+                    <div className="bubble">
+                      {m.parts.map((part, i) => {
+                        if (part.type === "text")
+                          return m.role === "assistant" ? (
+                            <div className="md" key={`${m.id}-${i}`}>
+                              <Markdown remarkPlugins={[remarkGfm]}>{part.text}</Markdown>
+                            </div>
+                          ) : (
+                            <span key={`${m.id}-${i}`}>{part.text}</span>
+                          );
+                        if (part.type === "data-job") {
+                          return (
+                            <JobCard key={`${m.id}-${i}`} d={(part as { data?: JobData }).data} />
+                          );
+                        }
+                        if (part.type === "data-ledger") {
+                          return (
+                            <Ledger
+                              key={`${m.id}-${i}`}
+                              d={(part as { data?: LedgerData }).data}
+                              onAction={sendAction}
+                            />
+                          );
+                        }
+                        // The ledger supersedes the author_tutor tool chip (richer view).
+                        if (part.type === "tool-author_tutor" || part.type === "tool-shape")
+                          return null;
+                        if (part.type === "tool-propose_actions") {
+                          const tp = part as {
+                            state?: string;
+                            input?: { question?: string; actions?: ProposedAction[] };
+                          };
+                          // Render only once the input has fully streamed; stale rows
+                          // (an older message) stay visible but disabled.
+                          if (tp.state !== "input-available" && tp.state !== "output-available")
+                            return null;
+                          const acts = tp.input?.actions;
+                          if (!acts?.length) return null;
+                          const isLast = m.id === messages[messages.length - 1]?.id;
+                          return (
+                            <ActionRow
+                              key={`${m.id}-${i}`}
+                              question={tp.input?.question}
+                              actions={acts}
+                              disabled={busy || !isLast}
+                              onAction={sendAction}
+                            />
+                          );
+                        }
+                        if (part.type === "tool-finalize_tutor") {
+                          const out = (part as { output?: FinalizeOutput }).output;
+                          if (!out?.installed) return null;
+                          return <TutorReady key={`${m.id}-${i}`} out={out} />;
+                        }
+                        if (part.type.startsWith("tool-")) {
+                          const tp = part as { state?: string; output?: ToolOutput };
+                          const done = tp.state === "output-available";
+                          return (
+                            <div className="toolpart" key={`${m.id}-${i}`}>
+                              <span className="tp-ic">{done ? "✓" : "▸"}</span>
+                              <span className="tp-name">{part.type.slice(5)}</span>
+                              <span className="tp-sum">
+                                {done ? summarizeTool(tp.output) : "running…"}
+                              </span>
+                            </div>
+                          );
+                        }
                         return null;
-                      const acts = tp.input?.actions;
-                      if (!acts?.length) return null;
-                      const isLast = m.id === messages[messages.length - 1]?.id;
-                      return (
-                        <ActionRow
-                          key={`${m.id}-${i}`}
-                          question={tp.input?.question}
-                          actions={acts}
-                          disabled={busy || !isLast}
-                          onAction={sendAction}
-                        />
-                      );
-                    }
-                    if (part.type === "tool-finalize_tutor") {
-                      const out = (part as { output?: FinalizeOutput }).output;
-                      if (!out?.installed) return null;
-                      return <TutorReady key={`${m.id}-${i}`} out={out} />;
-                    }
-                    if (part.type.startsWith("tool-")) {
-                      const tp = part as { state?: string; output?: ToolOutput };
-                      const done = tp.state === "output-available";
-                      return (
-                        <div className="toolpart" key={`${m.id}-${i}`}>
-                          <span className="tp-ic">{done ? "✓" : "▸"}</span>
-                          <span className="tp-name">{part.type.slice(5)}</span>
-                          <span className="tp-sum">
-                            {done ? summarizeTool(tp.output) : "running…"}
-                          </span>
-                        </div>
-                      );
-                    }
-                    return null;
-                  })}
-                </div>
-              </div>
-            ))}
-            {status === "submitted" && (
-              <div className="msg assistant">
-                <span className="who">assistant</span>
-                <div className="bubble dots">
-                  <i />
-                  <i />
-                  <i />
-                </div>
-              </div>
-            )}
-          </main>
-          <form className="composer" onSubmit={submit}>
-            <input
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder="Tell the assistant what to change…"
-              aria-label="Tell the assistant what to change"
-            />
-            <button type="submit" disabled={busy || !input.trim()}>
-              {busy ? "…" : "Send ↑"}
-            </button>
-          </form>
+                      })}
+                    </div>
+                  </div>
+                ))}
+                {status === "submitted" && (
+                  <div className="msg assistant">
+                    <span className="who">assistant</span>
+                    <div className="bubble dots">
+                      <i />
+                      <i />
+                      <i />
+                    </div>
+                  </div>
+                )}
+              </main>
+              <form className="composer" onSubmit={submit}>
+                <input
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  placeholder="Tell the assistant what to change…"
+                  aria-label="Tell the assistant what to change"
+                />
+                <button type="submit" disabled={busy || !input.trim()}>
+                  {busy ? "…" : "Send ↑"}
+                </button>
+              </form>
+            </div>
+          </div>
         </>
       )}
     </div>
