@@ -1,8 +1,9 @@
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
-import { type DragEvent, type FormEvent, useRef, useState } from "react";
+import { type DragEvent, type FormEvent, useEffect, useRef, useState } from "react";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { type Job, type JobData, useJobs } from "./useJobs.ts";
 
 // A2: the 3-step build shell — ① topic + pedagogy style → ② materials → ③ chat.
 // The engine tools (attach_source/author_tutor/shape) + the live honesty ledger land
@@ -139,6 +140,77 @@ function ActionRow({
   );
 }
 
+// ── Job card (in-flight and completed state, data-job part) ─────────────────
+const BUILD_PHASES = ["Reading the source", "Drafting cards", "Running the honesty gate"];
+
+function JobCard({ d }: { d?: JobData }) {
+  const [elapsed, setElapsed] = useState(0);
+  useEffect(() => {
+    if (!d || d.status !== "running") return;
+    const start = new Date(d.createdAt).getTime();
+    const t = setInterval(() => setElapsed(Math.floor((Date.now() - start) / 1000)), 1000);
+    return () => clearInterval(t);
+  }, [d?.status, d?.createdAt]);
+
+  if (!d) return null;
+  const fmtElapsed = (s: number) => (s < 60 ? `${s}s` : `${Math.floor(s / 60)}m ${s % 60}s`);
+
+  return (
+    <div className={`jobcard ${d.status}`}>
+      <div className="jc-head">
+        <div className={`jc-icon ${d.status}`}>
+          {d.status === "running" && (
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              aria-hidden="true"
+            >
+              <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
+            </svg>
+          )}
+          {d.status === "queued" && <span style={{ fontSize: "1.1rem" }}>⏳</span>}
+          {d.status === "done" && (
+            <span style={{ color: "var(--sage-deep)", fontWeight: 700 }}>✓</span>
+          )}
+          {d.status === "error" && (
+            <span style={{ color: "var(--coral,oklch(65% .2 25))" }}>✗</span>
+          )}
+        </div>
+        <div>
+          <div className="jc-name">{d.packId ?? "building tutor"}</div>
+          <div className="jc-meta mono">
+            {d.status === "queued" && "waiting to start…"}
+            {d.status === "running" && `${fmtElapsed(elapsed)} elapsed`}
+            {d.status === "done" && d.result && `${d.result.ready}/${d.result.total} ready`}
+            {d.status === "error" && (d.errorText ?? "build failed")}
+          </div>
+        </div>
+        <span className={`jc-badge ${d.status}`}>
+          {d.status === "running" ? "building" : d.status}
+        </span>
+      </div>
+      {d.status === "running" && (
+        <div className="jc-body">
+          <div className="jc-progress">
+            <div className="jc-fill" />
+          </div>
+          <ul className="jc-phases">
+            {BUILD_PHASES.map((p) => (
+              <li key={p} className="jc-phase">
+                <span className="jc-phase-ic">·</span>
+                {p}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+}
+
 type LedgerStep = { label: string; state: "done" | "active" | "todo" };
 type LedgerData = {
   steps?: LedgerStep[];
@@ -266,10 +338,28 @@ export function App() {
   const fileInput = useRef<HTMLInputElement>(null);
   const kicked = useRef(false);
 
-  const { messages, sendMessage, status } = useChat({
+  const { messages, sendMessage, setMessages, status } = useChat({
     transport: new DefaultChatTransport({ api: "/api/build" }),
   });
   const busy = status === "submitted" || status === "streaming";
+  const { jobs, startJob } = useJobs(setMessages as (fn: (p: object[]) => object[]) => void);
+
+  // Persist chat history and restore it on first render (survives page reload).
+  const sessionRestored = useRef(false);
+  useEffect(() => {
+    if (sessionRestored.current) return;
+    sessionRestored.current = true;
+    try {
+      const saved = sessionStorage.getItem("studio-messages");
+      if (saved) setMessages(JSON.parse(saved));
+    } catch {}
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    try {
+      sessionStorage.setItem("studio-messages", JSON.stringify(messages));
+    } catch {}
+  }, [messages]);
 
   // Inline action buttons (Install / Reshape / Fix held) send a chat message so the
   // agent acts (finalize_tutor / shape) — the agent-native loop, no typing "yes".
@@ -300,9 +390,7 @@ export function App() {
     setStep(3);
     if (kicked.current) return;
     kicked.current = true;
-    // Files upload to temp paths; urls pass through. The refs go in the request
-    // BODY (not the message text), so temp paths never reach the model — only the
-    // source names appear in the kickoff so the agent knows what's attached.
+    // Upload files to temp server paths; URLs pass through as-is.
     const refs: string[] = [];
     for (const s of sources) {
       if (s.kind === "url") {
@@ -314,13 +402,13 @@ export function App() {
         refs.push(((await r.json()) as { path: string }).path);
       }
     }
-    const cue = sources.length
-      ? ` Attached sources: ${sources.map((s) => s.name).join(", ")}.`
-      : " No sources attached; author from the description.";
-    sendMessage(
-      { text: `Build a ${style} tutor. ${topic.trim()}.${cue}` },
-      { body: { sources: refs, pedagogyStyle: style } },
-    );
+    // Tell the chat what's happening, then kick off the background job.
+    // The job card injects inline via setMessages; no stream blocks the composer.
+    const cue = sources.length ? `${sources.map((s) => s.name).join(", ")}` : "description only";
+    sendMessage({
+      text: `Building a ${style} tutor from: ${topic.trim()} (${cue}). I'll let you know when the honesty gate finishes.`,
+    });
+    await startJob(refs.length ? refs : [topic.trim()], undefined, style);
   }
 
   function submit(e: FormEvent) {
@@ -524,6 +612,33 @@ export function App() {
               {sources.length ? ` · ${sources.length} source${sources.length > 1 ? "s" : ""}` : ""}
             </span>
           </div>
+          {jobs.length > 0 && (
+            <div className="job-tray" role="status" aria-live="polite">
+              <span className="tray-label">building</span>
+              {jobs.map((j: Job) => (
+                <span
+                  key={j.id}
+                  className={`tray-pill ${j.status}`}
+                  title={
+                    j.status === "done" && j.result
+                      ? `${j.result.ready}/${j.result.total} ready`
+                      : j.status
+                  }
+                >
+                  <span className="tray-pip" />
+                  {j.packId ??
+                    (j.sources[0]
+                      ? new URL(
+                          j.sources[0].startsWith("http") ? j.sources[0] : `file://${j.sources[0]}`,
+                        ).pathname
+                          .split("/")
+                          .pop()
+                      : "tutor")}
+                  {j.status === "done" && j.result && ` · ${j.result.ready}/${j.result.total}`}
+                </span>
+              ))}
+            </div>
+          )}
           <main className="chat">
             {messages.map((m) => (
               <div key={m.id} className={`msg ${m.role}`}>
@@ -538,6 +653,9 @@ export function App() {
                       ) : (
                         <span key={`${m.id}-${i}`}>{part.text}</span>
                       );
+                    if (part.type === "data-job") {
+                      return <JobCard key={`${m.id}-${i}`} d={(part as { data?: JobData }).data} />;
+                    }
                     if (part.type === "data-ledger") {
                       return (
                         <Ledger
