@@ -1,11 +1,9 @@
-// recallit Studio backend (Bun). A4: the build chat is a Vercel AI SDK agent
-// (streamText + tools) wrapping the recallit engine (Claude Agent SDK lives inside
-// runPackAuthor/runPackEditor). author_tutor streams a LIVE honesty-ledger data part
-// (reading -> drafting -> gating -> N ready / K held), reconciled by a stable id, so
-// the chat fills in as the author runs — our honest take on Honen's build sidebar.
+// recallit Studio backend (Bun). BG1: author_tutor is now a background job
+// (POST /api/jobs → runs detached → GET /api/jobs/:id polls). The build chat
+// handles conversational flow; the FE injects the ledger result once the poll
+// returns "done". Shape, propose_actions, and finalize_tutor stay in the chat stream.
 //
-// server.ts is Bun-run and imports ../src directly; engine deps resolve from the
-// repo-root node_modules. Run from the repo root so author writes packs to ./packs:
+// Run from the repo root so author writes packs to ./packs:
 //   bun --env-file=.env studio/server.ts
 
 import { mkdtemp } from "node:fs/promises";
@@ -24,7 +22,11 @@ import {
   type UIMessageStreamWriter,
 } from "ai";
 import { installPack } from "../src/install.ts";
-import { runPackAuthorMulti, runPackEditor } from "../src/packgen/author.ts";
+import { runPackEditor } from "../src/packgen/author.ts";
+import { createJob, getJob, listJobs, runJobAsync, sweepStalledJobs } from "./jobs.ts";
+
+// Mark any jobs that were mid-run when the server last died as errored.
+sweepStalledJobs();
 
 const DIST = join(import.meta.dir, "dist");
 const PORT = Number(process.env.PORT ?? 3001);
@@ -39,17 +41,17 @@ const BUILD_SYSTEM = [
   "paths; the kickoff message names what's attached.",
   "",
   "Tools:",
-  "- author_tutor(scope): draft cards from the attached sources and run the honesty gate. Slow",
-  "  + costs money — call ONCE. Returns ready vs held counts (held = a card couldn't be",
-  "  grounded). If NOTHING is attached and the user only described a topic, pass",
-  "  concept:'<the topic>' to research it instead.",
-  "- shape(packId, instruction): revise the drafted pack and re-run the gate.",
+  "- shape(packId, instruction): revise a drafted pack and re-run the honesty gate.",
   "- finalize_tutor(packId): install the drafted pack as a tutor the learner can study/deploy.",
   "  Call it once the user is happy with the draft.",
   "",
-  "Flow: author once, then report plainly — e.g. '18 of 22 cards ready, 4 held because they",
-  "weren't in your sources.' Use shape for changes. When the user is happy, finalize_tutor,",
-  "then say it's ready. Only ready cards install; held cards stay out until grounded.",
+  "Note: card authoring runs as a BACKGROUND JOB started by the UI — you won't see it in the",
+  "tool list. When a build finishes the UI will show you the ledger result. Your job is to help",
+  "the user shape and finalize once that result arrives.",
+  "",
+  "Flow: help the user refine their scope while the build runs. When a result arrives use shape",
+  "for changes; when they're happy use finalize_tutor. Only ready cards install; held cards stay",
+  "out until grounded.",
   "",
   "Whenever you end a turn asking the user to choose or confirm something, ALSO call",
   "propose_actions with 2–4 one-click choices (short label; message = exactly what they'd",
@@ -92,89 +94,10 @@ function startHeartbeat(emit: () => void, ms = 15_000): () => void {
   return () => clearInterval(t);
 }
 
-// Tools wrapping the engine. `writer` lets author_tutor stream the live ledger.
-// Pedagogy-style dispatch into authoring is deferred to S4 (avoids the opts.style
-// card-shape collision), so we don't thread pedagogy style here.
-function buildTools(writer: UIMessageStreamWriter, sources: string[], pedagogyStyle?: string) {
+// Chat tools: shape, propose_actions, finalize_tutor.
+// author_tutor has moved to POST /api/jobs (background job).
+function buildTools(writer: UIMessageStreamWriter) {
   return {
-    author_tutor: tool({
-      description:
-        "Draft the tutor's cards from the attached sources and run the honesty gate. Slow + costs money; call once.",
-      inputSchema: jsonSchema<{ scope?: string; concept?: string }>({
-        type: "object",
-        properties: {
-          scope: { type: "string", description: "what to focus the cards on" },
-          concept: {
-            type: "string",
-            description:
-              "ONLY if no sources are attached: the topic/concept to research + author from",
-          },
-        },
-        additionalProperties: false,
-      }),
-      execute: async ({ scope, concept }) => {
-        const srcs = sources.length ? sources : concept ? [concept] : [];
-        if (srcs.length === 0) {
-          return { error: "no sources attached and no concept given — ask the user for a source." };
-        }
-        let phase = 0;
-        // Synthetic first action: onEvent is silent during the initial fetch, so
-        // seed a live label immediately, then update it on every author tool_use.
-        let lastAction = `reading ${srcs.length} source${srcs.length > 1 ? "s" : ""}…`;
-        const emit = () =>
-          writer.write({
-            type: "data-ledger",
-            id: "ledger",
-            data: { steps: stepsAt(phase), lastAction },
-          });
-        emit();
-        const stopHb = startHeartbeat(emit);
-        let res: Awaited<ReturnType<typeof runPackAuthorMulti>>;
-        try {
-          res = await runPackAuthorMulti(srcs, {
-            scope,
-            pedagogyStyle,
-            maxBudgetUsd: MAX_BUDGET,
-            maxTurns: 30,
-            onEvent: (e) => {
-              if (e.kind !== "tool_use") return;
-              const name = (e.data as { name: string }).name;
-              lastAction = ACTION_LABEL[name] ?? `running ${name}…`;
-              if (name === "save_source" && phase < 1) phase = 1;
-              else if (name === "write_pack" && phase < 2) phase = 2;
-              emit();
-            },
-          });
-        } finally {
-          stopHb();
-        }
-        const v = res.verdict;
-        if (!v) {
-          writer.write({
-            type: "data-ledger",
-            id: "ledger",
-            data: { steps: stepsAt(0), error: "no pack written" },
-          });
-          return { error: "no pack written", stopReason: res.stopReason, costUsd: res.costUsd };
-        }
-        const held = v.needsReview.map((r) => ({ front: r.card.front, reasons: r.reasons }));
-        writer.write({
-          type: "data-ledger",
-          id: "ledger",
-          data: {
-            steps: LEDGER_PHASES.map((label) => ({ label, state: "done" })),
-            done: true,
-            packId: res.packId,
-            ready: v.ready,
-            total: v.total,
-            held,
-            grounding: v.grounding,
-            costUsd: res.costUsd,
-          },
-        });
-        return { packId: res.packId, ready: v.ready, total: v.total, held, grounding: v.grounding };
-      },
-    }),
     shape: tool({
       description: "Revise the drafted pack and re-run the honesty gate.",
       inputSchema: jsonSchema<{ packId: string; instruction: string }>({
@@ -314,6 +237,35 @@ Bun.serve({
   async fetch(req) {
     const url = new URL(req.url);
 
+    // ── Background job routes ──────────────────────────────────────────────
+    // POST /api/jobs — start a background build; returns {jobId} immediately.
+    if (url.pathname === "/api/jobs" && req.method === "POST") {
+      const { sources, scope, pedagogyStyle } = (await req.json()) as {
+        sources: string[];
+        scope?: string;
+        pedagogyStyle?: string;
+      };
+      if (!Array.isArray(sources) || sources.length === 0) {
+        return Response.json({ error: "sources must be a non-empty array" }, { status: 400 });
+      }
+      const job = createJob(sources, scope, pedagogyStyle);
+      runJobAsync(job); // fire-and-forget
+      return Response.json({ jobId: job.id, status: job.status });
+    }
+
+    // GET /api/jobs — list all jobs (for tray re-hydration on mount).
+    if (url.pathname === "/api/jobs" && req.method === "GET") {
+      return Response.json(listJobs());
+    }
+
+    // GET /api/jobs/:id — poll a single job.
+    const jobMatch = url.pathname.match(/^\/api\/jobs\/([^/]+)$/);
+    if (jobMatch && req.method === "GET") {
+      const job = getJob(jobMatch[1]);
+      if (!job) return Response.json({ error: "not found" }, { status: 404 });
+      return Response.json(job);
+    }
+
     // Upload an attached file → temp path the engine can read.
     if (url.pathname === "/api/sources" && req.method === "POST") {
       const form = await req.formData();
@@ -332,15 +284,7 @@ Bun.serve({
           { status: 503 },
         );
       }
-      const {
-        messages,
-        sources = [],
-        pedagogyStyle,
-      } = (await req.json()) as {
-        messages: UIMessage[];
-        sources?: string[];
-        pedagogyStyle?: string;
-      };
+      const { messages } = (await req.json()) as { messages: UIMessage[] };
       // Guard a malformed/empty request so streamText doesn't throw an uncaught
       // AI_InvalidPromptError (which dumps a stack to the server log).
       if (!messages?.length) {
@@ -352,7 +296,7 @@ Bun.serve({
             model: anthropic("claude-sonnet-4-6"),
             system: BUILD_SYSTEM,
             messages: await convertToModelMessages(messages),
-            tools: buildTools(writer, sources, pedagogyStyle),
+            tools: buildTools(writer),
             stopWhen: stepCountIs(6),
           });
           writer.merge(result.toUIMessageStream());
