@@ -86,11 +86,7 @@ function toJob(row: Row): Job {
 }
 
 // ── CRUD ───────────────────────────────────────────────────────────────────
-export function createJob(
-  sources: string[],
-  scope?: string,
-  pedagogyStyle?: string,
-): Job {
+export function createJob(sources: string[], scope?: string, pedagogyStyle?: string): Job {
   const db = open();
   const id = crypto.randomUUID();
   const now = new Date().toISOString();
@@ -128,22 +124,30 @@ export function updateJob(id: string, patch: JobPatch): void {
   const now = new Date().toISOString();
   if (patch.status !== undefined) {
     db.query("UPDATE jobs SET status = ?2, updated_at = ?3 WHERE id = ?1").run(
-      id, patch.status, now,
+      id,
+      patch.status,
+      now,
     );
   }
   if (patch.packId !== undefined) {
     db.query("UPDATE jobs SET pack_id = ?2, updated_at = ?3 WHERE id = ?1").run(
-      id, patch.packId, now,
+      id,
+      patch.packId,
+      now,
     );
   }
   if (patch.result !== undefined) {
     db.query("UPDATE jobs SET result_json = ?2, updated_at = ?3 WHERE id = ?1").run(
-      id, JSON.stringify(patch.result), now,
+      id,
+      JSON.stringify(patch.result),
+      now,
     );
   }
   if (patch.errorText !== undefined) {
     db.query("UPDATE jobs SET error_text = ?2, updated_at = ?3 WHERE id = ?1").run(
-      id, patch.errorText, now,
+      id,
+      patch.errorText,
+      now,
     );
   }
   db.close();

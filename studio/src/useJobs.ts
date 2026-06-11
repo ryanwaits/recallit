@@ -123,6 +123,7 @@ export function useJobs(setMessages: (fn: (prev: object[]) => object[]) => void)
 
   // Discovery poll: re-hydrate on mount AND keep scanning (every 10s) so jobs
   // started elsewhere — e.g. by the chat agent's start_build tool — get tracked.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: mount-only interval; schedulePoll/setMessages are stable
   useEffect(() => {
     const scan = () => {
       fetch("/api/jobs")
@@ -159,7 +160,8 @@ export function useJobs(setMessages: (fn: (prev: object[]) => object[]) => void)
           // not just at completion.
           setMessages((prev) => injectResult(prev, jobId, job));
           if (job.status === "done" || job.status === "error") {
-            clearInterval(intervals.current.get(jobId)!);
+            const t = intervals.current.get(jobId);
+            if (t) clearInterval(t);
             intervals.current.delete(jobId);
           }
         } catch {}

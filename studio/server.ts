@@ -78,13 +78,6 @@ const BUILD_SYSTEM = [
   "1–3 short sentences. Don't restate the request.",
 ].join("\n");
 
-const LEDGER_PHASES = ["Reading the source", "Drafting cards", "Running the honesty gate"];
-const stepsAt = (phase: number) =>
-  LEDGER_PHASES.map((label, i) => ({
-    label,
-    state: i < phase ? "done" : i === phase ? "active" : "todo",
-  }));
-
 // Friendly live-status labels for the author agent's tool calls (the ledger's
 // lastAction), so the long fetch/draft phases show motion instead of dead air.
 const ACTION_LABEL: Record<string, string> = {
