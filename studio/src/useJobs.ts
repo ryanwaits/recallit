@@ -61,9 +61,13 @@ function toJobData(job: Job): JobData {
 // plus a TEXT part: data parts are UI-only and never reach the model, so without
 // this the assistant doesn't know the build finished or what the packId is.
 function injectResult(messages: object[], jobId: string, job: Job): object[] {
-  return messages.map((m: object) => {
+  let changed = false;
+  const next = messages.map((m: object) => {
     const msg = m as { id: string; parts: { type: string; id?: string }[] };
-    if (msg.id !== `job-${jobId}`) return m;
+    // Match any message carrying this job's data part: FE-injected job messages
+    // (id `job-<id>`) AND assistant messages where the start_build tool emitted it.
+    if (!msg.parts?.some((p) => p.type === "data-job" && p.id === jobId)) return m;
+    changed = true;
     const parts = msg.parts.flatMap((p): object[] => {
       if (p.type !== "data-job" || p.id !== jobId) return [p];
       if (job.status === "done" && job.result) {
@@ -106,6 +110,9 @@ function injectResult(messages: object[], jobId: string, job: Job): object[] {
     });
     return { ...msg, parts };
   });
+  // Identity-preserving: callers poll repeatedly; an unchanged array avoids
+  // re-renders and localStorage churn.
+  return changed ? next : messages;
 }
 
 const POLL_INTERVAL = 5_000;
@@ -114,24 +121,29 @@ export function useJobs(setMessages: (fn: (prev: object[]) => object[]) => void)
   const [jobs, setJobs] = useState<Job[]>([]);
   const intervals = useRef<Map<string, ReturnType<typeof setInterval>>>(new Map());
 
-  // Re-hydrate from the server on mount (survives page reload; sqlite persists).
+  // Discovery poll: re-hydrate on mount AND keep scanning (every 10s) so jobs
+  // started elsewhere — e.g. by the chat agent's start_build tool — get tracked.
   useEffect(() => {
-    fetch("/api/jobs")
-      .then((r) => r.json() as Promise<Job[]>)
-      .then((serverJobs) => {
-        setJobs(serverJobs);
-        for (const j of serverJobs) {
-          if (j.status === "queued" || j.status === "running") {
-            // Resume polling any that were mid-run when the tab closed.
-            schedulePoll(j.id);
-          } else {
-            // Finished while we were away: bring the restored chat card up to
-            // date (swaps data-job -> data-ledger for done jobs).
-            setMessages((prev) => injectResult(prev, j.id, j));
+    const scan = () => {
+      fetch("/api/jobs")
+        .then((r) => r.json() as Promise<Job[]>)
+        .then((serverJobs) => {
+          setJobs(serverJobs);
+          for (const j of serverJobs) {
+            if (j.status === "queued" || j.status === "running") {
+              schedulePoll(j.id);
+            } else {
+              // Finished (possibly while we were away): bring any chat card
+              // carrying this job up to date (no-op if none).
+              setMessages((prev) => injectResult(prev, j.id, j));
+            }
           }
-        }
-      })
-      .catch(() => {});
+        })
+        .catch(() => {});
+    };
+    scan();
+    const t = setInterval(scan, 10_000);
+    return () => clearInterval(t);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const schedulePoll = useCallback(

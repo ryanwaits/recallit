@@ -43,18 +43,24 @@ const BUILD_SYSTEM = [
   "paths; the kickoff message names what's attached.",
   "",
   "Tools:",
+  "- web_search: find real sources (a restaurant's menu page, an official doc) when the user",
+  "  named specific things but attached nothing. Find the best URLs, then propose them with",
+  "  propose_actions so the user can approve before any build spends money.",
+  "- start_build(sources, scope): start a background build from approved source URLs. Use ONLY",
+  "  after the user approves the sources (or explicitly asks you to build from them).",
   "- shape(packId, instruction): revise a drafted pack and re-run the honesty gate.",
   "- finalize_tutor(packId): install the drafted pack as a tutor the learner can study/deploy.",
-  "  Call it once the user is happy with the draft.",
   "",
-  "Note: card authoring runs as a BACKGROUND JOB the UI manages — you won't see it in the tool",
-  "list and you have NO visibility into its progress. NEVER ask the user to paste, send, or",
-  "report the build result: it surfaces automatically in their UI, and when they act on it",
-  "(install / reshape buttons) you'll receive a message naming the pack and counts.",
+  "How building works: authoring runs as a BACKGROUND JOB. A description-only build is NOT",
+  "generic — the builder researches the topic on the web and grounds every card in what it",
+  "actually finds; the honesty gate holds anything unverified. You have no visibility into a",
+  "running build's progress. NEVER ask the user to paste or report results: they surface",
+  "automatically, and button clicks (install / reshape) message you with the pack and counts.",
   "",
-  "Flow: while a build runs, help the user refine scope or just answer questions — don't ask",
-  "about the build status. When they ask for changes use shape; when they're happy use",
-  "finalize_tutor. Only ready cards install; held cards stay out until grounded.",
+  "Flow: if the user names specific places/docs with no sources attached, offer to look them",
+  "up (web_search → propose the URLs → on approval start_build). While a build runs, help",
+  "refine scope. Use shape for changes; finalize_tutor when they're happy. Only ready cards",
+  "install; held cards stay out until grounded.",
   "",
   "Whenever you end a turn asking the user to choose or confirm something, ALSO call",
   "propose_actions with 2–4 one-click choices (short label; message = exactly what they'd",
@@ -98,10 +104,43 @@ function startHeartbeat(emit: () => void, ms = 15_000): () => void {
   return () => clearInterval(t);
 }
 
-// Chat tools: shape, propose_actions, finalize_tutor.
-// author_tutor has moved to POST /api/jobs (background job).
+// Chat tools: web_search (source discovery), start_build, shape, propose_actions,
+// finalize_tutor. Bulk authoring runs as a background job (POST /api/jobs).
 function buildTools(writer: UIMessageStreamWriter) {
   return {
+    // Anthropic's server-side web search: lets the assistant find real sources
+    // (menus, docs) to propose for approval before any keyed build runs.
+    web_search: anthropic.tools.webSearch_20250305({ maxUses: 4 }),
+    start_build: tool({
+      description:
+        "Start a background build from user-APPROVED source URLs. Returns immediately with a jobId; the UI tracks progress. Only call after the user approves the sources.",
+      inputSchema: jsonSchema<{ sources: string[]; scope?: string; pedagogyStyle?: string }>({
+        type: "object",
+        properties: {
+          sources: {
+            type: "array",
+            items: { type: "string" },
+            minItems: 1,
+            description: "approved source URLs (or topic text for research-only)",
+          },
+          scope: { type: "string", description: "what to focus the cards on" },
+          pedagogyStyle: { type: "string", enum: ["recallit", "compliance", "onboarding"] },
+        },
+        required: ["sources"],
+        additionalProperties: false,
+      }),
+      execute: async ({ sources, scope, pedagogyStyle }) => {
+        const job = createJob(sources, scope, pedagogyStyle);
+        runJobAsync(job); // fire-and-forget
+        // Surface a live job card inside this assistant message.
+        writer.write({
+          type: "data-job",
+          id: job.id,
+          data: { jobId: job.id, status: "queued", createdAt: job.createdAt },
+        });
+        return { jobId: job.id, status: "queued", sources };
+      },
+    }),
     shape: tool({
       description: "Revise the drafted pack and re-run the honesty gate.",
       inputSchema: jsonSchema<{ packId: string; instruction: string }>({
