@@ -125,10 +125,12 @@ export function useJobs(setMessages: (fn: (prev: object[]) => object[]) => void)
           if (!r.ok) return;
           const job = (await r.json()) as Job;
           setJobs((prev) => prev.map((j) => (j.id === jobId ? job : j)));
+          // Keep the in-chat card live on every tick (queued -> running -> ...),
+          // not just at completion.
+          setMessages((prev) => injectResult(prev, jobId, job));
           if (job.status === "done" || job.status === "error") {
             clearInterval(intervals.current.get(jobId)!);
             intervals.current.delete(jobId);
-            setMessages((prev) => injectResult(prev, jobId, job));
           }
         } catch {}
       }, POLL_INTERVAL);
