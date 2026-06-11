@@ -172,15 +172,9 @@ export function runJobAsync(job: Job): void {
         pedagogyStyle: job.pedagogyStyle,
         maxBudgetUsd: MAX_BUDGET,
         maxTurns: 30,
-        onEvent: (e) => {
-          // Capture the packId as soon as the author emits save_source (first tool
-          // that fires; pack id is already derived from the source slug).
-          if (e.kind === "tool_use") {
-            const name = (e.data as { name?: string }).name;
-            if (name === "mcp__packauthor__save_source" && !getJob(job.id)?.packId) {
-              updateJob(job.id, { packId: res?.packId ?? undefined });
-            }
-          }
+        onEvent: (_e) => {
+          // onEvent fires during the run; res isn't assigned yet so we can't
+          // read it here. packId is set after runPackAuthorMulti returns below.
         },
       });
       const v = res.verdict;
