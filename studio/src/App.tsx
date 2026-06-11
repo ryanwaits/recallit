@@ -386,22 +386,81 @@ export function App() {
       ?.scrollIntoView({ behavior: "smooth", block: "center" });
   };
 
-  // Persist chat history and restore it on first render (survives page reload).
-  const sessionRestored = useRef(false);
-  useEffect(() => {
-    if (sessionRestored.current) return;
-    sessionRestored.current = true;
-    try {
-      const saved = sessionStorage.getItem("studio-messages");
-      if (saved) setMessages(JSON.parse(saved));
-    } catch {}
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  // ── Sessions: each build conversation is a thread in localStorage. ──
+  // studio-sessions = [{id, title, updatedAt}], studio-msgs-<id> = messages.
+  const [sessionId, setSessionId] = useState<string>(() => {
+    const cur = localStorage.getItem("studio-current");
+    if (cur) return cur;
+    const id = crypto.randomUUID();
+    localStorage.setItem("studio-current", id);
+    return id;
+  });
+  const [sessions, setSessions] = useState<{ id: string; title: string; updatedAt: string }[]>(
+    () => {
+      try {
+        return JSON.parse(localStorage.getItem("studio-sessions") ?? "[]");
+      } catch {
+        return [];
+      }
+    },
+  );
 
+  // Load the current session's messages whenever the session changes (and once on
+  // mount). Migrates the old single-thread key if present.
   useEffect(() => {
     try {
-      sessionStorage.setItem("studio-messages", JSON.stringify(messages));
+      const legacy = sessionStorage.getItem("studio-messages");
+      if (legacy && !localStorage.getItem(`studio-msgs-${sessionId}`)) {
+        localStorage.setItem(`studio-msgs-${sessionId}`, legacy);
+        sessionStorage.removeItem("studio-messages");
+      }
+      const saved = localStorage.getItem(`studio-msgs-${sessionId}`);
+      setMessages(saved ? JSON.parse(saved) : []);
+      localStorage.setItem("studio-current", sessionId);
+    } catch {
+      setMessages([]);
+    }
+  }, [sessionId]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Persist messages + upsert session meta (title = first user line).
+  useEffect(() => {
+    if (messages.length === 0) return;
+    try {
+      localStorage.setItem(`studio-msgs-${sessionId}`, JSON.stringify(messages));
+      const first = messages.find((m) => m.role === "user");
+      const firstText =
+        (first?.parts.find((p) => p.type === "text") as { text?: string } | undefined)?.text ?? "";
+      const title =
+        firstText.replace(/^Building a \w+ tutor from: /, "").slice(0, 44) || "untitled build";
+      setSessions((prev) => {
+        const next = [
+          { id: sessionId, title, updatedAt: new Date().toISOString() },
+          ...prev.filter((s) => s.id !== sessionId),
+        ].slice(0, 20); // prune oldest beyond 20
+        localStorage.setItem("studio-sessions", JSON.stringify(next));
+        return next;
+      });
     } catch {}
-  }, [messages]);
+  }, [messages, sessionId]);
+
+  // Start a fresh build: new thread, wizard back to step 1.
+  const newSession = () => {
+    const id = crypto.randomUUID();
+    kicked.current = false;
+    setTopic("");
+    setSources([]);
+    setUrlInput("");
+    setInput("");
+    setStep(1);
+    setSessionId(id);
+  };
+  // Open a previous thread (already-kicked conversation, straight to chat).
+  const openSession = (id: string) => {
+    if (id === sessionId) return;
+    kicked.current = true;
+    setStep(3);
+    setSessionId(id);
+  };
 
   // Inline action buttons (Install / Reshape / Fix held) send a chat message so the
   // agent acts (finalize_tutor / shape) — the agent-native loop, no typing "yes".
@@ -469,24 +528,29 @@ export function App() {
         <span className="brand">
           <span className="dot" /> recallit <span className="slash">/</span> <i>studio</i>
         </span>
-        <nav className="steps" aria-label="Build steps">
-          {STEPS.map((label, i) => {
-            const n = i + 1;
-            const state = n === step ? "on" : n < step ? "done" : "";
-            return (
-              <button
-                type="button"
-                key={label}
-                className={`stepchip ${state}`}
-                disabled={n > step}
-                onClick={() => n < step && setStep(n)}
-              >
-                <span className="stepnum">{n < step ? "✓" : `0${n}`}</span>
-                {label}
-              </button>
-            );
-          })}
-        </nav>
+        <div className="top-right">
+          <button type="button" className="newbuild" onClick={newSession}>
+            + New build
+          </button>
+          <nav className="steps" aria-label="Build steps">
+            {STEPS.map((label, i) => {
+              const n = i + 1;
+              const state = n === step ? "on" : n < step ? "done" : "";
+              return (
+                <button
+                  type="button"
+                  key={label}
+                  className={`stepchip ${state}`}
+                  disabled={n > step}
+                  onClick={() => n < step && setStep(n)}
+                >
+                  <span className="stepnum">{n < step ? "✓" : `0${n}`}</span>
+                  {label}
+                </button>
+              );
+            })}
+          </nav>
+        </div>
       </header>
 
       {/* ① TOPIC */}
@@ -697,6 +761,24 @@ export function App() {
                 <div className="tutor-row" style={{ color: "var(--muted)" }}>
                   no tutors yet
                 </div>
+              )}
+              {sessions.length > 0 && (
+                <>
+                  <p className="sidebar-section" style={{ marginTop: "1.1rem" }}>
+                    Builds
+                  </p>
+                  {sessions.slice(0, 8).map((s) => (
+                    <button
+                      type="button"
+                      key={s.id}
+                      className={`tutor-row session-row ${s.id === sessionId ? "current" : ""}`}
+                      onClick={() => openSession(s.id)}
+                    >
+                      <span className="trow-name">{s.title}</span>
+                      {s.id === sessionId && <span className="trow-tag ok">open</span>}
+                    </button>
+                  ))}
+                </>
               )}
             </aside>
             <div className="main-col">
