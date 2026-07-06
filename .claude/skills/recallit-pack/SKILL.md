@@ -60,7 +60,11 @@ Use `"grounding": "web"` for concept packs. `modality: "text"` in Phase 1 (no au
 
 ## Step 3 — draft cards (grounded in the corpus)
 
-Walk the corpus front to back. For each fact/term/claim worth remembering, emit a card object:
+Walk the corpus front to back. For each fact/point worth remembering, decide which of two kinds
+it is — this decision determines how it gets graded later (`src/graders/registry.ts` dispatches
+on `meta.grader`), so make it deliberately:
+
+**(a) Flashcard — exactness is the point** (a term, date, definition, quote, formula, vocabulary):
 
 ```json
 {
@@ -73,13 +77,46 @@ Walk the corpus front to back. For each fact/term/claim worth remembering, emit 
 }
 ```
 
-Honesty rules, strictly:
-- `meta.sourceQuote` MUST be copied verbatim from `source.txt` (a literal substring). **No quote → no card.**
-- `back` must be entailed by the quote, not your outside knowledge. If the quote doesn't support the answer, don't write the card.
-- Don't introduce numbers or proper nouns in `back` that aren't in the quote/context.
-- `type` is free-form (`qa` / `term` / `cloze` / `concept`); keep `front`/`back` tight.
+Grades via lexical match against `back` — the learner needs to reproduce close to this wording.
+Right when the wording *is* the answer; wrong for "explain this in your own words" material (a
+correct paraphrase will score low and come back `Again`).
 
-Bias toward fewer, sharper cards over exhaustive coverage. A reasonable article → ~15–30 cards; a chapter → ~10–20.
+**(b) Checkable item — comprehension is the point** (explain why X, an argument's key points, a
+mechanism) where one quote can't capture the whole answer:
+
+```json
+{
+  "type": "explain",
+  "front": "Why does the two-minute rule work?",
+  "back": "It removes the activation-energy barrier to starting, so the habit forms before willpower is needed.",
+  "meta": {
+    "grader": "coverage",
+    "rubric": [
+      { "id": "barrier", "claim": "lowers the barrier to starting", "required": true, "sourceQuote": "<VERBATIM substring>" },
+      { "id": "forms-first", "claim": "the habit forms before it requires willpower", "required": false, "sourceQuote": "<VERBATIM substring>" }
+    ]
+  }
+}
+```
+
+Grades via the `coverage` grader: an LLM examiner judges whether the answer demonstrates each
+*required* checkpoint in its own words, but code re-verifies the cited evidence is a literal
+substring of the learner's own answer before crediting it — rating stays code-decided, only the
+"did they get the idea" read is semantic (needs `ANTHROPIC_API_KEY`; falls back to a stricter
+keyword-ish floor without one — never crashes either way). `back` here is a concise exemplar for
+human review, not the grading contract.
+
+Honesty rules, strictly, for both kinds:
+- Every `sourceQuote` (the flashcard's one, or each rubric checkpoint's) MUST be copied verbatim
+  from `source.txt` — a literal substring. No quote → no card/checkpoint (the gate holds it:
+  `quote-not-in-corpus` for (a), `rubric-point-not-in-corpus:<id>` for (b)).
+- `back` (and each rubric `claim`) must be entailed by its quote, not outside knowledge.
+- Don't introduce numbers or proper nouns in a flashcard's `back` that aren't in the quote/context
+  (checkable items skip this check — `back` there is an exemplar, not the grounding contract).
+- 2–5 checkpoints per checkable item is plenty; mark only the core points `required: true`.
+
+Bias toward fewer, sharper items over exhaustive coverage: a reasonable article → ~15–30; a
+chapter → ~10–20. Mix both kinds as the material warrants — don't default to all-flashcard.
 
 ## Step 4 — preview & steer (modes B and C)
 
@@ -103,7 +140,7 @@ bun run cli pack write packs/<id>
 # → "23/25 ready, 2 need review (grounding: source)" + each flagged front + reason codes
 ```
 
-`pack write` (engine code, `src/packgen/gate.ts`) re-reads `manifest.json` + `cards.json` + `.author/source.txt`, verifies every `meta.sourceQuote` is a literal substring of the corpus, runs the quality + number/proper-noun checks + dedup, **stamps `meta.status:"needs-review"` (+ `meta.reviewReasons`) on flagged cards**, and rewrites `cards.json`. You cannot talk past it — the gate is code. Reason codes: `quote-not-in-corpus`, `missing-source-quote`, `unverified-number`, `unverified-proper-noun`, `duplicate-front`, `quality:*`.
+`pack write` (engine code, `src/packgen/gate.ts`) re-reads `manifest.json` + `cards.json` + `.author/source.txt`, verifies every `meta.sourceQuote` (flashcards) or every rubric checkpoint's `sourceQuote` (checkable items) is a literal substring of the corpus, runs the quality + number/proper-noun checks + dedup, **stamps `meta.status:"needs-review"` (+ `meta.reviewReasons`) on flagged cards**, and rewrites `cards.json`. You cannot talk past it — the gate is code. Reason codes: `quote-not-in-corpus`, `missing-source-quote`, `rubric-empty`, `rubric-point-not-in-corpus:<id>`, `unverified-number`, `unverified-proper-noun`, `duplicate-front`, `quality:*`.
 
 ## Step 6 — report
 
