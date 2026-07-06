@@ -34,9 +34,11 @@ export {
 export {
   type ExamineInput,
   type ExaminerJudgment,
+  type ExaminerProvider,
   type ExaminerRecount,
   examineAnswer,
   recountExaminer,
+  resolveExaminerProvider,
 } from "./graders/examiner.ts";
 export { type Grader, gradeResponse, graderName, registerGrader } from "./graders/registry.ts";
 export type { InstallOptions, InstallResult, ReinstallPlan } from "./install.ts";

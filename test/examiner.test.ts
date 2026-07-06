@@ -10,6 +10,7 @@ import {
   type ExaminerJudgment,
   examinerCoverageGrader,
   recountExaminer,
+  resolveExaminerProvider,
 } from "../src/graders/examiner.ts";
 
 const rubric: RubricCheckpoint[] = [
@@ -66,21 +67,82 @@ describe("recountExaminer", () => {
     expect(r.result.rating).toBe("Again");
     expect(r.fabricated).toBe(2);
   });
+
+  test('a bracketed checkpointId ("[a]") still credits — small models copy rubric formatting', () => {
+    const r = recountExaminer(rubric, answer, [
+      j("[a]", true, "the sky is blue"),
+      j(" [b] ", true, "the grass is green"),
+    ]);
+    expect(r.result.rating).toBe("Good");
+    expect(r.fabricated).toBe(0);
+  });
+});
+
+// The examiner's env-var surface. Save/restore everything resolveExaminerProvider
+// reads so a developer's real key or local endpoint can't leak into assertions.
+const EXAMINER_ENV = [
+  "ANTHROPIC_API_KEY",
+  "RECALLIT_EXAMINER",
+  "RECALLIT_EXAMINER_URL",
+  "RECALLIT_EXAMINER_MODEL",
+  "RECALLIT_EXAMINER_KEY",
+] as const;
+
+function withCleanExaminerEnv() {
+  const prev = new Map<string, string | undefined>();
+  beforeEach(() => {
+    for (const k of EXAMINER_ENV) {
+      prev.set(k, process.env[k]);
+      delete process.env[k];
+    }
+  });
+  afterEach(() => {
+    for (const k of EXAMINER_ENV) {
+      const v = prev.get(k);
+      if (v === undefined) delete process.env[k];
+      else process.env[k] = v;
+    }
+  });
+}
+
+describe("resolveExaminerProvider", () => {
+  withCleanExaminerEnv();
+
+  test("nothing configured -> null (grader floors)", () => {
+    expect(resolveExaminerProvider()).toBeNull();
+  });
+
+  test("ANTHROPIC_API_KEY -> anthropic with the default model", () => {
+    process.env.ANTHROPIC_API_KEY = "sk-test";
+    expect(resolveExaminerProvider()).toEqual({ kind: "anthropic", model: "claude-sonnet-4-6" });
+  });
+
+  test("RECALLIT_EXAMINER_MODEL overrides the anthropic default", () => {
+    process.env.ANTHROPIC_API_KEY = "sk-test";
+    process.env.RECALLIT_EXAMINER_MODEL = "claude-haiku-4-5";
+    expect(resolveExaminerProvider()?.model).toBe("claude-haiku-4-5");
+  });
+
+  test("an OpenAI-compatible endpoint wins over the anthropic key", () => {
+    process.env.ANTHROPIC_API_KEY = "sk-test";
+    process.env.RECALLIT_EXAMINER_URL = "http://localhost:11434/v1";
+    process.env.RECALLIT_EXAMINER_MODEL = "qwen2.5:1.5b";
+    expect(resolveExaminerProvider()).toEqual({
+      kind: "openai-compatible",
+      baseURL: "http://localhost:11434/v1",
+      model: "qwen2.5:1.5b",
+      apiKey: undefined,
+    });
+  });
+
+  test("a URL without a model is a loud config error, not a silent floor", () => {
+    process.env.RECALLIT_EXAMINER_URL = "http://localhost:11434/v1";
+    expect(() => resolveExaminerProvider()).toThrow(/RECALLIT_EXAMINER_MODEL/);
+  });
 });
 
 describe("examinerCoverageGrader — keyless environments degrade, never crash", () => {
-  const prevKey = process.env.ANTHROPIC_API_KEY;
-  const prevFlag = process.env.RECALLIT_EXAMINER;
-  beforeEach(() => {
-    delete process.env.ANTHROPIC_API_KEY;
-    delete process.env.RECALLIT_EXAMINER;
-  });
-  afterEach(() => {
-    if (prevKey === undefined) delete process.env.ANTHROPIC_API_KEY;
-    else process.env.ANTHROPIC_API_KEY = prevKey;
-    if (prevFlag === undefined) delete process.env.RECALLIT_EXAMINER;
-    else process.env.RECALLIT_EXAMINER = prevFlag;
-  });
+  withCleanExaminerEnv();
 
   const rubric: RubricCheckpoint[] = [
     { id: "a", claim: "sky is blue", required: true },
@@ -88,7 +150,7 @@ describe("examinerCoverageGrader — keyless environments degrade, never crash",
   ];
   const card = newCard({ front: "explain", back: "n/a", meta: { rubric } });
 
-  test("no ANTHROPIC_API_KEY -> falls back to the deterministic floor, no throw", async () => {
+  test("no provider at all -> falls back to the deterministic floor, no throw", async () => {
     const result = await examinerCoverageGrader(card, "sky is blue and grass is green");
     expect(result.rating).toBe("Good"); // floor: both required claims present verbatim
   });
