@@ -151,11 +151,17 @@ export async function examineAnswer(input: ExamineInput): Promise<ExaminerJudgme
  * with RECALLIT_EXAMINER=0 for offline/deterministic-only runs (CI, the floor). */
 export const examinerEnabled = (): boolean => process.env.RECALLIT_EXAMINER !== "0";
 
+/** Same key-presence check start.ts uses to decide keyless vs live-tutor mode. */
+const hasApiKey = (): boolean => Boolean(process.env.ANTHROPIC_API_KEY?.trim());
+
 /**
  * The registered `coverage` grader. By default it grades via the LLM examiner
- * (judgments -> code-verified recount); RECALLIT_EXAMINER=0 uses the deterministic
- * floor instead (near-verbatim only — see the doc). If the examiner can't
- * produce a confident judgment it THROWS rather than silently mis-grade (HOLD).
+ * (judgments -> code-verified recount); RECALLIT_EXAMINER=0, or no
+ * ANTHROPIC_API_KEY, uses the deterministic floor instead (near-verbatim only —
+ * see the doc) — a missing key is an environment fact, not an unconfident
+ * judgment, so it degrades quietly rather than holding. If the examiner DOES run
+ * (key present) but can't produce a confident judgment, that still THROWS rather
+ * than silently mis-grade (HOLD).
  */
 export async function examinerCoverageGrader(
   card: RecallCard,
@@ -165,7 +171,7 @@ export async function examinerCoverageGrader(
   if (!rubric || rubric.length === 0) {
     throw new Error(`coverage grader: card ${card.id} has no meta.rubric`);
   }
-  if (examinerEnabled()) {
+  if (examinerEnabled() && hasApiKey()) {
     const judgments = await examineAnswer({ front: card.front, rubric, answer: response });
     if (!judgments) {
       throw new Error(`examiner held on card ${card.id}: no confident judgment (not graded)`);

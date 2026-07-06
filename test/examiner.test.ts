@@ -1,11 +1,16 @@
 // The examiner recount: code re-verifies each cited evidence span is literally in
 // the learner's answer (anti-fabrication), drops what it can't, and counts the
 // rating. Pure + deterministic given the judgments — the model never picks it.
-import { describe, expect, test } from "bun:test";
+import { afterEach, beforeEach, describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import { newCard } from "../src/card.ts";
 import type { RubricCheckpoint } from "../src/graders/coverage.ts";
-import { type ExaminerJudgment, recountExaminer } from "../src/graders/examiner.ts";
+import {
+  type ExaminerJudgment,
+  examinerCoverageGrader,
+  recountExaminer,
+} from "../src/graders/examiner.ts";
 
 const rubric: RubricCheckpoint[] = [
   { id: "a", claim: "sky is blue", required: true },
@@ -60,6 +65,38 @@ describe("recountExaminer", () => {
     const r = recountExaminer(rubric, answer, [j("a", true, ""), j("b", true, "")]);
     expect(r.result.rating).toBe("Again");
     expect(r.fabricated).toBe(2);
+  });
+});
+
+describe("examinerCoverageGrader — keyless environments degrade, never crash", () => {
+  const prevKey = process.env.ANTHROPIC_API_KEY;
+  const prevFlag = process.env.RECALLIT_EXAMINER;
+  beforeEach(() => {
+    delete process.env.ANTHROPIC_API_KEY;
+    delete process.env.RECALLIT_EXAMINER;
+  });
+  afterEach(() => {
+    if (prevKey === undefined) delete process.env.ANTHROPIC_API_KEY;
+    else process.env.ANTHROPIC_API_KEY = prevKey;
+    if (prevFlag === undefined) delete process.env.RECALLIT_EXAMINER;
+    else process.env.RECALLIT_EXAMINER = prevFlag;
+  });
+
+  const rubric: RubricCheckpoint[] = [
+    { id: "a", claim: "sky is blue", required: true },
+    { id: "b", claim: "grass is green", required: true },
+  ];
+  const card = newCard({ front: "explain", back: "n/a", meta: { rubric } });
+
+  test("no ANTHROPIC_API_KEY -> falls back to the deterministic floor, no throw", async () => {
+    const result = await examinerCoverageGrader(card, "sky is blue and grass is green");
+    expect(result.rating).toBe("Good"); // floor: both required claims present verbatim
+  });
+
+  test("a blank/whitespace key is treated the same as no key", async () => {
+    process.env.ANTHROPIC_API_KEY = "   ";
+    const result = await examinerCoverageGrader(card, "i have no idea");
+    expect(result.rating).toBe("Again"); // floor: 0/2 required
   });
 });
 
