@@ -102,9 +102,10 @@ mechanism) where one quote can't capture the whole answer:
 Grades via the `coverage` grader: an LLM examiner judges whether the answer demonstrates each
 *required* checkpoint in its own words, but code re-verifies the cited evidence is a literal
 substring of the learner's own answer before crediting it — rating stays code-decided, only the
-"did they get the idea" read is semantic (needs `ANTHROPIC_API_KEY`; falls back to a stricter
-keyword-ish floor without one — never crashes either way). `back` here is a concise exemplar for
-human review, not the grading contract.
+"did they get the idea" read is semantic (needs a model: `ANTHROPIC_API_KEY`, or any
+OpenAI-compatible endpoint via `RECALLIT_EXAMINER_URL` + `RECALLIT_EXAMINER_MODEL`, e.g. local
+Ollama; falls back to a stricter keyword-ish floor with neither — never crashes either way).
+`back` here is a concise exemplar for human review, not the grading contract.
 
 Honesty rules, strictly, for both kinds:
 - Every `sourceQuote` (the flashcard's one, or each rubric checkpoint's) MUST be copied verbatim

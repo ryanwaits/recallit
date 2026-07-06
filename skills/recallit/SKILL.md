@@ -86,9 +86,15 @@ below) — the same command works for both, dispatch is automatic:
   examiner judges whether the answer demonstrates each required checkpoint, but code re-verifies
   the cited evidence is a literal substring of the *user's own answer* before it counts — the
   rating is still 100% code-decided, only the "did they get the idea" read is semantic. This path
-  needs `ANTHROPIC_API_KEY`; without one it gracefully degrades to a stricter keyword-ish floor
-  over the same checkpoints (verified: no key → no crash, just a stricter grade — never a thrown
-  error either way).
+  needs a model: `ANTHROPIC_API_KEY` (default), or any OpenAI-compatible endpoint via
+  `RECALLIT_EXAMINER_URL` + `RECALLIT_EXAMINER_MODEL` (+ optional `RECALLIT_EXAMINER_KEY`) —
+  e.g. a local Ollama: `RECALLIT_EXAMINER_URL=http://localhost:11434/v1
+  RECALLIT_EXAMINER_MODEL=qwen2.5:1.5b`. With neither configured it gracefully degrades to a
+  stricter keyword-ish floor over the same checkpoints (verified: no provider → no crash, just a
+  stricter grade — never a thrown error either way). Honest caveat, verified against a real 1.5B
+  local model: small models grade noticeably harsher than Claude on the same answer — the
+  anti-fabrication check drops their sloppier evidence citations, which fails safe (under-credits,
+  never over-credits).
 
 ## Why not `recallit daily` / `agent` / `talk` / `quickstart`
 

@@ -19,6 +19,15 @@ bunx @waits/recallit start
 
 Keyless by default: real cards, real grading, **no API spend**. Paste an `ANTHROPIC_API_KEY` at the prompt (or set it in your environment) to enable the live AI tutor. Data persists to `~/.recallit`.
 
+Comprehension grading (`coverage` cards) can also run on **any OpenAI-compatible endpoint** instead of Anthropic — e.g. a local Ollama:
+
+```bash
+export RECALLIT_EXAMINER_URL=http://localhost:11434/v1
+export RECALLIT_EXAMINER_MODEL=qwen2.5:1.5b     # RECALLIT_EXAMINER_KEY optional
+```
+
+The endpoint wins over `ANTHROPIC_API_KEY` when both are set; with neither, grading falls back to a deterministic near-verbatim floor (never crashes). The rating is always computed by code from evidence-verified checkpoints — the model never picks it, whichever provider you use.
+
 ## Layout
 
 ```
