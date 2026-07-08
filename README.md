@@ -28,6 +28,16 @@ export RECALLIT_EXAMINER_MODEL=qwen2.5:1.5b     # RECALLIT_EXAMINER_KEY optional
 
 The endpoint wins over `ANTHROPIC_API_KEY` when both are set; with neither, grading falls back to a deterministic near-verbatim floor (never crashes). The rating is always computed by code from evidence-verified checkpoints — the model never picks it, whichever provider you use.
 
+## Use with OpenClaw
+
+recallit ships as an [OpenClaw](https://openclaw.ai) skill ([`clawhub.ai/skills/recallit`](https://clawhub.ai/skills/recallit)) — your agent authors honest, source-grounded packs from your documents and drills you on them in chat, fully keyless:
+
+```bash
+openclaw skills install recallit
+```
+
+The skill drives everything through the CLI (no browser needed — works in containers, including the Umbrel OpenClaw app), and the grading contract holds: the agent asks, you answer, **the engine grades** (`recallit answer`) — the model never decides your rating. Requires `bun` + `recallit` binaries; the skill tells the agent how to install both itself. Source lives in this repo under [`skills/recallit/`](skills/recallit/SKILL.md).
+
 ## Layout
 
 ```
