@@ -10,13 +10,11 @@ metadata:
         "install":
           [
             {
-              "id": "npm-global",
+              "id": "node-global",
               "kind": "node",
-              // "package" mirrors the brew installer's "formula" field per docs.openclaw.ai/tools/skills —
-              // not shown verbatim for kind:"node" there. Verify against a real OpenClaw instance before publishing.
               "package": "@waits/recallit",
               "bins": ["recallit"],
-              "label": "Install recallit (npm i -g @waits/recallit)",
+              "label": "Install recallit (global node package @waits/recallit)",
             },
           ],
       },
@@ -242,9 +240,10 @@ recallit pack write packs/<id>
 # → "23/25 ready, 2 need review (grounding: source)" + each flagged front + reason
 ```
 
-Reason codes: `quote-not-in-corpus`, `missing-source-quote`, `unverified-number`,
-`unverified-proper-noun`, `duplicate-front`, `quality:*`. `recallit pack review packs/<id>` lists
-the flagged cards any time, no LLM involved in either command.
+Reason codes: `quote-not-in-corpus`, `missing-source-quote`, `rubric-empty`,
+`rubric-point-not-in-corpus:<id>`, `unverified-number`, `unverified-proper-noun`,
+`duplicate-front`, `quality:*`. `recallit pack review packs/<id>` lists the flagged cards any
+time, no LLM involved in either command.
 
 ### Step 6 — report
 
