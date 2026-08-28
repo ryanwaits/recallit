@@ -22,7 +22,8 @@ An honest, source-grounded tutor. You describe what you want to learn, recallit 
 - Confident but never hype. Show receipts, not adjectives.
 
 ## Anti-references
-- Generic AI study tools (e.g. pdftolesson.com): we want warmth and craft, not white-minimal sameness or rainbow/mascot delight. The current visual system is the Hallmark "Bubble" theme (cream + mint-green + Plus Jakarta Sans + green highlighter), mapped onto our tokens; see DESIGN.md.
+- Generic AI study tools (e.g. pdftolesson.com): we want warmth and craft, not white-minimal sameness or rainbow/mascot delight. The landing and demo run "The Reading Room" (paper, a serif question, a mono receipt, mint reserved for the grade); see DESIGN.md. The pack pages still run the earlier Hallmark "Bubble" theme (cream + mint-green everywhere + Plus Jakarta Sans), not yet migrated.
+- Bubble / mint-pill SaaS: a bright accent color on every button, badge, and card. If mint (or any accent) shows up anywhere it isn't the grade, that's the old system creeping back in.
 - Generic SaaS slop: purple gradients on white, Inter/Roboto, the hero-metric stat row, identical icon-card grids.
 - Flashcard apps that gamify and flatter (gold stars, streaks-as-dopamine). Our "delight" is a *receipt*, the proof of an honest grade.
 

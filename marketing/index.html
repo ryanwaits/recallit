@@ -1,11 +1,11 @@
 <!doctype html>
-<html lang="en" data-theme="hum">
+<html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>recallit — a tutor that won't tell you you've got it when you don't.</title>
   <meta name="description" content="Hand recallit your PDFs and links, or just describe what you want to learn, and you get a tutor built around it. Practice your way, by drilling or just talking it through. The grade comes from code checking your answer against the source, not a model deciding to be nice." />
-  <meta name="theme-color" content="#faf6ee" />
+  <meta name="theme-color" content="#fbf9f4" />
   <link rel="icon" href="favicon.svg" type="image/svg+xml" />
   <meta property="og:type" content="website" />
   <meta property="og:title" content="recallit · honest about what you actually know" />
@@ -19,255 +19,197 @@
   <meta name="twitter:image" content="og.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="hum-tokens.css" />
-  <link rel="stylesheet" href="hum.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;1,400&family=JetBrains+Mono:wght@400;500&family=Inter:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="tokens.css" />
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <a class="sr-only" href="#main">Skip to content</a>
 
   <!-- ─── Nav ─── -->
-  <header class="nav" id="nav">
-    <div class="nav__inner">
-      <a class="nav__brand" href="#" aria-label="recallit — home">
-        <span class="rec-mark" aria-hidden="true"></span>
-        recallit
-      </a>
-      <nav class="nav__links" aria-label="Primary">
-        <a href="#stages">The method</a>
-        <a href="#numbers">The math</a>
-        <a href="#voices">Subjects</a>
-        <a href="#pricing">Run it</a>
-      </nav>
-      <div class="nav__actions">
-        <a class="btn btn--mint btn--sm" href="demo/index.html" data-burst>Try the demo</a>
-      </div>
-    </div>
+  <header class="nav">
+    <a class="brand" href="#" aria-label="recallit — home">recallit</a>
+    <nav class="links mono" aria-label="Primary">
+      <a href="#method">How it grades</a>
+      <a href="#subjects">Subjects</a>
+      <a href="#run">Run it</a>
+      <a href="https://github.com/ryanwaits/recallit">GitHub</a>
+    </nav>
+    <a class="btn ghost" href="demo/index.html">Try the demo</a>
   </header>
 
   <main id="main">
+    <div class="wrap">
 
-    <!-- ─── Hero ─── -->
-    <section class="hero">
-      <div class="hero__grid">
-        <div class="hero__lead">
-          <div class="process" aria-label="The three steps">
-            <span class="process__step"><span class="process__dot" style="background:var(--color-mint)"></span><span class="num">01</span> describe</span>
-            <span class="process__link"></span>
-            <span class="process__step"><span class="process__dot" style="background:var(--color-accent-2)"></span><span class="num">02</span> practice</span>
-            <span class="process__link"></span>
-            <span class="process__step"><span class="process__dot" style="background:var(--color-accent)"></span><span class="num">03</span> remember</span>
+      <!-- ─── Hero ─── -->
+      <section class="hero">
+        <div>
+          <h1>A tutor that won't say <em>you've got it</em> when you don't.</h1>
+          <p>Hand it a book, a paper, a topic. It builds cards that cite the exact line they came from, then grades your answer against that line. Code does the checking, not a model being nice.</p>
+          <div class="ctas">
+            <a class="btn primary" href="demo/index.html">Try the demo</a>
+            <a class="btn ghost" href="#method">How it grades</a>
           </div>
-          <h1 class="hero__title">Learn anything. <em>Actually remember it.</em></h1>
-          <p class="hero__lede">Hand recallit your PDFs and links, or just describe it, and it builds you a tutor that shows exactly what it could verify against your sources. Practice by drilling or talking it through, and it grades you straight: the points you got, the ones you missed, and the line it checked.</p>
-          <div class="hero__cta">
-            <a class="btn btn--mint btn--lg" href="demo/index.html" data-burst>Try the demo, no key needed</a>
-            <a class="btn btn--outline btn--lg btn--mint" href="#stages">See how it works <span class="btn__arrow" aria-hidden="true">→</span></a>
-          </div>
-          <p class="hero__note">Free to try · no account for the demo · your files, offline</p>
+          <p class="fine">No key, no account for the demo. Your cards are files on your disk.</p>
         </div>
 
-        <div class="hero__stage">
-          <div class="chat" aria-label="An example exchange: recallit grades your answer honestly.">
-            <div class="bub bub--ask"><span class="bub__who">recallit asks</span>How do you say “you're right” in Mexican Spanish?</div>
-            <div class="bub bub--you"><span class="bub__who">you</span>tienes razón</div>
-            <div class="grade-row"><b>Good.</b><span>Matched the native phrasing, so it comes back in 4 days.</span></div>
+        <div class="deck" aria-label="An example card: recallit grades your answer against the cited line.">
+          <div class="dcard k3"></div>
+          <div class="dcard k2"></div>
+          <div class="dcard k1">
+            <p class="k mono">Card 14 of 32 · Thinking, Fast and Slow</p>
+            <p class="q">What does Kahneman mean by "what you see is all there is"?</p>
+            <p class="you">We judge from the evidence in front of us and don't notice what's missing.</p>
+            <div class="receipt">
+              <span class="g">Good</span><span class="why">Matched the claim. Back in 4 days.</span>
+              <span class="src">ch. 7 · "<mark>System 1 is radically insensitive to both the quality and the quantity of the information</mark> that gives rise to impressions."</span>
+            </div>
+            <div class="ratings"><span>again</span><span>hard</span><span class="hi">good</span><span>easy</span></div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- ─── The method · numbered timeline ─── -->
-    <section class="section" id="stages" aria-labelledby="stages-title">
-      <header class="section__head">
-        <p class="eyebrow"><span class="eyebrow__dot eyebrow__dot--mint"></span> The method</p>
-        <h2 class="section__title" id="stages-title">Three steps, start to recall.</h2>
-        <p class="section__lede">The same three every time. You only ever do one at a time — recallit holds the schedule so you don't have to keep it in your head.</p>
-      </header>
-
-      <div class="stages">
-        <article class="stage stage--mint">
-          <div class="stage__rail" aria-hidden="true">
-            <div class="stage__node"><b>1<small>.0</small></b></div>
-            <div class="stage__line"></div>
+      <!-- ─── How it works ─── -->
+      <section class="sec" id="method">
+        <div class="sec-head">
+          <span class="mono">How it works</span>
+          <div>
+            <h2>Three steps. You only ever do one at a time.</h2>
+            <p>recallit holds the schedule so you don't have to keep it in your head.</p>
           </div>
-          <div class="stage__panel">
-            <div class="stage__copy">
-              <p class="stage__label">01 · Describe · in plain words</p>
-              <h3 class="stage__title">Bring your materials, or just describe it</h3>
-              <p class="stage__text">Drop in PDFs and links, several at once, or name a topic in your head. Pick how it should teach: straight recall, rules you have to apply, or real what-do-you-do situations. <b>recallit builds the cards and cites the exact line</b> each one came from. What it can't verify, it holds back and shows you, instead of inventing.</p>
-              <div class="stage__chips">
-                <span class="chip"><span class="chip__dot"></span> files + links + topics</span>
-                <span class="chip chip--hands"><span class="chip__dot"></span> cites every line</span>
+        </div>
+        <div class="steps">
+          <div></div>
+          <div>
+            <div class="step">
+              <span class="n">1</span>
+              <div>
+                <h3>Describe it</h3>
+                <p>Drop in PDFs and links, or name a topic. It builds the cards and cites the line each one came from. What it can't verify, it holds back and shows you.</p>
               </div>
             </div>
-            <div class="stage__art" aria-hidden="true">
-              <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
-                <path d="M16 9 h20 l12 12 v34 a4 4 0 0 1-4 4 H16 a4 4 0 0 1-4-4 V13 a4 4 0 0 1 4-4 Z" fill="#faf6ee" stroke="#1c1e24" stroke-width="3.2" stroke-linejoin="round"/>
-                <path d="M36 9 v12 h12" fill="none" stroke="#1c1e24" stroke-width="3.2" stroke-linejoin="round"/>
-                <rect x="21" y="30" width="17" height="3.2" rx="1.6" fill="#1c1e24" opacity="0.3"/>
-                <rect x="20" y="43.5" width="23" height="7.5" rx="3.75" fill="#67d29b"/>
-                <path d="M23.5 47.3 l2.7 2.7 l5.2 -5.8" fill="none" stroke="#1c1e24" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </div>
-          </div>
-        </article>
-
-        <article class="stage stage--cyan">
-          <div class="stage__rail" aria-hidden="true">
-            <div class="stage__node"><b>2<small>.0</small></b></div>
-            <div class="stage__line"></div>
-          </div>
-          <div class="stage__panel">
-            <div class="stage__copy">
-              <p class="stage__label">02 · Practice · your way</p>
-              <h3 class="stage__title">Drill it, or talk it through</h3>
-              <p class="stage__text">Run a quick drill when you're busy, or <b>just talk it through</b> when you want to explain things in your own words. You pick, and you can switch any day — the grade behind it doesn't change.</p>
-              <div class="stage__chips">
-                <span class="chip"><span class="chip__dot"></span> drill or conversation</span>
-                <span class="chip chip--hands"><span class="chip__dot"></span> same honest grade</span>
+            <div class="step">
+              <span class="n">2</span>
+              <div>
+                <h3>Practice it</h3>
+                <p>Drill, or talk it through. Either way you get a straight grade: the points you got, the ones you missed, and the line it checked.</p>
               </div>
             </div>
-            <div class="stage__art" aria-hidden="true">
-              <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
-                <path d="M11 15 a8 8 0 0 1 8-8 h26 a8 8 0 0 1 8 8 v15 a8 8 0 0 1-8 8 H27 l-9 8 v-8 h0 a8 8 0 0 1-7-7.9 Z" fill="#3a9fe3" stroke="#1c1e24" stroke-width="3.2" stroke-linejoin="round"/>
-                <circle cx="22" cy="22.5" r="2.7" fill="#faf6ee"/>
-                <circle cx="32" cy="22.5" r="2.7" fill="#faf6ee"/>
-                <circle cx="42" cy="22.5" r="2.7" fill="#faf6ee"/>
-              </svg>
-            </div>
-          </div>
-        </article>
-
-        <article class="stage stage--pear">
-          <div class="stage__rail" aria-hidden="true">
-            <div class="stage__node"><b>3<small>.0</small></b></div>
-            <div class="stage__line"></div>
-          </div>
-          <div class="stage__panel">
-            <div class="stage__copy">
-              <p class="stage__label">03 · Remember · at the right time</p>
-              <h3 class="stage__title">It's waiting before you forget</h3>
-              <p class="stage__text">Answer well and it drifts away for weeks; struggle and it comes back sooner. <b>When you sit down, what's waiting is the stuff you're about to forget</b>, not what you've already nailed.</p>
-              <div class="stage__chips">
-                <span class="chip"><span class="chip__dot"></span> spaced automatically</span>
-                <span class="chip chip--hands"><span class="chip__dot"></span> the right thing, on time</span>
+            <div class="step">
+              <span class="n">3</span>
+              <div>
+                <h3>Remember it</h3>
+                <p>The right card is waiting when you come back. Nothing to schedule, nothing to gamify.</p>
               </div>
             </div>
-            <div class="stage__art" aria-hidden="true">
-              <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
-                <circle cx="32" cy="33" r="16" fill="#ecca44" stroke="#1c1e24" stroke-width="3.2"/>
-                <path d="M32 23 v10 l7 4.5" fill="none" stroke="#1c1e24" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M44 13 l2 6 l-6 1.5" fill="none" stroke="#1c1e24" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
+          </div>
+        </div>
+      </section>
+
+      <!-- ─── The honest math ─── -->
+      <section class="sec" id="math">
+        <div class="sec-head">
+          <span class="mono">The honest math</span>
+          <div><h2>Mostly, it just tells you the truth.</h2></div>
+        </div>
+        <div class="ledger">
+          <div></div>
+          <dl>
+            <div class="row"><dt>$0</dt><dd>to try in your browser. No key, no account, no spend, before you decide anything.</dd></div>
+            <div class="row"><dt>1</dt><dd>source line cited behind everything it teaches you, so you can always check it.</dd></div>
+            <div class="row"><dt>0</dt><dd>accounts or servers, and no way for anyone, us included, to quietly change your grade.</dd></div>
+          </dl>
+        </div>
+      </section>
+
+      <!-- ─── Any subject ─── -->
+      <section class="sec" id="subjects">
+        <div class="sec-head">
+          <span class="mono">Any subject</span>
+          <div>
+            <h2>Same tutor, anything you study.</h2>
+            <p>A book, a topic, a language, a paper. The way you practice can change; the grade behind it doesn't.</p>
+          </div>
+        </div>
+        <div class="subjects">
+          <div></div>
+          <div class="stack-row">
+            <div class="mini">
+              <p class="k mono">A book</p>
+              <p class="q">Why does Kahneman say confidence is a feeling, not a judgment?</p>
+              <p class="src"><b>Thinking, Fast and Slow</b> · ch. 20</p>
+            </div>
+            <div class="mini">
+              <p class="k mono">A language</p>
+              <p class="q">How do you say "you're right" in Mexican Spanish?</p>
+              <p class="src"><b>tienes razón</b> · native phrasing, matched</p>
+            </div>
+            <div class="mini">
+              <p class="k mono">A paper</p>
+              <p class="q">What does the attention head compute from Q, K, and V?</p>
+              <p class="src"><b>Attention Is All You Need</b> · §3.2.1</p>
             </div>
           </div>
-        </article>
-      </div>
-    </section>
-
-    <!-- ─── The honest math ─── -->
-    <section class="section section--band section--mint" id="numbers" aria-labelledby="num-title">
-      <header class="section__head section__head--center">
-        <p class="eyebrow"><span class="eyebrow__dot eyebrow__dot--mint"></span> The honest math</p>
-        <h2 class="section__title" id="num-title">Mostly, it just tells you the truth.</h2>
-      </header>
-      <dl class="numbers">
-        <div class="bignum">
-          <dd class="bignum__v"><span class="bignum__pre">$</span><span class="count" data-to="0">0</span></dd>
-          <dt class="bignum__k">to try in your browser. No key, no account, no spend, before you decide anything.</dt>
         </div>
-        <div class="bignum">
-          <dd class="bignum__v"><span class="count" data-to="1">1</span></dd>
-          <dt class="bignum__k">source line cited behind everything it teaches you, so you can always check it.</dt>
+      </section>
+
+      <!-- ─── Run it ─── -->
+      <section class="sec" id="run">
+        <div class="sec-head">
+          <span class="mono">Run it</span>
+          <div><h2>Free to try. Yours to run.</h2></div>
         </div>
-        <div class="bignum">
-          <dd class="bignum__v"><span class="count" data-to="0">0</span></dd>
-          <dt class="bignum__k">accounts or servers, and no way for anyone, us included, to quietly change your grade.</dt>
+        <div class="run">
+          <div></div>
+          <div class="cols">
+            <div class="col">
+              <span class="mono">Free</span>
+              <div class="price">$0</div>
+              <ul>
+                <li>The keyless browser demo, no account</li>
+                <li>Open source, runs with bunx</li>
+                <li>Study courses on your own machine</li>
+              </ul>
+              <a class="btn ghost" href="demo/index.html">Try the demo</a>
+            </div>
+            <div class="col">
+              <span class="mono">On your keys</span>
+              <div class="price">$0<small>to us</small></div>
+              <ul>
+                <li>About $1 to build a course, on your Anthropic key</li>
+                <li>Build studio: drop in sources, chat it into shape</li>
+                <li>Voice answers on a speech key</li>
+                <li>No account. Nothing leaves your disk.</li>
+              </ul>
+              <div class="term">$ bunx @waits/recallit start
+$ recallit pack ./notes.pdf
+$ recallit daily   <span class="c"># the right card, when you show up</span></div>
+            </div>
+          </div>
         </div>
-      </dl>
-    </section>
+      </section>
 
-    <!-- ─── Subjects (the "kitchen" cards, honestly) ─── -->
-    <section class="section" id="voices" aria-labelledby="vo-title">
-      <header class="section__head">
-        <p class="eyebrow"><span class="eyebrow__dot eyebrow__dot--cyan"></span> Any subject</p>
-        <h2 class="section__title" id="vo-title">Same tutor, anything you study.</h2>
-        <p class="section__lede">Hand it whatever you're trying to keep in your head — for yourself, or for someone you're teaching. The way you practice can change; the honest grade behind it doesn't.</p>
-      </header>
-      <ul class="voices">
-        <li class="voice" data-accent="mint">
-          <p class="voice__text">"Talk through the ideas, and the shaky ones keep coming back until they stick."</p>
-          <p class="voice__by"><span class="voice__chip"></span><b>A book</b> · Thinking, Fast and Slow</p>
-        </li>
-        <li class="voice" data-accent="cyan">
-          <p class="voice__text">"Drill the dates on the train, then debate the causes on the weekend."</p>
-          <p class="voice__by"><span class="voice__chip"></span><b>A topic</b> · “teach me World War 2”</p>
-        </li>
-        <li class="voice" data-accent="pear">
-          <p class="voice__text">"Rehearse explaining it until you actually can, with the paper's own lines as the check."</p>
-          <p class="voice__by"><span class="voice__chip"></span><b>A paper</b> · Attention Is All You Need</p>
-        </li>
-      </ul>
-    </section>
+      <!-- ─── Final CTA ─── -->
+      <section class="close">
+        <h2>Find out what you actually know.</h2>
+        <p>Run a session in your browser. No key, no account, no spend. The honest grade is the whole point, so try it before anything else.</p>
+        <div class="ctas">
+          <a class="btn primary" href="demo/index.html">Try the demo</a>
+          <a class="btn ghost" href="https://github.com/ryanwaits/recallit">Star on GitHub</a>
+        </div>
+      </section>
 
-    <!-- ─── What it costs (pricing-style, honestly) ─── -->
-    <section class="section section--band" id="pricing" aria-labelledby="price-title">
-      <header class="section__head section__head--center">
-        <p class="eyebrow"><span class="eyebrow__dot eyebrow__dot--pear"></span> What it costs</p>
-        <h2 class="section__title" id="price-title">Free to try. Yours to run.</h2>
-      </header>
-      <div class="plans">
-        <article class="plan">
-          <p class="plan__name">Free</p>
-          <p class="plan__price"><span class="plan__num">$0</span></p>
-          <p class="plan__note">The browser demo and the open-source CLI. Forever.</p>
-          <ul class="plan__list">
-            <li>The keyless demo, no account</li>
-            <li>Open source, runs with bunx</li>
-            <li>Study courses on your own machine</li>
-          </ul>
-          <a class="btn btn--outline btn--mint btn--block" href="demo/index.html" data-burst>Try the demo</a>
-        </article>
-        <article class="plan plan--feature">
-          <span class="plan__badge">No subscription</span>
-          <p class="plan__name">On your keys</p>
-          <p class="plan__price"><span class="plan__num">$0</span><span class="plan__unit">to us</span></p>
-          <p class="plan__note">Build courses and grade on your own keys. You pay the model, never us.</p>
-          <ul class="plan__list">
-            <li>~$1 to build a course (your Anthropic key)</li>
-            <li>The build studio: drop in sources, chat it into shape (clone the repo)</li>
-            <li>Voice answers on a speech key</li>
-            <li>No account, nothing leaves your disk</li>
-          </ul>
-          <a class="btn btn--mint btn--block" href="https://github.com/ryanwaits/recallit#readme" data-burst>Read the quickstart</a>
-        </article>
-      </div>
-    </section>
-
-    <!-- ─── Final CTA ─── -->
-    <section class="section closer" aria-labelledby="closer-title">
-      <h2 class="closer__title" id="closer-title">Find out what you <em>actually</em> know.</h2>
-      <p class="closer__lede">Run a real session in your browser. No key, no account, no spend. The honest grade is the whole point, so try it before anything else.</p>
-      <div class="hero__cta" style="justify-content:center">
-        <a class="btn btn--mint btn--lg" href="demo/index.html" data-burst>Try the demo <span class="btn__arrow" aria-hidden="true">→</span></a>
-        <a class="btn btn--outline btn--lg btn--mint" href="https://github.com/ryanwaits/recallit">★ Star on GitHub</a>
-      </div>
-    </section>
+    </div>
   </main>
 
-  <footer class="footer">
-    <div class="footer__inner">
-      <p class="footer__statement">Describe it, practice it, <em>remember it.</em></p>
-      <div class="footer__meta">
-        <a class="footer__brand" href="#"><span class="rec-mark" aria-hidden="true"></span> recallit</a>
-        <p class="footer__col"><span>Open source</span><span>Runs with bunx</span><span>Runs on your machine</span></p>
-        <p class="footer__col"><a href="https://github.com/ryanwaits/recallit">GitHub</a><a href="https://github.com/ryanwaits/recallit#readme">Docs</a><a href="packs/index.html">Courses</a></p>
-        <p class="footer__col footer__copy">© 2026 recallit<br /><span class="footer__hash">describe · practice · remember</span></p>
-      </div>
-    </div>
+  <footer class="foot">
+    <span class="brand">recallit</span>
+    <span class="links mono">
+      <a href="https://github.com/ryanwaits/recallit">GitHub</a>
+      <a href="https://github.com/ryanwaits/recallit#readme">Docs</a>
+      <a href="packs/index.html">Courses</a>
+    </span>
+    <span class="mono">Describe · Practice · Remember</span>
   </footer>
-
-  <script src="hum.js"></script>
 </body>
 </html>

@@ -6,31 +6,31 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;1,400&family=JetBrains+Mono:wght@400;500&display=swap"
       rel="stylesheet"
     />
     <style>
       :root {
-        --paper: oklch(97.0% 0.012 95);
-        --paper-3: oklch(93.6% 0.016 92);
-        --rule: oklch(88.0% 0.012 95);
-        --rule-2: oklch(82.0% 0.013 95);
-        --muted: oklch(48% 0.012 250);
-        --ink-2: oklch(30% 0.012 250);
-        --ink: oklch(20% 0.012 250);
-        --accent: oklch(80% 0.160 150);
-        --accent-2: oklch(52% 0.130 150);
-        --accent-ink: oklch(22% 0.012 250);
-        --cite-wash: oklch(86% 0.130 150);
-        --cite-edge: oklch(72% 0.160 150);
-        --cite-ink: oklch(26% 0.030 200);
+        --paper: #fbf9f4;
+        --paper-2: #f4f1e9;
+        --paper-3: #ece8dd;
+        --rule: #e4e0d5;
+        --rule-2: #d2cdbf;
+        --muted: #77756e;
+        --ink-2: #3a3a40;
+        --ink: #1b1b1e;
+        --mint: #59e3ac;
+        --mint-pale: #d9f9ec;
+        --mint-deep: #1e7a5c;
+        --serif: 'Spectral', Georgia, serif;
+        --mono: 'JetBrains Mono', ui-monospace, monospace;
       }
       * { box-sizing: border-box; margin: 0; }
       html, body { width: 1200px; height: 630px; }
       body {
         background: var(--paper);
         color: var(--ink);
-        font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+        font-family: var(--serif);
         padding: 76px 80px;
         display: grid;
         grid-template-columns: 1.2fr 0.8fr;
@@ -40,70 +40,64 @@
       }
       .brand {
         grid-column: 1 / 2;
-        display: inline-flex; align-items: center; gap: 14px;
-        font-weight: 700; font-size: 30px; letter-spacing: -0.02em;
-      }
-      .brand .dot {
-        width: 20px; height: 20px; border-radius: 999px;
-        background: var(--accent);
-        box-shadow: 0 0 0 7px color-mix(in oklab, var(--accent) 26%, transparent);
+        font-weight: 500; font-size: 26px; letter-spacing: -0.01em;
       }
       .copy { grid-column: 1 / 2; grid-row: 2 / 3; align-self: center; }
       h1 {
-        font-weight: 800; font-size: 88px; line-height: 1.0;
-        letter-spacing: -0.035em; max-width: 12ch;
+        font-weight: 400; font-size: 62px; line-height: 1.12;
+        letter-spacing: -0.02em; max-width: 13ch;
       }
-      h1 em {
-        font-style: normal;
-        background: linear-gradient(var(--cite-wash), var(--cite-wash)) no-repeat 0 90% / 100% 0.3em;
-      }
+      h1 em { font-style: italic; font-weight: 400; }
       .sub {
-        margin-top: 28px; font-size: 28px; line-height: 1.45;
-        color: var(--ink-2); max-width: 24ch;
+        margin-top: 22px; font-size: 22px; line-height: 1.5;
+        color: var(--ink-2); max-width: 30ch;
       }
       .strip {
         grid-column: 1 / 3; grid-row: 3 / 4; align-self: end;
         display: flex; gap: 18px; align-items: center;
-        font-family: "JetBrains Mono", ui-monospace, monospace;
-        font-size: 18px; letter-spacing: 0.08em; text-transform: uppercase;
+        font-family: var(--mono);
+        font-size: 16px; letter-spacing: 0.08em; text-transform: uppercase;
         color: var(--muted);
         border-top: 1px solid var(--rule); padding-top: 26px;
       }
-      .strip .sep { color: var(--accent-2); }
+      .strip .sep { color: var(--rule-2); }
       .card {
         grid-column: 2 / 3; grid-row: 1 / 3; align-self: center; justify-self: end;
         width: 360px;
         background: var(--paper-3); color: var(--ink);
         border: 1px solid var(--rule-2);
-        border-radius: 22px; padding: 30px;
-        box-shadow: 0 26px 56px -26px oklch(20% 0.01 250 / 0.26);
+        border-radius: 12px; padding: 28px;
+        box-shadow: 0 26px 56px -26px rgba(27, 27, 30, 0.26);
         transform: rotate(2deg);
-        display: flex; flex-direction: column; gap: 14px;
+        display: flex; flex-direction: column; gap: 12px;
       }
       .card .tag {
-        font-family: "JetBrains Mono", monospace; font-size: 15px;
+        font-family: var(--mono); font-size: 13px;
         letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted);
       }
-      .card .a { font-family: "JetBrains Mono", monospace; font-size: 30px; color: var(--ink); }
-      .card .receipt { display: flex; align-items: center; gap: 10px; font-size: 18px; color: var(--ink-2); }
-      .card .check {
-        display: inline-grid; place-items: center; width: 28px; height: 28px;
-        border-radius: 999px; background: var(--accent); color: var(--accent-ink);
-        font-size: 16px; font-weight: 700;
+      .card .a { font-family: var(--mono); font-size: 28px; color: var(--ink); }
+      .card .receipt { display: flex; align-items: center; gap: 10px; font-family: var(--mono); font-size: 14px; color: var(--ink-2); }
+      .card .g {
+        display: inline-flex; align-items: center; gap: 6px;
+        font-family: var(--mono); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase;
+        background: var(--mint-pale); border: 1px solid var(--mint); border-radius: 999px;
+        padding: 3px 10px; color: var(--ink);
       }
+      .card .g::before { content: '\2713'; color: var(--mint-deep); }
       .card .src {
-        margin-top: 4px; padding-top: 16px; border-top: 1px solid var(--rule);
-        font-family: "JetBrains Mono", monospace; font-size: 17px; line-height: 1.5; color: var(--cite-ink);
+        margin-top: 2px; padding-top: 14px; border-top: 1px solid var(--rule);
+        font-family: var(--mono); font-size: 15px; line-height: 1.5; color: var(--muted);
       }
       .card .src .ln { color: var(--muted); margin-right: 8px; }
       .card .src mark {
-        background: var(--cite-wash); border-bottom: 2px solid var(--cite-edge);
-        color: var(--cite-ink); padding: 1px 3px; border-radius: 3px;
+        background: linear-gradient(transparent 55%, var(--mint-pale) 55%);
+        border-bottom: 1.5px solid var(--mint);
+        color: var(--ink); padding: 0 1px;
       }
     </style>
   </head>
   <body>
-    <span class="brand"><span class="dot"></span>recallit</span>
+    <span class="brand">recallit</span>
     <div class="copy">
       <h1>Honest about what you <em>actually know.</em></h1>
       <p class="sub">Describe what you want to learn. Practice it your way. The grade is owned by code, not the model.</p>
@@ -111,14 +105,14 @@
     <div class="card">
       <span class="tag">Your answer</span>
       <span class="a">tienes razón</span>
-      <span class="receipt"><span class="check">✓</span> graded by code, matched your answer</span>
-      <span class="src"><span class="ln">L42</span>…“<mark>tienes razón</mark>, no debí dudar de ti”</span>
+      <span class="receipt"><span class="g">Good</span> matched your answer</span>
+      <span class="src"><span class="ln">L42</span>&hellip;&ldquo;<mark>tienes razón</mark>, no debí dudar de ti&rdquo;</span>
     </div>
     <div class="strip">
       <span>Built on the Claude Agent SDK</span>
-      <span class="sep">·</span>
+      <span class="sep">&middot;</span>
       <span>Spaced repetition</span>
-      <span class="sep">·</span>
+      <span class="sep">&middot;</span>
       <span>Open source</span>
     </div>
   </body>

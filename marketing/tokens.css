@@ -1,61 +1,71 @@
-/* Hallmark · tokens — "Bubble" (hum-07: warm cream · cool ink · mint-green pills · highlighter delight) */
+/* recallit · tokens — "The Reading Room"
+ * paper, ink, one mint mark reserved for the grade.
+ * Source of truth for marketing/index.html + marketing/demo (via styles.css + demo.css).
+ * Pack pages (marketing/packs/*) are a separate, still-Bubble stack (hum-tokens.css + hum.css)
+ * and are unaffected by this file — see DESIGN.md.
+ */
 :root {
-  /* ── colour (OKLCH) ─────────────────────────────────────────── */
-  /* canvas: warm cream paper (Bubble) */
-  --color-paper:      oklch(97.0% 0.012 95);  /* page */
-  --color-paper-2:    oklch(95.2% 0.014 95);  /* faint band */
-  --color-paper-3:    oklch(93.6% 0.016 92);  /* card / inset surface */
-  --color-paper-sunk: oklch(91.6% 0.016 92);  /* well / mockup frame */
-  /* rules / borders */
-  --color-rule:       oklch(88.0% 0.012 95);  /* hairline */
-  --color-rule-2:     oklch(82.0% 0.013 95);  /* prominent border */
-  /* ink scale — cool-tinted near-black (Bubble), never #000 */
-  --color-muted:      oklch(48% 0.012 250);   /* small text, ≥4.5:1 on cream */
-  --color-neutral:    oklch(40% 0.013 250);   /* secondary body */
-  --color-ink-2:      oklch(30% 0.012 250);   /* sub-heads */
-  --color-ink:        oklch(20% 0.012 250);   /* headlines / body */
-  /* on dark surfaces (code, term) */
-  --color-on-ink:     oklch(96% 0.010 95);
-  --color-on-ink-2:   oklch(74% 0.010 250);   /* muted-on-dark ≥4.5:1 */
-  --color-accent-on-ink: oklch(82% 0.160 150);/* green on dark */
-  /* ACCENT: mint / spring green (Bubble) */
-  --color-accent:     oklch(80% 0.160 150);   /* bright green — pill fill */
-  --color-accent-2:   oklch(52% 0.130 150);   /* deep green — text / links / hover */
-  --color-accent-soft: oklch(93% 0.055 150);  /* pale green wash */
-  --color-accent-ink: oklch(22% 0.012 250);   /* dark ink text on a green fill */
-  --color-focus:      oklch(55% 0.150 150);   /* green focus ring, ≥3:1 on cream */
-  /* the cited line — the signature motif, the green highlighter (Bubble's marker delight) */
-  --color-cite-wash:  oklch(86% 0.130 150);   /* green marker swipe */
-  --color-cite-edge:  oklch(72% 0.160 150);   /* green underline */
-  --color-cite-ink:   oklch(26% 0.030 200);   /* the quoted text on the wash */
+  color-scheme: light;
+
+  /* ── paper (warm cream canvas) ─────────────────────────────── */
+  --paper:      #fbf9f4;
+  --paper-2:    #f4f1e9;
+  --paper-3:    #ece8dd;
+  --paper-sunk: #e4e0d5;
+
+  /* ── ink (cool near-black, never pure black) ───────────────── */
+  --ink:    #1b1b1e;
+  --ink-2:  #3a3a40;
+  --muted:  #77756e;
+  --rule:   #e4e0d5;
+  --rule-2: #d2cdbf;
+
+  /* on dark surfaces (terminal, code) */
+  --on-ink:   #fbf9f4;
+  --on-ink-2: #b7b4a8;
+
+  /* fixed terminal surface — a code block reads the same in both themes,
+     it never flips with the page (real terminals don't repaint on OS theme). */
+  --code-bg: #1b1b1e;
+  --code-fg: #fbf9f4;
+
+  /* ── mint — reserved for the grade, nothing else ───────────── */
+  --mint:       #59e3ac;
+  --mint-pale:  #d9f9ec;
+  --mint-deep:  #1e7a5c;
+
+  /* the other two grade tints (hard / again), same restraint */
+  --pear-pale:  #fbf4dc;
+  --pear-deep:  #8a6d1e;
+  --coral-pale: #fbdcdc;
+  --coral-deep: #a33d39;
+
+  --focus: var(--mint-deep);
 
   /* ── type ───────────────────────────────────────────────────── */
-  --font-display: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
-  --font-body:    "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
-  --font-serif:   "Plus Jakarta Sans", ui-sans-serif, sans-serif;  /* emphasis = highlighter, not italic */
-  --font-mono:    "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
-  --display-weight: 700;
+  --serif: "Spectral", Georgia, "Times New Roman", serif;
+  --mono:  "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --sans:  "Inter", ui-sans-serif, system-ui, sans-serif;
 
-  --text-xs:   0.75rem;
-  --text-sm:   0.875rem;
+  --text-xs:   0.8125rem;
+  --text-sm:   0.9375rem;
   --text-base: 1rem;
   --text-md:   1.125rem;
   --text-lg:   1.375rem;
   --text-xl:   1.75rem;
-  --text-2xl:  2.25rem;
-  --text-3xl:  2.75rem;
-  --text-display:   clamp(2.75rem, 5.5vw + 0.5rem, 5rem);
-  --text-display-s: clamp(2rem, 3vw + 0.5rem, 3rem);
+  --text-2xl:  2.125rem;
+  --text-3xl:  clamp(1.875rem, 3.2vw + 0.5rem, 2.75rem);
+  --text-display: clamp(2.375rem, 5vw + 0.5rem, 3.5rem);
 
-  --lh-tight:   1.02;
-  --lh-snug:    1.12;
+  --lh-tight:   1.1;
+  --lh-snug:    1.25;
   --lh-normal:  1.5;
   --lh-relaxed: 1.6;
-  --tracking-display: -0.03em;
-  --tracking-tight:   -0.015em;
-  --tracking-label:    0.10em;
+  --tracking-display: -0.02em;
+  --tracking-tight:   -0.01em;
+  --tracking-label:    0.08em;
 
-  /* ── space (4 pt scale) ─────────────────────────────────────── */
+  /* ── space (4pt scale) ──────────────────────────────────────── */
   --space-3xs: 0.125rem;
   --space-2xs: 0.25rem;
   --space-xs:  0.5rem;
@@ -65,34 +75,74 @@
   --space-xl:  2.5rem;
   --space-2xl: 4rem;
   --space-3xl: 6rem;
-  --space-4xl: 9rem;
-  --section-gap: 6rem;
+  --section-gap: 4rem;
 
-  --page-max:    76rem;
-  --page-gutter: clamp(1.25rem, 4vw, 3rem);
-  --measure:     60ch;
-  --rule-hair:   1px;
-  --rule-fine:   1px;
+  --page-max:    68rem;
+  --page-gutter: clamp(1.25rem, 4vw, 2.5rem);
+  --measure:     62ch;
+  --kicker-col:  180px;
 
-  /* ── shape (bubbly · generous radii) ────────────────────────── */
-  --radius-card:  22px;
-  --radius-pill:  999px;
-  --radius-input: 16px;
-  --radius-chip:  999px;
-  --rule-card:    1px;
-  --shadow-card:  0 1px 3px oklch(20% 0.01 250 / 0.08), 0 12px 32px -18px oklch(20% 0.01 250 / 0.12);
-  --shadow-lift:  0 2px 6px oklch(20% 0.01 250 / 0.10), 0 22px 48px -22px oklch(20% 0.01 250 / 0.18);
+  /* ── shape ──────────────────────────────────────────────────── */
+  --radius-card: 12px;
+  --radius-sm:   8px;
+  --radius-pill: 999px;
+  --shadow-card: 0 1px 2px rgba(27, 27, 30, 0.04), 0 14px 36px -16px rgba(27, 27, 30, 0.18);
 
   /* ── motion ─────────────────────────────────────────────────── */
-  --ease-out:    cubic-bezier(0.16, 1, 0.3, 1);
-  --ease-in:     cubic-bezier(0.7, 0, 0.84, 0);
-  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --dur-micro: 120ms;
   --dur-short: 220ms;
   --dur-long:  420ms;
 
-  /* ── z-index (fixed scale) ──────────────────────────────────── */
   --z-nav: 300;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --paper:      #161614;
+    --paper-2:    #1d1d1a;
+    --paper-3:    #26261f;
+    --paper-sunk: #202019;
+    --ink:    #ebe6da;
+    --ink-2:  #cfcabd;
+    --muted:  #8d8a80;
+    --rule:   #2b2a26;
+    --rule-2: #3a3934;
+    --on-ink:   #161614;
+    --on-ink-2: #6f6c62;
+    --mint:      #1e9382;
+    --mint-pale: #1d4740;
+    --mint-deep: #7de3bf;
+    --pear-pale: #46402a;
+    --pear-deep: #d8bd5a;
+    --coral-pale: #5f2b2a;
+    --coral-deep: #e29490;
+    --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.4), 0 14px 36px -16px rgba(0, 0, 0, 0.7);
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --paper:      #161614;
+  --paper-2:    #1d1d1a;
+  --paper-3:    #26261f;
+  --paper-sunk: #202019;
+  --ink:    #ebe6da;
+  --ink-2:  #cfcabd;
+  --muted:  #8d8a80;
+  --rule:   #2b2a26;
+  --rule-2: #3a3934;
+  --on-ink:   #161614;
+  --on-ink-2: #6f6c62;
+  --mint:      #1e9382;
+  --mint-pale: #1d4740;
+  --mint-deep: #7de3bf;
+  --pear-pale: #46402a;
+  --pear-deep: #d8bd5a;
+  --coral-pale: #5f2b2a;
+  --coral-deep: #e29490;
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.4), 0 14px 36px -16px rgba(0, 0, 0, 0.7);
 }
 
 html { font-optical-sizing: auto; }
