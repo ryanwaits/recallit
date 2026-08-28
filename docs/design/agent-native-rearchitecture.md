@@ -49,6 +49,25 @@ Two of the three independent proposals (a "clean-core `packages/engine`" rebuild
 
 **Everything past here is explicitly conditional, not a roadmap** — this is the correction the critique forced: the first draft of this plan wrote five phases as default work off the back of open questions that were never answered. I'm not doing that here.
 
+## Resolution (2026-08-27)
+
+Phase 0 is done (tool CRUD audit clean, `TOOL_NAMES` auto-derived, `buildPracticePrompt`
+deleted, `cli.ts`'s TutorIO builders consolidated into `cliIO()`). Phase 1 and Phase 2 are
+explicitly **not** happening right now — not deferred-by-neglect, decided:
+
+- **Phase 2** (`recallit mcp serve`, an external driving agent) — declined. The actual "any
+  driving agent" need was already met with zero engine changes: `skills/recallit/SKILL.md`'s
+  CLI-only flow already proves it, and a live-broadcast web app feature (the same shape as
+  Phase 2) was scoped and explicitly declined in `~/.claude/plans/generic-drifting-comet.md`.
+- **Phase 1** (widen `TutorIO` to structured content blocks) — declined for now. No second
+  modality is actually being built; "flexible enough for any modality" stays a design property
+  the current string-based seam already satisfies well enough, not a concrete near-term build.
+  Revisit if and when a real second modality shows up — building the wider shape speculatively,
+  with nothing to validate it against, was the exact failure mode the adversarial critique
+  flagged in the first draft of this plan.
+
+The open questions below are answered by the above; kept for the reasoning trail.
+
 ## Open questions — I need these answered before anything past Phase 0/1
 
 1. **Is a second modality (voice UI beyond today's, a visual review UI) or an external driving agent actually imminent** — something you want built soon — or is this exploratory? This is the single biggest lever on how much of this plan is worth doing at all.
