@@ -28,6 +28,12 @@
       --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
       --mono: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace;
     }
+    /* .wrap and .nav are shared with marketing/demo — override only on this page,
+       to the mockup's exact literal values (52rem column, tighter nav padding). */
+    .wrap { max-width: 52rem; }
+    .nav { padding: 1.1rem clamp(1.25rem, 4vw, 2rem); }
+    .nav .links { gap: 1.75rem; }
+    .nav .links a { font-size: 0.875rem; color: var(--ink-2); }
   </style>
 </head>
 <body>
