@@ -3,6 +3,30 @@
 All notable changes to `@waits/recallit`. Releases before 0.7.0 predate this file — see the
 git tags (`v0.1.1`–`v0.6.0`) for their history.
 
+## 0.9.0 — 2026-08-28
+
+### Breaking
+
+- **The bundled reference web app is gone from this package.** `bunx @waits/recallit start`,
+  `bun run serve`, `bun run serve:local`, and `public/` no longer exist here — they've moved to
+  a new, separate package, [`@waits/recallit-tutor`](https://www.npmjs.com/package/@waits/recallit-tutor)
+  (first release, `0.1.0`), which depends on this engine exactly like any other consumer.
+  If you were using the browser tutor: `bunx @waits/recallit-tutor` replaces
+  `bunx @waits/recallit start`; `cd tutor && bun run serve`/`serve:local` (or install the new
+  package standalone) replaces the old dev scripts. Nothing about the tutor's functionality
+  changed, only where it lives.
+- `recallit start` is removed from the CLI. Everything else (`due`, `answer`, `pack`, `topic`,
+  `agent`, `talk`, `quickstart`, ...) is unchanged.
+
+### Added
+
+- The public API (`src/index.ts`) now exports several primitives that existed internally but
+  were never surfaced: `review.ts`'s turn functions (`presentCard`, `submitResponse`,
+  `revealAnswer`, `gradeTurn`), the full `paths.ts` data-layout module, `coursePhases`, and the
+  `HoldResult`/`GradeCheckpoint` types. These were real gaps — the moved tutor package needed
+  them to consume the engine through its public surface instead of reaching into internal files,
+  and any other "build your own UI" consumer needs them too.
+
 ## 0.8.0 — 2026-08-27
 
 ### Added
