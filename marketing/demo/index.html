@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" data-theme="hum">
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
@@ -8,115 +8,123 @@
       name="description"
       content="Recall a real source in your own words and watch recallit grade it honestly: the rating, the points you covered, and the exact source line. Plus study-and-speak on a voice course. Real recorded output, no keys, no server."
     />
-    <meta name="theme-color" content="#faf6ee" />
+    <meta name="theme-color" content="#fbf9f4" />
     <link rel="icon" href="../favicon.svg" type="image/svg+xml" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;1,400&family=JetBrains+Mono:wght@400;500&family=Inter:wght@400;500&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="../hum-tokens.css" />
-    <link rel="stylesheet" href="../hum.css" />
+    <link rel="stylesheet" href="../tokens.css" />
+    <link rel="stylesheet" href="../styles.css" />
     <link rel="stylesheet" href="demo.css" />
   </head>
   <body>
-    <header class="nav" id="nav">
-      <div class="nav__inner">
-        <a class="nav__brand" href="../index.html"><span class="rec-mark" aria-hidden="true"></span>recallit</a>
-        <nav class="nav__links" aria-label="Primary">
-          <a href="../index.html#stages">The method</a>
-          <a href="../index.html#pricing">Run it</a>
-        </nav>
-      </div>
+    <header class="nav">
+      <a class="brand" href="../index.html">recallit</a>
+      <nav class="links mono" aria-label="Primary">
+        <a href="../index.html#method">The method</a>
+        <a href="../index.html#run">Run it</a>
+      </nav>
     </header>
 
-    <main id="main" class="section demo">
-      <header class="section__head demo__intro">
-        <p class="eyebrow"><span class="eyebrow__dot eyebrow__dot--mint"></span> Real recallit output · no keys, no server</p>
-        <h1 class="section__title">Recall it. Get graded <em>honestly.</em></h1>
-        <p class="section__lede">
-          A real comprehension card from the bundled "learn recallit" course. Answer in your own words;
-          recallit checks each point against the source and grades by rule. Below is the examiner's
-          own judgment, recorded and re-verified by code. No keys.
-        </p>
-      </header>
+    <main id="main">
+      <div class="wrap">
 
-      <!-- Comprehension tutor card -->
-      <section class="tcard" aria-live="polite">
-        <h2 class="tcard__q" data-tq></h2>
-        <div class="tabs" role="tablist" aria-label="Example answers">
-          <button class="tab is-active" type="button" data-ans="0"></button>
-          <button class="tab" type="button" data-ans="1"></button>
-        </div>
-        <p class="tcard__answer">“<span data-tanswer></span>”</p>
-        <div class="grade" data-tgrade>
-          <span class="grade__rating" data-trating></span>
-          <span class="grade__why" data-treceipt></span>
-        </div>
-        <ul class="checks" data-tchecks aria-label="How each source point was covered"></ul>
-        <p class="tcard__note" data-tnote></p>
-      </section>
-
-      <!-- And it does language, out loud -->
-      <header class="section__head demo__split">
-        <p class="eyebrow"><span class="eyebrow__dot eyebrow__dot--cyan"></span> And it does language</p>
-        <h2 class="section__title">Out loud, too.</h2>
-        <p class="section__lede">
-          The same engine on a voice course: recall the phrase, hear a native voice, and watch the
-          grade and the schedule it would set. Real baked output from the Mexican-Spanish course.
-        </p>
-      </header>
-
-      <section class="player">
-        <div
-          class="flip demo__card"
-          tabindex="0"
-          role="button"
-          aria-pressed="false"
-          aria-label="Flashcard. Recall the Spanish, then activate to reveal it."
-        >
-          <div class="flip__inner">
-            <div class="flip__face flip__face--front">
-              <span class="flip__hint">Recall the Spanish</span>
-              <span class="flip__en" data-prompt></span>
-              <span class="flip__hint">Tap to reveal ↻</span>
-            </div>
-            <div class="flip__face flip__face--back">
-              <span class="flip__hint">Answer</span>
-              <span class="flip__es" data-answer></span>
-              <span class="demo__ctx" data-context hidden></span>
-              <button class="btn btn--mint btn--sm demo__audio" type="button" data-audio-btn>
-                <span aria-hidden="true">►</span> Hear it
-              </button>
+        <section class="sec">
+          <div class="sec-head">
+            <span class="mono">Real recallit output · no keys, no server</span>
+            <div>
+              <h1>Recall it. Get graded <em>honestly.</em></h1>
+              <p>
+                A real comprehension card from the bundled "learn recallit" course. Answer in your own words;
+                recallit checks each point against the source and grades by rule. Below is the examiner's
+                own judgment, recorded and re-verified by code. No keys.
+              </p>
             </div>
           </div>
-        </div>
 
-        <div class="readout" data-readout>
-          <p class="eyebrow"><span class="eyebrow__dot eyebrow__dot--mint"></span> Example answer</p>
-          <p class="readout__typed">“<span data-typed></span>”</p>
-          <div class="grade" data-grade>
-            <span class="grade__rating" data-rating></span>
-            <span class="grade__why" data-why></span>
+          <!-- Comprehension tutor card -->
+          <section class="tcard" aria-live="polite">
+            <h2 class="tcard__q" data-tq></h2>
+            <div class="tabs" role="tablist" aria-label="Example answers">
+              <button class="tab is-active" type="button" data-ans="0"></button>
+              <button class="tab" type="button" data-ans="1"></button>
+            </div>
+            <p class="tcard__answer">&ldquo;<span data-tanswer></span>&rdquo;</p>
+            <div class="grade" data-tgrade>
+              <span class="grade__rating" data-trating></span>
+              <span class="grade__why" data-treceipt></span>
+            </div>
+            <ul class="checks" data-tchecks aria-label="How each source point was covered"></ul>
+            <p class="tcard__note" data-tnote></p>
+          </section>
+        </section>
+
+        <section class="sec">
+          <div class="sec-head">
+            <span class="mono">And it does language</span>
+            <div>
+              <h2>Out loud, too.</h2>
+              <p>
+                The same engine on a voice course: recall the phrase, hear a native voice, and watch the
+                grade and the schedule it would set. Real baked output from the Mexican-Spanish course.
+              </p>
+            </div>
           </div>
-          <p class="readout__next">Comes back in <strong data-next></strong></p>
-          <ul class="sched" data-sched aria-label="Next interval recallit would schedule for each answer">
-            <li data-sched-row="Again"><span class="sched__k">Again</span><span class="sched__v"></span></li>
-            <li data-sched-row="Hard"><span class="sched__k">Hard</span><span class="sched__v"></span></li>
-            <li data-sched-row="Good"><span class="sched__k">Good</span><span class="sched__v"></span></li>
-            <li data-sched-row="Easy"><span class="sched__k">Easy</span><span class="sched__v"></span></li>
-          </ul>
-        </div>
 
-        <nav class="player__nav" aria-label="Cards">
-          <button class="btn btn--outline btn--mint btn--sm" type="button" data-prev>← Prev</button>
-          <span class="player__count" data-count></span>
-          <button class="btn btn--outline btn--mint btn--sm" type="button" data-next>Next →</button>
-        </nav>
-      </section>
+          <section class="player">
+            <div
+              class="flip demo__card"
+              tabindex="0"
+              role="button"
+              aria-pressed="false"
+              aria-label="Flashcard. Recall the Spanish, then activate to reveal it."
+            >
+              <div class="flip__inner">
+                <div class="flip__face flip__face--front">
+                  <span class="flip__hint mono">Recall the Spanish</span>
+                  <span class="flip__en" data-prompt></span>
+                  <span class="flip__hint mono">Tap to reveal &#8635;</span>
+                </div>
+                <div class="flip__face flip__face--back">
+                  <span class="flip__hint mono">Answer</span>
+                  <span class="flip__es" data-answer></span>
+                  <span class="demo__ctx" data-context hidden></span>
+                  <button class="btn ghost sm demo__audio" type="button" data-audio-btn>
+                    <span aria-hidden="true">&#9658;</span> Hear it
+                  </button>
+                </div>
+              </div>
+            </div>
 
-      <p class="demo__provenance" data-provenance></p>
+            <div class="readout" data-readout>
+              <p class="mono">Example answer</p>
+              <p class="readout__typed">&ldquo;<span data-typed></span>&rdquo;</p>
+              <div class="grade" data-grade>
+                <span class="grade__rating" data-rating></span>
+                <span class="grade__why" data-why></span>
+              </div>
+              <p class="readout__next">Comes back in <strong data-next></strong></p>
+              <ul class="sched" data-sched aria-label="Next interval recallit would schedule for each answer">
+                <li data-sched-row="Again"><span class="sched__k">Again</span><span class="sched__v"></span></li>
+                <li data-sched-row="Hard"><span class="sched__k">Hard</span><span class="sched__v"></span></li>
+                <li data-sched-row="Good"><span class="sched__k">Good</span><span class="sched__v"></span></li>
+                <li data-sched-row="Easy"><span class="sched__k">Easy</span><span class="sched__v"></span></li>
+              </ul>
+            </div>
+
+            <nav class="player__nav" aria-label="Cards">
+              <button class="btn ghost sm" type="button" data-prev>&larr; Prev</button>
+              <span class="player__count mono" data-count></span>
+              <button class="btn ghost sm" type="button" data-next>Next &rarr;</button>
+            </nav>
+          </section>
+        </section>
+
+        <p class="fine demo__provenance" data-provenance></p>
+      </div>
     </main>
 
     <script src="tutor.js"></script>
@@ -209,12 +217,12 @@
           $("[data-tgrade]").className = `grade ${ratingClass[a.rating] ?? ""}`;
           $("[data-tchecks]").innerHTML = a.checkpoints
             .map((cp) => {
-              const mark = cp.hit ? "✓" : "✗";
+              const mark = cp.hit ? "&#10003;" : "&#10005;";
               const cls = cp.hit ? "hit" : "miss";
               const cite = cp.hit
-                ? `cites: “<span class="hl">${cp.sourceQuote}</span>”`
-                : `not covered · source: “${cp.sourceQuote}”`;
-              const tag = cp.required ? "" : ` <span class="check__opt">(bonus)</span>`;
+                ? `cites: &ldquo;<mark>${cp.sourceQuote}</mark>&rdquo;`
+                : `not covered · source: &ldquo;${cp.sourceQuote}&rdquo;`;
+              const tag = cp.required ? "" : ` <span class="check__opt mono">(bonus)</span>`;
               return `<li class="check ${cls}"><span class="check__mark">${mark}</span><span><span class="check__claim">${cp.claim}</span>${tag}<br><span class="check__cite">${cite}</span></span></li>`;
             })
             .join("");
@@ -222,6 +230,5 @@
         renderTutor(0);
       }
     </script>
-    <script src="../hum.js"></script>
   </body>
 </html>
