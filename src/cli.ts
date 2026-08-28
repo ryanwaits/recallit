@@ -14,7 +14,6 @@ import { resolveMode } from "./packgen/mode.ts";
 import { contextFile } from "./paths.ts";
 import { dayKey } from "./progress.ts";
 import { previewSchedule } from "./scheduler.ts";
-import { start } from "./start.ts";
 import {
   createCard,
   deleteCard,
@@ -116,7 +115,6 @@ async function githubSlug(): Promise<string | null> {
 
 const USAGE = `recallit <command>
 
-start                                           (one command: seed a starter pack, open the SPA, start studying — keyless by default)
 topic create <id> --name <n> [--modality text|voice|both] [--goal <metric>]
 topic add <source> [--no-activate] [--force] [--no-audio]   (install a topic pack;
             source = dir | github:owner/repo[#ref] | git+<url> | npm:<spec> | <pack>.tgz)
@@ -152,11 +150,6 @@ async function main(argv: string[]): Promise<void> {
   const { flags: f, pos } = parseArgs(argv.slice(1));
 
   switch (group) {
-    case "start": {
-      await start();
-      break;
-    }
-
     case "course": // alias: a "course" is the container (today's "topic")
     case "topic": {
       const sub = pos[0];

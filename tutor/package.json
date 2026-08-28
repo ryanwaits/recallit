@@ -1,0 +1,51 @@
+{
+  "name": "@waits/recallit-tutor",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "recallit's reference tutor: a keyless browser SPA + voice review server built on @waits/recallit, proving the engine's headless surface by using it like any other consumer would.",
+  "license": "MIT",
+  "author": "Ryan Waits",
+  "homepage": "https://github.com/ryanwaits/recallit#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ryanwaits/recallit.git",
+    "directory": "tutor"
+  },
+  "bugs": {
+    "url": "https://github.com/ryanwaits/recallit/issues"
+  },
+  "keywords": [
+    "spaced-repetition",
+    "recall",
+    "bun",
+    "reference-app"
+  ],
+  "//runtime": "Bun-only, same as @waits/recallit.",
+  "bin": {
+    "recallit-tutor": "src/start.ts"
+  },
+  "files": [
+    "src",
+    "public"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "bun test",
+    "lint": "biome check src",
+    "lint:fix": "biome check --write src",
+    "start": "bun run src/start.ts",
+    "serve": "bun run src/server.ts",
+    "serve:local": "bun run src/serve-local.ts"
+  },
+  "dependencies": {
+    "@waits/recallit": "file:.."
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.2.0",
+    "@types/bun": "^1.2.0",
+    "typescript": "^5.7.0"
+  }
+}

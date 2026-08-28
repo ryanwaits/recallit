@@ -5,22 +5,25 @@
 // `run` is injectable: defaults to the live agent loop (runSession); tests inject a
 // scripted driver so the WS/audio/turn wiring is verifiable without the LLM.
 import { join } from "node:path";
-import type { ServerWebSocket } from "bun";
 import {
   type AnswerProvider,
+  buildTutorSession,
+  cardAttemptFile,
+  countCards,
+  coursePhases,
   type createReviewSession,
+  getActiveTopic,
+  getProgress,
+  installPack,
+  listTopics,
+  type RecallCard,
   type RunResult,
+  readTopicConfig,
   runSession,
-} from "./agent.ts";
-import { coursePhases } from "./context.ts";
-import { countCards } from "./db.ts";
-import { installPack } from "./install.ts";
-import { cardAttemptFile } from "./paths.ts";
-import { getProgress } from "./progress.ts";
-import { updateCard } from "./store.ts";
-import { getActiveTopic, listTopics, readTopicConfig } from "./topic.ts";
-import { buildTutorSession, type TutorIO } from "./tutor.ts";
-import type { RecallCard } from "./types.ts";
+  type TutorIO,
+  updateCard,
+} from "@waits/recallit";
+import type { ServerWebSocket } from "bun";
 import type { SttProvider, TtsProvider } from "./voice/types.ts";
 
 interface VoiceConn {

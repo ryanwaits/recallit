@@ -17,6 +17,7 @@ export {
   appendContextNote,
   buildDailySessionPrompt,
   buildSystemPrompt,
+  coursePhases,
   dailyPhases,
   gatherFacts,
 } from "./context.ts";
@@ -57,12 +58,30 @@ export type { CardVerdict, GateResult, WriteVerdict } from "./packgen/gate.ts";
 export { gateCards, writePack } from "./packgen/gate.ts";
 export type { Mode, ModeResolution, ModeSignal } from "./packgen/mode.ts";
 export { resolveMode } from "./packgen/mode.ts";
+export {
+  cardAttemptFile,
+  cardDir,
+  cardFile,
+  cardsDir,
+  contextFile,
+  dataRoot,
+  indexFile,
+  reviewLogFile,
+  scenariosDir,
+  sessionFile,
+  sessionsDir,
+  topicConfigFile,
+  topicDir,
+  topicsDir,
+  userFile,
+} from "./paths.ts";
 export type { Progress } from "./progress.ts";
 export { dayKey, getProgress, markActive, reviewedToday } from "./progress.ts";
 export type { QualityResult } from "./quality.ts";
 export { checkCardQuality } from "./quality.ts";
 export type { ResolvedSource, SourceDescriptor } from "./resolve.ts";
 export { parseSource, resolvePackSource } from "./resolve.ts";
+export { gradeTurn, presentCard, revealAnswer, submitResponse } from "./review.ts";
 export { getScheduler, gradeCard, previewSchedule, toGrade } from "./scheduler.ts";
 export {
   createCard,
@@ -105,6 +124,8 @@ export type {
   EvalResult,
   FsrsCard,
   Grade,
+  GradeCheckpoint,
+  HoldResult,
   Modality,
   NewCardInput,
   RecallCard,

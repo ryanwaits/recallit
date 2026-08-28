@@ -5,13 +5,22 @@ import { afterAll, beforeAll, describe, expect, test } from "bun:test";
 import { mkdtemp, readdir, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import type { ReviewSession, RunResult } from "../src/agent.ts";
-import { getDueCardIds } from "../src/db.ts";
-import { cardAttemptFile, cardDir } from "../src/paths.ts";
-import { gradeTurn, presentCard, revealAnswer, submitResponse } from "../src/review.ts";
+import {
+  cardAttemptFile,
+  cardDir,
+  createCard,
+  createTopic,
+  getCard,
+  getDueCardIds,
+  gradeTurn,
+  presentCard,
+  revealAnswer,
+  type ReviewSession,
+  type RunResult,
+  setActiveTopic,
+  submitResponse,
+} from "@waits/recallit";
 import { regenerateCardAudio, startServer } from "../src/server.ts";
-import { createCard, getCard } from "../src/store.ts";
-import { createTopic, setActiveTopic } from "../src/topic.ts";
 import { mockStt, mockTts } from "../src/voice/mock.ts";
 import type { SttProvider, TtsProvider } from "../src/voice/types.ts";
 

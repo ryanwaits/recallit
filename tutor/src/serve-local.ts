@@ -4,11 +4,14 @@
 // and grades typed answers with the real engine — no LLM, no spend. It walks the
 // topic's phases so the phase rail advances live. Spoken answers won't transcribe
 // here (STT is stubbed); type your answers to see grading.
-import { coursePhases } from "./context.ts";
-import { evaluateAnswer } from "./evaluate.ts";
+import {
+  coursePhases,
+  evaluateAnswer,
+  getDueCards,
+  readTopicConfig,
+  reviewCard,
+} from "@waits/recallit";
 import { startServer } from "./server.ts";
-import { getDueCards, reviewCard } from "./store.ts";
-import { readTopicConfig } from "./topic.ts";
 
 // biome-ignore lint/suspicious/noExplicitAny: dev stubs for the voice providers.
 const stt = { transcribe: async () => "" } as any;

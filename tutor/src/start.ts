@@ -3,10 +3,9 @@
 // default (real cards, real grading, zero spend); paste an Anthropic key to get
 // the live AI tutor instead.
 import { join } from "node:path";
-import { installPack } from "./install.ts";
+import { installPack, listTopics } from "@waits/recallit";
 import { startKeylessServer } from "./serve-local.ts";
 import { startServer } from "./server.ts";
-import { listTopics } from "./topic.ts";
 
 const STARTER_PACK = join(import.meta.dir, "..", "packs", "spanish-mx-rgv");
 
