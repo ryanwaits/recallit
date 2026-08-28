@@ -11,6 +11,13 @@ import {
   type RubricCheckpoint,
 } from "../src/graders/coverage.ts";
 import { gradeResponse } from "../src/graders/registry.ts";
+import type { EvalResult } from "../src/types.ts";
+
+// The floor grader (examiner off, below) never holds — narrow away HoldResult.
+function expectRated(result: EvalResult | { hold: true; reason: string }): EvalResult {
+  if ("hold" in result) throw new Error(`unexpected hold: ${result.reason}`);
+  return result;
+}
 
 // Each spike answer reduced to its (human) coverage vector. `expect` is what the
 // VALIDATED rule produces — which matched the human gold on 10/11. The one
@@ -164,11 +171,13 @@ describe("coverage grader (model-free floor, via the registry)", () => {
   });
 
   test("end-to-end dispatch: meta.grader=coverage routes through the registry (floor, examiner off)", async () => {
-    expect((await gradeResponse(card(rubric), "sky is blue and grass is green")).rating).toBe(
-      "Good",
-    );
-    expect((await gradeResponse(card(rubric), "the sky is blue today")).rating).toBe("Hard"); // 1/2 = 50%
-    expect((await gradeResponse(card(rubric), "i have no idea")).rating).toBe("Again");
+    expect(
+      expectRated(await gradeResponse(card(rubric), "sky is blue and grass is green")).rating,
+    ).toBe("Good");
+    expect(expectRated(await gradeResponse(card(rubric), "the sky is blue today")).rating).toBe(
+      "Hard",
+    ); // 1/2 = 50%
+    expect(expectRated(await gradeResponse(card(rubric), "i have no idea")).rating).toBe("Again");
   });
 
   test("a coverage card with no rubric fails closed", async () => {

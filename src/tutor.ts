@@ -37,6 +37,9 @@ export interface TutorIO {
   onCardContentChanged?: (card: RecallCard) => Promise<void>;
   /** A card was graded — surface the code-owned rating + receipt to the learner. */
   onGraded?: (cardId: string, grade: { rating: string; reasons: string[] }) => void;
+  /** A grader couldn't confidently rate an answer (a HOLD, not an error) — surface an
+   *  honest "couldn't check this one" state. The turn stays retryable. */
+  onHeld?: (cardId: string, reason: string) => void;
 }
 
 /** Build a ReviewSession wired to a TutorIO. The single place the I/O seam maps onto
@@ -50,6 +53,7 @@ export function buildTutorSession(
   session.converseProvider = io.converseProvider;
   session.onCardContentChanged = io.onCardContentChanged;
   session.onGraded = io.onGraded;
+  session.onHeld = io.onHeld;
   return session;
 }
 

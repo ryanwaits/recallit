@@ -5,6 +5,13 @@ import { describe, expect, test } from "bun:test";
 import { newCard } from "../src/card.ts";
 import { evaluateAnswer } from "../src/evaluate.ts";
 import { gradeResponse, graderName, registerGrader } from "../src/graders/registry.ts";
+import type { EvalResult } from "../src/types.ts";
+
+// These graders never hold — narrow away HoldResult.
+function expectRated(result: EvalResult | { hold: true; reason: string }): EvalResult {
+  if ("hold" in result) throw new Error(`unexpected hold: ${result.reason}`);
+  return result;
+}
 
 // (response, back) pairs spanning every rating band the lexical grader produces.
 const CASES: [string, string][] = [
@@ -41,9 +48,9 @@ describe("grader registry (Phase 0 — inert seam)", () => {
   test("registerGrader dispatches to a newly registered deterministic grader", async () => {
     registerGrader("always-good", () => ({ rating: "Good", score: 1, reasons: ["test"] }));
     const card = newCard({ front: "cue", back: "house", meta: { grader: "always-good" } });
-    expect((await gradeResponse(card, "anything")).rating).toBe("Good");
+    expect(expectRated(await gradeResponse(card, "anything")).rating).toBe("Good");
     // A different card still defaults to lexical — registration is additive.
     const plain = newCard({ front: "cue", back: "house" });
-    expect((await gradeResponse(plain, "house")).rating).toBe("Easy");
+    expect(expectRated(await gradeResponse(plain, "house")).rating).toBe("Easy");
   });
 });

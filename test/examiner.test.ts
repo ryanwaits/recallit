@@ -12,6 +12,14 @@ import {
   recountExaminer,
   resolveExaminerProvider,
 } from "../src/graders/examiner.ts";
+import type { EvalResult } from "../src/types.ts";
+
+// Deterministic-floor calls in this file never hold — narrow away the HoldResult
+// branch so assertions can read .rating without the type escaping.
+function expectRated(result: EvalResult | { hold: true; reason: string }): EvalResult {
+  if ("hold" in result) throw new Error(`unexpected hold: ${result.reason}`);
+  return result;
+}
 
 const rubric: RubricCheckpoint[] = [
   { id: "a", claim: "sky is blue", required: true },
@@ -151,14 +159,27 @@ describe("examinerCoverageGrader — keyless environments degrade, never crash",
   const card = newCard({ front: "explain", back: "n/a", meta: { rubric } });
 
   test("no provider at all -> falls back to the deterministic floor, no throw", async () => {
-    const result = await examinerCoverageGrader(card, "sky is blue and grass is green");
+    const result = expectRated(
+      await examinerCoverageGrader(card, "sky is blue and grass is green"),
+    );
     expect(result.rating).toBe("Good"); // floor: both required claims present verbatim
   });
 
   test("a blank/whitespace key is treated the same as no key", async () => {
     process.env.ANTHROPIC_API_KEY = "   ";
-    const result = await examinerCoverageGrader(card, "i have no idea");
+    const result = expectRated(await examinerCoverageGrader(card, "i have no idea"));
     expect(result.rating).toBe("Again"); // floor: 0/2 required
+  });
+
+  test("a configured but unreachable examiner HOLDS instead of throwing", async () => {
+    // A malformed base URL fails synchronously, no real network call — the
+    // transport failure inside examineAnswer's try/catch returns null, and the
+    // grader HOLDS (never a rating it isn't confident in, never a throw).
+    process.env.RECALLIT_EXAMINER_URL = "not a valid url";
+    process.env.RECALLIT_EXAMINER_MODEL = "test-model";
+    const result = await examinerCoverageGrader(card, "sky is blue and grass is green");
+    expect("hold" in result && result.hold).toBe(true);
+    if ("hold" in result) expect(result.reason).toMatch(/no confident judgment/);
   });
 });
 

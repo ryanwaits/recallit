@@ -136,6 +136,8 @@
       .msg.graded.rated-hard strong { color: var(--pear-deep); }
       .msg.graded.rated-again { background: var(--coral-pale); border-color: var(--coral-deep); }
       .msg.graded.rated-again strong { color: var(--coral-deep); }
+      .msg.held { align-self: center; background: var(--paper-3); border: 1px solid var(--rule); color: var(--ink-2); font-size: 0.9rem; border-radius: 14px; }
+      .msg.held strong { font-weight: 700; }
       .msg.note { align-self: center; color: var(--muted); font: 600 11px var(--mono); letter-spacing: 0.05em; text-transform: uppercase; }
       .msg code { font-family: var(--mono); font-size: 0.92em; }
       .ov__bottom { display: grid; justify-items: center; gap: 0.6rem; padding: 0.75rem 1.25rem calc(1.5rem + env(safe-area-inset-bottom)); }
@@ -349,6 +351,7 @@
           else if (m.type === "phases") { phases = m.phases || []; phaseIdx = 0; renderRail(); }
           else if (m.type === "phase") { const i = phases.indexOf(m.phase); phaseIdx = i >= 0 ? i + 1 : phaseIdx + 1; renderRail(); }
           else if (m.type === "graded") { forgetCaptions(); add("Graded **" + m.rating + "**" + ((m.reasons && m.reasons[0]) ? " — " + m.reasons[0] : ""), "graded rated-" + String(m.rating || "").toLowerCase()); }
+          else if (m.type === "held") { forgetCaptions(); add("**Not grading this one** — couldn't check it against the source. Try again, or move on; it stays due." + (m.reason ? "  (" + m.reason + ")" : ""), "held"); }
           else if (m.type === "caption") { pendingCaptions.push({ el: add(m.text), text: m.text }); }
           else if (m.type === "done") { forgetCaptions(); add("✅ Session complete. " + (m.summary || ""), "prompt"); talk.disabled = true; phaseIdx = phases.length; renderRail(); }
           else if (m.type === "error") { forgetCaptions(); add("⚠️ " + m.text, "note"); }

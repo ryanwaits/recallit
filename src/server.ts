@@ -319,6 +319,8 @@ export function startServer(deps: ServerDeps) {
             regenerateCardAudio(ws.data.topicId, card, deps.tts, ws.data.voiceId),
           // Surface the engine's grade + receipt (coverage breakdown) to the client.
           onGraded: (cardId, grade) => send(ws, { type: "graded", cardId, ...grade }),
+          // A grader couldn't confidently rate this one — honest hold, not an error.
+          onHeld: (cardId, reason) => send(ws, { type: "held", cardId, reason }),
           // Card-less spoken turns for the roleplay phase.
           converseProvider: makeConverseProvider(ws, deps.tts),
         };

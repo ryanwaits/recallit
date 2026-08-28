@@ -458,6 +458,10 @@ async function main(argv: string[]): Promise<void> {
         break;
       }
       const verdict = await gradeResponse(card, answer);
+      if ("hold" in verdict) {
+        console.log(`answer="${answer}" -> HELD: ${verdict.reason} (not graded; try again)`);
+        break;
+      }
       const outcome = await reviewCard(topic, cardId, verdict.rating);
       console.log(`answer="${answer}" -> ${verdict.rating} (${verdict.reasons.join("; ")})`);
       if (outcome) console.log(`next due ${outcome.card.fsrs.due.toISOString()}`);

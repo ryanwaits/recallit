@@ -4,7 +4,7 @@
 // through these methods but cannot skip the response step, and the rating is
 // always the engine-computed one — the agent never picks it.
 import { gradeResponse } from "./graders/registry.ts";
-import type { EvalResult, RecallCard } from "./types.ts";
+import type { EvalResult, HoldResult, RecallCard } from "./types.ts";
 
 export type TurnPhase = "presented" | "responded" | "revealed" | "graded";
 
@@ -26,11 +26,14 @@ export class TurnTracker {
   }
 
   /** Record the learner's response and compute the rating (code-owned). Async
-   * because a grader may call the model (the examiner); the gating is unchanged. */
-  async respond(card: RecallCard, response: string): Promise<EvalResult> {
+   * because a grader may call the model (the examiner); the gating is unchanged.
+   * A grader may also HOLD (no confident rating) — the turn is left completely
+   * untouched (still "presented"), so the same card can be retried. */
+  async respond(card: RecallCard, response: string): Promise<EvalResult | HoldResult> {
     const turn = this.require(card.id, ["presented", "responded"], "respond");
     // Dispatch by card.meta.grader; absent => lexical = today's evaluateAnswer.
     const evaluation = await gradeResponse(card, response);
+    if ("hold" in evaluation) return evaluation;
     turn.response = response;
     turn.evaluation = evaluation;
     turn.phase = "responded";

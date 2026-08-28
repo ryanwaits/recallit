@@ -77,6 +77,12 @@ export interface ReviewSession {
    * receipt (e.g. the coverage breakdown for a checkable item) to the learner.
    */
   onGraded?: (cardId: string, grade: { rating: string; reasons: string[] }) => void;
+  /**
+   * Fired when a grader can't confidently rate an answer (a HOLD, not an error) —
+   * so the host can show an honest "couldn't check this one" state instead of
+   * nothing. The turn stays retryable; no rating was invented.
+   */
+  onHeld?: (cardId: string, reason: string) => void;
 }
 
 export function createReviewSession(
@@ -155,7 +161,15 @@ function buildServer(
           return ok({ ended: true, note: "learner ended the session; call complete_session" });
         }
         try {
-          await submitResponse(t, session.tracker, args.card_id, answer);
+          const result = await submitResponse(t, session.tracker, args.card_id, answer);
+          if ("hold" in result) {
+            session.onHeld?.(args.card_id, result.reason);
+            return ok({
+              held: true,
+              reason: result.reason,
+              note: "not confidently gradeable — you may ask the learner to try again, or move on to another due card via get_due_cards; this one stays due",
+            });
+          }
           return ok({ answer });
         } catch (e) {
           return fail(String(e instanceof Error ? e.message : e));

@@ -4,7 +4,7 @@
 import { getCard, reviewCard } from "./store.ts";
 import type { TurnTracker } from "./turn.ts";
 import { TurnError } from "./turn.ts";
-import type { EvalResult } from "./types.ts";
+import type { EvalResult, HoldResult } from "./types.ts";
 
 async function load(topicId: string, cardId: string) {
   const card = await getCard(topicId, cardId);
@@ -20,14 +20,17 @@ export async function presentCard(
   return tracker.present(await load(topicId, cardId));
 }
 
-/** Record the response; returns nothing revealing (caller must call reveal next). */
+/** Record the response; returns nothing revealing (caller must call reveal next).
+ *  A HoldResult means the grader couldn't confidently rate it — not an error, the
+ *  turn is left retryable and the caller should surface this honestly, not grade. */
 export async function submitResponse(
   topicId: string,
   tracker: TurnTracker,
   cardId: string,
   answer: string,
-): Promise<{ recorded: true }> {
-  await tracker.respond(await load(topicId, cardId), answer);
+): Promise<{ recorded: true } | HoldResult> {
+  const result = await tracker.respond(await load(topicId, cardId), answer);
+  if ("hold" in result) return result;
   return { recorded: true };
 }
 

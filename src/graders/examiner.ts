@@ -11,7 +11,7 @@ import { anthropic } from "@ai-sdk/anthropic";
 import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
 import { generateText, type LanguageModel, Output } from "ai";
 import { z } from "zod";
-import type { EvalResult, RecallCard } from "../types.ts";
+import type { EvalResult, HoldResult, RecallCard } from "../types.ts";
 import {
   type CoverageVector,
   checkCoverage,
@@ -209,12 +209,13 @@ export const examinerEnabled = (): boolean => process.env.RECALLIT_EXAMINER !== 
  * floor instead (near-verbatim only — see the doc) — a missing provider is an
  * environment fact, not an unconfident judgment, so it degrades quietly rather
  * than holding. If the examiner DOES run but can't produce a confident
- * judgment, that still THROWS rather than silently mis-grade (HOLD).
+ * judgment, it HOLDS (returns, never throws) rather than silently mis-grade —
+ * the caller (turn.ts) leaves the turn retryable instead of erroring the session.
  */
 export async function examinerCoverageGrader(
   card: RecallCard,
   response: string,
-): Promise<EvalResult> {
+): Promise<EvalResult | HoldResult> {
   const rubric = card.meta?.rubric as RubricCheckpoint[] | undefined;
   if (!rubric || rubric.length === 0) {
     throw new Error(`coverage grader: card ${card.id} has no meta.rubric`);
@@ -222,7 +223,7 @@ export async function examinerCoverageGrader(
   if (examinerEnabled() && resolveExaminerProvider() !== null) {
     const judgments = await examineAnswer({ front: card.front, rubric, answer: response });
     if (!judgments) {
-      throw new Error(`examiner held on card ${card.id}: no confident judgment (not graded)`);
+      return { hold: true, reason: "no confident judgment from the examiner" };
     }
     return recountExaminer(rubric, response, judgments).result;
   }

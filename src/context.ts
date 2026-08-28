@@ -81,6 +81,9 @@ export function buildSystemPrompt(facts: SessionFacts): string {
     "2. present_card — get the FRONT. You may narrate the question, but never reveal the back.",
     "3. await_user_response — call this IMMEDIATELY after present_card; it returns the answer.",
     "   (If it returns {ended:true}, call complete_session and stop.)",
+    "   (If it returns {held:true, reason}, the engine could not confidently grade this answer —",
+    "   NOT an error. Tell the learner honestly you couldn't check that one, then either ask them",
+    "   to try again (back to step 3) or move on to another due card. Never invent a rating for it.)",
     "4. reveal_answer — see the back and the engine-computed rating.",
     "5. grade_card — record it and reschedule, then give one short line of feedback.",
     "6. Return to step 2 for the next due card. When none remain, call complete_session.",
@@ -89,6 +92,7 @@ export function buildSystemPrompt(facts: SessionFacts): string {
     "- After present_card, your very next tool call MUST be await_user_response — never pause.",
     "- Never reveal a card's answer before await_user_response returns.",
     "- Never invent or override the rating; grade_card uses the engine's computed rating.",
+    "- A {held:true} result is the engine declining to guess — be honest about it, never grade around it.",
     "- Keep narration concise and motivating; orient feedback around the goal metric.",
   ];
   return staticLines.join("\n") + PROMPT_CACHE_BOUNDARY + dynamicFacts(facts).join("\n");

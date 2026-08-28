@@ -9,12 +9,17 @@
 // "the agent decides". New deterministic tiers (coverage, ordered) register here;
 // see docs/design/tutor-multimodal.md.
 import { evaluateAnswer } from "../evaluate.ts";
-import type { EvalResult, RecallCard } from "../types.ts";
+import type { EvalResult, HoldResult, RecallCard } from "../types.ts";
 import { examinerCoverageGrader } from "./examiner.ts";
 
 // A grader may be sync (lexical) or async (the examiner calls the model). The
-// RATING is always code-owned regardless. gradeResponse awaits either.
-export type Grader = (card: RecallCard, response: string) => EvalResult | Promise<EvalResult>;
+// RATING is always code-owned regardless. gradeResponse awaits either. A grader may
+// also HOLD (decline to rate — never a rating it isn't confident in); only the
+// examiner tier can, since lexical/floor grading is always deterministic.
+export type Grader = (
+  card: RecallCard,
+  response: string,
+) => EvalResult | HoldResult | Promise<EvalResult | HoldResult>;
 
 /** Tier 1 — lexical: today's behavior, verbatim. The default (flashcard) grader. */
 const lexical: Grader = (card, response) => evaluateAnswer(response, card.back);
@@ -32,7 +37,10 @@ export function graderName(card: RecallCard): string {
  * The single grading entry point — both the turn machine and the CLI call this,
  * so there is never a second grading path. Throws on an unknown grader name.
  */
-export async function gradeResponse(card: RecallCard, response: string): Promise<EvalResult> {
+export async function gradeResponse(
+  card: RecallCard,
+  response: string,
+): Promise<EvalResult | HoldResult> {
   const name = graderName(card);
   const grader = REGISTRY[name];
   if (!grader) {

@@ -88,6 +88,14 @@ export interface EvalResult {
   reasons: string[];
 }
 
+/** A grader couldn't produce a confident rating (e.g. the examiner held). Never a
+ *  rating — code decided it can't honestly grade this, same as code deciding a
+ *  rating; the turn stays unresolved so the learner can retry or move on. */
+export interface HoldResult {
+  hold: true;
+  reason: string;
+}
+
 export interface NewCardInput {
   type?: string;
   front: string;
