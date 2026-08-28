@@ -1,39 +1,61 @@
-@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Spectral:wght@500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap");
 
-/* Tokens: 1:1 with docs/design/mocks/background-jobs.html — warm cream paper
-   (hue 95), cool ink (hue 250), bright mint accent. One brand with marketing. */
+/* Tokens: "The Reading Room" — 1:1 with ../../marketing/tokens.css and ../../public/index.html.
+ * Warm cream paper, cool near-black ink. Mint is reserved for the honesty ledger's "ready" /
+ * verified state (this app's version of the grade) — everything else (buttons, active step,
+ * job progress, badges) is plain ink. See DESIGN.md. */
 :root {
-  --paper: oklch(97% 0.012 95);
-  --paper-2: oklch(95.2% 0.013 95);
-  --paper-3: oklch(93.6% 0.016 92);
-  --well: oklch(91.6% 0.018 90);
-  --rule: oklch(88% 0.012 95);
-  --rule-2: oklch(82% 0.013 95);
-  --ink: oklch(20% 0.012 250);
-  --ink-2: oklch(30% 0.012 250);
-  --ink-3: oklch(40% 0.012 250);
-  --muted: oklch(48% 0.012 250);
-  --mint: oklch(80% 0.16 150);
-  --mint-deep: oklch(52% 0.13 150);
-  --mint-wash: oklch(93% 0.055 150);
-  --mint-ink: oklch(22% 0.012 250);
-  --focus: oklch(55% 0.15 150);
-  --coral: oklch(65% 0.2 25);
-  --coral-wash: oklch(94% 0.04 25);
-  --amber: oklch(78% 0.14 85);
-  --amber-wash: oklch(95% 0.03 85);
-  --ui: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --paper: #fbf9f4;
+  --paper-2: #f4f1e9;
+  --paper-3: #ece8dd;
+  --well: #e4e0d5;
+  --rule: #e4e0d5;
+  --rule-2: #d2cdbf;
+  --ink: #1b1b1e;
+  --ink-2: #3a3a40;
+  --ink-3: #55534c;
+  --muted: #77756e;
+  --mint: #59e3ac;
+  --mint-deep: #1e7a5c;
+  --mint-wash: #d9f9ec;
+  --mint-ink: var(--ink);
+  --focus: var(--mint-deep);
+  --coral: #a33d39;
+  --coral-wash: #fbdcdc;
+  --amber: #8a6d1e;
+  --amber-wash: #fbf4dc;
+  --ui: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --serif: "Spectral", Georgia, serif;
   --mono: "JetBrains Mono", ui-monospace, monospace;
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
-  --r-card: 20px;
+  --r-card: 12px;
   --r-chip: 999px;
-  --shadow: 0 1px 2px oklch(20% 0.012 250 / 0.04), 0 6px 24px -12px oklch(20% 0.012 250 / 0.14);
-  --shadow-2: 0 2px 4px oklch(20% 0.012 250 / 0.06), 0 12px 36px -16px oklch(20% 0.012 250 / 0.2);
-  /* Back-compat aliases (older component rules referenced these). */
-  --card: oklch(99% 0.006 95);
-  --sage: var(--mint);
-  --sage-deep: var(--mint-deep);
-  --sage-tint: var(--mint-wash);
+  --shadow: 0 1px 2px rgba(27, 27, 30, 0.04), 0 6px 24px -12px rgba(27, 27, 30, 0.14);
+  --shadow-2: 0 1px 2px rgba(27, 27, 30, 0.04), 0 14px 36px -16px rgba(27, 27, 30, 0.18);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --paper: #161614;
+    --paper-2: #1d1d1a;
+    --paper-3: #26261f;
+    --well: #202019;
+    --rule: #2b2a26;
+    --rule-2: #3a3934;
+    --ink: #ebe6da;
+    --ink-2: #cfcabd;
+    --ink-3: #a19d8f;
+    --muted: #8d8a80;
+    --mint: #1e9382;
+    --mint-deep: #7de3bf;
+    --mint-wash: #1d4740;
+    --coral: #e29490;
+    --coral-wash: #5f2b2a;
+    --amber: #d8bd5a;
+    --amber-wash: #46402a;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 6px 24px -12px rgba(0, 0, 0, 0.5);
+    --shadow-2: 0 1px 2px rgba(0, 0, 0, 0.4), 0 14px 36px -16px rgba(0, 0, 0, 0.7);
+  }
 }
 * {
   box-sizing: border-box;
@@ -48,8 +70,6 @@ body {
   font: 15px / 1.55 var(--ui);
   color: var(--ink);
   background: var(--paper);
-  background-image: radial-gradient(oklch(20% 0.012 250 / 0.022) 1px, transparent 1px);
-  background-size: 22px 22px;
   -webkit-font-smoothing: antialiased;
   font-variant-numeric: tabular-nums;
 }
@@ -70,34 +90,27 @@ body {
   justify-content: space-between;
   padding: 0.8rem 1.25rem;
   border-bottom: 1px solid var(--rule);
-  background: oklch(97% 0.012 95 / 0.9);
+  background: color-mix(in srgb, var(--paper) 90%, transparent);
   backdrop-filter: blur(8px);
   position: sticky;
   top: 0;
   z-index: 20;
 }
 .brand {
-  font: 700 1.15rem / 1 var(--ui);
-  letter-spacing: -0.02em;
+  font: 500 1.15rem / 1 var(--serif);
+  letter-spacing: -0.01em;
   display: inline-flex;
   align-items: center;
   gap: 0.45rem;
 }
 .brand i {
   font-style: italic;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--ink-3);
 }
 .brand .slash {
   color: var(--rule-2);
   font-weight: 400;
-}
-.brand .dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 3px;
-  background: var(--mint);
-  box-shadow: 0 0 0 3px var(--mint-wash);
 }
 
 .top-right {
@@ -110,14 +123,14 @@ body {
   border: 1px solid var(--rule-2);
   border-radius: var(--r-chip);
   background: var(--paper);
-  font: 700 12px var(--ui);
+  font: 600 12px var(--ui);
   color: var(--ink-2);
   cursor: pointer;
 }
 .newbuild:hover {
-  border-color: var(--mint);
-  color: var(--mint-deep);
-  background: var(--mint-wash);
+  border-color: var(--ink);
+  color: var(--ink);
+  background: var(--paper-2);
 }
 .session-row {
   width: 100%;
@@ -129,7 +142,7 @@ body {
   color: var(--ink-3);
 }
 .session-row.current {
-  background: var(--mint-wash);
+  background: var(--paper-3);
   color: var(--ink);
 }
 
@@ -164,16 +177,16 @@ body {
   color: var(--ink);
 }
 .stepchip.on .stepnum {
-  background: var(--mint);
-  color: var(--mint-ink);
-  border-color: var(--mint);
+  background: var(--ink);
+  color: var(--paper);
+  border-color: var(--ink);
 }
 .stepchip.done {
   color: var(--ink-2);
 }
 .stepchip.done .stepnum {
-  background: var(--mint-wash);
-  color: var(--mint-deep);
+  background: var(--paper-3);
+  color: var(--ink-2);
   border-color: transparent;
 }
 .stepchip:disabled {
@@ -191,13 +204,13 @@ body {
   flex-direction: column;
 }
 .display {
-  font: 800 clamp(2rem, 5vw, 2.6rem) / 1.05 var(--ui);
-  letter-spacing: -0.03em;
+  font: 400 clamp(2rem, 5vw, 2.6rem) / 1.1 var(--serif);
+  letter-spacing: -0.01em;
   margin: 0.5rem 0 0;
 }
 .display em {
-  font-style: normal;
-  background: linear-gradient(var(--mint-wash) 0 0) no-repeat 0 78% / 100% 0.32em;
+  font-style: italic;
+  font-weight: 400;
 }
 .lede {
   color: var(--ink-3);
@@ -217,7 +230,7 @@ body {
   width: 100%;
   padding: 0.9rem 1rem;
   border: 1px solid var(--rule);
-  border-radius: 16px;
+  border-radius: var(--r-card);
   background: var(--paper);
   font: inherit;
   color: inherit;
@@ -237,8 +250,8 @@ body {
 }
 .stylecard {
   text-align: left;
-  border: 1.5px solid var(--rule);
-  border-radius: 16px;
+  border: 1px solid var(--rule);
+  border-radius: var(--r-card);
   padding: 0.95rem;
   background: var(--paper);
   cursor: pointer;
@@ -278,7 +291,7 @@ body {
   vertical-align: middle;
 }
 .stylename {
-  font: 700 14px var(--ui);
+  font: 600 14px var(--ui);
   letter-spacing: -0.01em;
 }
 .styledesc {
@@ -290,7 +303,7 @@ body {
   font: 600 10px var(--mono);
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  color: var(--mint-deep);
+  color: var(--ink-3);
   margin-top: 0.2rem;
 }
 
@@ -329,13 +342,13 @@ body {
   border-radius: var(--r-card);
   padding: 2rem 1.5rem;
   text-align: center;
-  background: linear-gradient(var(--paper-2), var(--paper));
+  background: var(--paper-2);
 }
 .dropico {
   width: 46px;
   height: 46px;
   margin: 0 auto 0.7rem;
-  border-radius: 14px;
+  border-radius: 10px;
   background: var(--ink);
   color: var(--paper);
   display: grid;
@@ -354,9 +367,9 @@ body {
 .linklike {
   border: 0;
   background: none;
-  color: var(--mint-deep);
+  color: var(--ink);
   font: inherit;
-  font-weight: 700;
+  font-weight: 600;
   cursor: pointer;
   text-decoration: underline;
   padding: 0;
@@ -416,33 +429,30 @@ body {
   gap: 0.6rem;
   margin-top: 2.2rem;
 }
-/* Bubble chunky pill buttons (the brand CTA). */
+/* Ink pills — the brand CTA. Flat, no accent fill; mint stays reserved for the ledger. */
 .btn {
   padding: 0.65rem 1.2rem;
   border-radius: var(--r-chip);
-  border: 1px solid transparent;
-  font: 700 14px var(--ui);
+  border: 1px solid var(--ink);
+  font: 600 14px var(--ui);
   cursor: pointer;
   transition:
-    transform 0.12s var(--ease-out),
-    filter 0.12s;
+    background-color 0.15s var(--ease-out),
+    color 0.15s var(--ease-out);
 }
 .btn.primary {
-  background: var(--mint);
-  color: var(--mint-ink);
-  box-shadow: 0 3px 0 -0.5px var(--mint-deep);
+  background: var(--ink);
+  color: var(--paper);
 }
 .btn.primary:hover {
-  filter: brightness(1.03);
+  background: var(--ink-2);
 }
 .btn.primary:active {
-  transform: translateY(2px);
-  box-shadow: 0 1px 0 -0.5px var(--mint-deep);
+  background: var(--ink-3);
 }
 .btn.primary:disabled {
   opacity: 0.45;
   cursor: default;
-  box-shadow: none;
 }
 .btn.ghost {
   background: var(--paper);
@@ -497,12 +507,13 @@ body {
   flex-shrink: 0;
 }
 .trow-dot.building {
-  background: var(--mint);
+  background: var(--ink);
+  color: var(--ink);
   border-radius: 50%;
   animation: tpulse 1.8s ease-in-out infinite;
 }
 .trow-dot.built {
-  background: var(--mint-deep);
+  background: var(--ink-3);
 }
 .trow-name {
   flex: 1;
@@ -519,7 +530,7 @@ body {
 }
 .trow-tag.ok,
 .trow-tag.building {
-  color: var(--mint-deep);
+  color: var(--ink-2);
 }
 .main-col {
   display: flex;
@@ -567,16 +578,17 @@ body {
   background: var(--muted);
 }
 .tray-pill.running .tray-pip {
-  background: var(--mint);
+  background: var(--ink);
+  color: var(--ink);
   animation: tpulse 1.8s ease-in-out infinite;
 }
 .tray-pill.done {
-  border-color: var(--mint-wash);
-  background: var(--mint-wash);
-  color: var(--mint-deep);
+  border-color: var(--rule);
+  background: var(--paper-3);
+  color: var(--ink-2);
 }
 .tray-pill.done .tray-pip {
-  background: var(--mint-deep);
+  background: var(--ink-2);
 }
 .tray-pill.error {
   border-color: var(--coral-wash);
@@ -589,15 +601,16 @@ body {
 .tray-pill.queued {
   opacity: 0.7;
 }
+/* currentColor so this ring matches whatever status color set it off, and follows dark mode. */
 @keyframes tpulse {
   0% {
-    box-shadow: 0 0 0 0 oklch(80% 0.16 150 / 0.6);
+    box-shadow: 0 0 0 0 color-mix(in srgb, currentColor 55%, transparent);
   }
   60% {
-    box-shadow: 0 0 0 6px oklch(80% 0.16 150 / 0);
+    box-shadow: 0 0 0 6px transparent;
   }
   100% {
-    box-shadow: 0 0 0 0 oklch(80% 0.16 150 / 0);
+    box-shadow: 0 0 0 0 transparent;
   }
 }
 
@@ -625,7 +638,7 @@ body {
   width: 9px;
   height: 9px;
   border-radius: 50%;
-  background: var(--mint);
+  background: var(--ink-2);
   flex-shrink: 0;
 }
 .notif-text {
@@ -689,7 +702,7 @@ body {
 }
 .msg.user .bubble {
   background: var(--ink);
-  color: oklch(97% 0.008 95);
+  color: var(--paper);
   border-bottom-right-radius: 5px;
 }
 .msg.assistant .bubble {
@@ -757,7 +770,7 @@ body {
   padding: 0;
 }
 .md a {
-  color: var(--mint-deep);
+  color: var(--ink);
   text-underline-offset: 2px;
 }
 
@@ -772,13 +785,13 @@ body {
   min-width: 280px;
 }
 .jobcard.running {
-  border-color: var(--mint);
+  border-color: var(--ink);
 }
 .jobcard.done {
-  border-color: oklch(80% 0.16 150 / 0.5);
+  border-color: var(--rule-2);
 }
 .jobcard.error {
-  border-color: oklch(65% 0.2 25 / 0.4);
+  border-color: var(--coral);
 }
 .jc-head {
   display: flex;
@@ -797,7 +810,7 @@ body {
 }
 .jc-icon.running,
 .jc-icon.done {
-  background: var(--mint-wash);
+  background: var(--paper-3);
 }
 .jc-icon.error {
   background: var(--coral-wash);
@@ -805,7 +818,7 @@ body {
 .jc-icon svg {
   width: 16px;
   height: 16px;
-  color: var(--mint-deep);
+  color: var(--ink-2);
   animation: spin 1.2s linear infinite;
 }
 @keyframes spin {
@@ -832,8 +845,8 @@ body {
 }
 .jc-badge.running,
 .jc-badge.done {
-  background: var(--mint-wash);
-  color: var(--mint-deep);
+  background: var(--paper-3);
+  color: var(--ink-2);
 }
 .jc-badge.queued {
   background: var(--well);
@@ -856,7 +869,7 @@ body {
 }
 .jc-fill {
   height: 100%;
-  background: var(--mint);
+  background: var(--ink);
   border-radius: var(--r-chip);
   width: 100%;
   animation: progress-march 2.4s ease-in-out infinite;
@@ -907,7 +920,7 @@ body {
   border-top: 1px dashed var(--rule);
 }
 .tp-ic {
-  color: var(--mint-deep);
+  color: var(--ink-2);
   width: 14px;
 }
 .tp-name {
@@ -935,9 +948,23 @@ body {
   padding: 0.65rem 0.9rem;
   border-bottom: 1px solid var(--rule);
 }
+/* The one pill in this app that gets to be mint: it's the honesty result.
+ * "clean" (nothing held) reads as the pill from marketing's receipt; partial
+ * results (some held) get the amber/pear tone instead of overclaiming with mint. */
 .ledger-count {
-  font: 700 12px var(--mono);
-  color: var(--mint-deep);
+  display: inline-flex;
+  align-items: center;
+  font: 700 11px var(--mono);
+  letter-spacing: 0.02em;
+  padding: 0.2rem 0.6rem;
+  border-radius: var(--r-chip);
+  background: var(--amber-wash);
+  border: 1px solid var(--amber);
+  color: var(--ink);
+}
+.ledger-count.clean {
+  background: var(--mint-wash);
+  border-color: var(--mint);
 }
 .ledger-steps {
   list-style: none;
@@ -961,14 +988,14 @@ body {
   color: var(--ink-2);
 }
 .lstep.done .lstep-ic {
-  color: var(--mint-deep);
+  color: var(--ink-3);
 }
 .lstep.active {
   color: var(--ink);
   font-weight: 600;
 }
 .lstep.active .lstep-ic {
-  color: var(--mint-deep);
+  color: var(--ink);
   animation: tick 1s steps(1) infinite;
 }
 @keyframes tick {
@@ -984,7 +1011,7 @@ body {
 }
 .ledger-action::before {
   content: "› ";
-  color: var(--mint-deep);
+  color: var(--ink-3);
 }
 .ledger-err {
   font: 500 11.5px var(--mono);
@@ -999,11 +1026,12 @@ body {
   border-radius: 9px;
   background: var(--paper);
   font: 600 11.5px var(--mono);
-  color: var(--mint-deep);
+  color: var(--ink-2);
   cursor: pointer;
 }
 .reviewbtn:hover {
-  border-color: var(--mint);
+  border-color: var(--ink);
+  color: var(--ink);
 }
 .held-note {
   font: 500 11px / 1.5 var(--mono);
@@ -1049,9 +1077,9 @@ body {
 }
 .held-btn.fix,
 .held-btn:first-child {
-  border-color: var(--mint);
-  background: var(--mint-wash);
-  color: var(--mint-deep);
+  border-color: var(--ink);
+  background: var(--paper);
+  color: var(--ink);
 }
 .held-btn.ghost {
   border-color: var(--rule-2);
@@ -1073,13 +1101,12 @@ body {
   border: 1px solid transparent;
 }
 .lg-btn.primary {
-  background: var(--mint);
-  color: var(--mint-ink);
-  box-shadow: 0 2.5px 0 -0.5px var(--mint-deep);
+  background: var(--ink);
+  color: var(--paper);
+  border-color: var(--ink);
 }
-.lg-btn.primary:active {
-  transform: translateY(1.5px);
-  box-shadow: 0 1px 0 -0.5px var(--mint-deep);
+.lg-btn.primary:hover {
+  background: var(--ink-2);
 }
 .lg-btn.ghost,
 .lg-btn:not(.primary) {
@@ -1092,9 +1119,9 @@ body {
   cursor: default;
 }
 .lg-btn.picked {
-  border-color: var(--mint);
-  color: var(--mint-deep);
-  background: var(--mint-wash);
+  border-color: var(--ink);
+  color: var(--ink);
+  background: var(--paper-3);
   opacity: 1;
 }
 
@@ -1135,7 +1162,7 @@ body {
 }
 .srcrow-url {
   font: 500 10.5px var(--mono);
-  color: var(--mint-deep);
+  color: var(--ink-2);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -1155,9 +1182,9 @@ body {
   cursor: pointer;
 }
 .srcrow-toggle.ok {
-  border-color: var(--mint);
-  background: var(--mint-wash);
-  color: var(--mint-deep);
+  border-color: var(--rule-2);
+  background: var(--paper-3);
+  color: var(--ink-2);
 }
 .srcrow-toggle.bad {
   border-color: var(--coral-wash);
@@ -1226,16 +1253,16 @@ body {
 .tr-cmd code {
   flex: 1;
   font: 500 11px var(--mono);
-  color: oklch(92% 0.02 95);
+  color: var(--paper);
   white-space: nowrap;
   overflow-x: auto;
 }
 .tr-cmd button {
   border: 0;
   border-radius: 8px;
-  background: var(--mint);
-  color: var(--mint-ink);
-  font: 700 11px var(--ui);
+  background: var(--paper);
+  color: var(--ink);
+  font: 600 11px var(--ui);
   padding: 0.3rem 0.6rem;
   cursor: pointer;
   flex: 0 0 auto;
@@ -1288,22 +1315,19 @@ body {
   border: 0;
   border-radius: var(--r-chip);
   cursor: pointer;
-  background: var(--mint);
-  color: var(--mint-ink);
-  font: 700 14px var(--ui);
-  box-shadow: 0 3px 0 -0.5px var(--mint-deep);
+  background: var(--ink);
+  color: var(--paper);
+  font: 600 14px var(--ui);
   transition:
-    transform 0.12s var(--ease-out),
+    background-color 0.15s var(--ease-out),
     opacity 0.12s;
 }
-.composer button:active {
-  transform: translateY(2px);
-  box-shadow: 0 1px 0 -0.5px var(--mint-deep);
+.composer button:hover {
+  background: var(--ink-2);
 }
 .composer button:disabled {
   opacity: 0.5;
   cursor: default;
-  box-shadow: none;
 }
 
 /* typing dots */

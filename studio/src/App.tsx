@@ -274,10 +274,10 @@ function JobCard({ d }: { d?: JobData }) {
           )}
           {d.status === "queued" && <span style={{ fontSize: "1.1rem" }}>⏳</span>}
           {d.status === "done" && (
-            <span style={{ color: "var(--sage-deep)", fontWeight: 700 }}>✓</span>
+            <span style={{ color: "var(--ink-2)", fontWeight: 700 }}>✓</span>
           )}
           {d.status === "error" && (
-            <span style={{ color: "var(--coral,oklch(65% .2 25))" }}>✗</span>
+            <span style={{ color: "var(--coral,#a33d39)" }}>✗</span>
           )}
         </div>
         <div>
@@ -336,7 +336,7 @@ function Ledger({ d, onAction }: { d?: LedgerData; onAction?: (text: string) => 
       <div className="ledger-head">
         <span className="eyebrow">Honesty ledger</span>
         {d.done && typeof d.ready === "number" && (
-          <span className="ledger-count">
+          <span className={`ledger-count ${heldCount === 0 ? "clean" : ""}`}>
             {d.ready}/{d.total} verified · {heldCount} held
           </span>
         )}
@@ -610,7 +610,7 @@ export function App() {
     <div className="app">
       <header className="top">
         <span className="brand">
-          <span className="dot" /> recallit <span className="slash">/</span> <i>studio</i>
+          recallit <span className="slash">/</span> <i>studio</i>
         </span>
         <div className="top-right">
           <button type="button" className="newbuild" onClick={newSession}>
