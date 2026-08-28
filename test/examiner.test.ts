@@ -52,6 +52,18 @@ describe("recountExaminer", () => {
     expect(r.result.rating).toBe("Good");
   });
 
+  test("checkpoints reflect the code-verified hit/miss, not the model's raw claim", () => {
+    const r = recountExaminer(rubric, answer, [
+      j("a", true, "the sky is blue"),
+      j("b", true, "grass is purple"), // claimed demonstrated, but not in the answer -> dropped
+    ]);
+    expect(r.result.checkpoints).toEqual([
+      { id: "a", claim: "sky is blue", hit: true, sourceQuote: undefined },
+      { id: "b", claim: "grass is green", hit: false, sourceQuote: undefined },
+      { id: "c", claim: "clouds are white", hit: false, sourceQuote: undefined },
+    ]);
+  });
+
   test("fabricated evidence (span not in answer) is dropped, not credited", () => {
     const r = recountExaminer(rubric, answer, [
       j("a", true, "the sky is blue"),

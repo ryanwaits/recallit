@@ -153,7 +153,7 @@ describe("coverage grader (model-free floor, via the registry)", () => {
   });
 
   const rubric: RubricCheckpoint[] = [
-    { id: "a", claim: "sky is blue", required: true },
+    { id: "a", claim: "sky is blue", required: true, sourceQuote: "the sky above is blue" },
     { id: "b", claim: "grass is green", required: true },
   ];
   const card = (r: RubricCheckpoint[]) =>
@@ -168,6 +168,28 @@ describe("coverage grader (model-free floor, via the registry)", () => {
       requiredHit: 2,
       requiredTotal: 2,
     });
+  });
+
+  test("checkCoverage carries per-checkpoint hit/miss + sourceQuote for the receipt", () => {
+    const v = checkCoverage(rubric, "the sky is blue today");
+    expect(v.checkpoints).toEqual([
+      { id: "a", claim: "sky is blue", hit: true, sourceQuote: "the sky above is blue" },
+      { id: "b", claim: "grass is green", hit: false, sourceQuote: undefined },
+    ]);
+  });
+
+  test("gradeResponse's EvalResult carries checkpoints through the registry dispatch", async () => {
+    const result = expectRated(await gradeResponse(card(rubric), "the sky is blue today"));
+    expect(result.checkpoints).toEqual([
+      { id: "a", claim: "sky is blue", hit: true, sourceQuote: "the sky above is blue" },
+      { id: "b", claim: "grass is green", hit: false, sourceQuote: undefined },
+    ]);
+  });
+
+  test("a lexical grade has no checkpoints — the honest degrade, no citable rubric", async () => {
+    const plain = newCard({ front: "cue", back: "house" });
+    const result = expectRated(await gradeResponse(plain, "house"));
+    expect(result.checkpoints).toBeUndefined();
   });
 
   test("end-to-end dispatch: meta.grader=coverage routes through the registry (floor, examiner off)", async () => {

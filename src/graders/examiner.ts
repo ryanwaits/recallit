@@ -72,6 +72,12 @@ export function recountExaminer(
     requiredTotal: req.length,
     bonusHit: bonus.filter((c) => valid.has(c.id)).length,
     bonusTotal: bonus.length,
+    checkpoints: rubric.map((c) => ({
+      id: c.id,
+      claim: c.claim,
+      hit: valid.has(c.id),
+      sourceQuote: c.sourceQuote,
+    })),
   };
   const base = coverageResult(vector);
   const result = fabricated

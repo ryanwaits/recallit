@@ -81,11 +81,24 @@ export interface ReviewLogEntry {
 
 export type EvalRating = "Again" | "Hard" | "Good" | "Easy";
 
+/** Per-checkpoint receipt detail for a coverage-graded card (rubric-backed). Absent
+ *  entirely on lexical grades — there's no rubric to cite, so the client shows the
+ *  rating + why only, never a synthesized cited line. */
+export interface GradeCheckpoint {
+  id: string;
+  claim: string;
+  hit: boolean;
+  /** Verbatim source line backing this claim (gateCards-verified at pack time). */
+  sourceQuote?: string;
+}
+
 export interface EvalResult {
   rating: EvalRating;
   /** Similarity 0..1 of the best-matching target. */
   score: number;
   reasons: string[];
+  /** Coverage/examiner tiers only — the rubric checkpoints behind the rating. */
+  checkpoints?: GradeCheckpoint[];
 }
 
 /** A grader couldn't produce a confident rating (e.g. the examiner held). Never a

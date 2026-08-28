@@ -35,7 +35,7 @@ import { gradeTurn, presentCard, revealAnswer, submitResponse } from "./review.t
 import { createCard, deleteCard, getCard, getDueCards, searchCards, updateCard } from "./store.ts";
 import { readTopicConfig } from "./topic.ts";
 import { TurnTracker } from "./turn.ts";
-import type { RecallCard, TopicConfig } from "./types.ts";
+import type { GradeCheckpoint, RecallCard, TopicConfig } from "./types.ts";
 
 export type AnswerProvider = (
   cardId: string,
@@ -76,7 +76,10 @@ export interface ReviewSession {
    * Fired after a card is graded, so the host can surface the engine's grade +
    * receipt (e.g. the coverage breakdown for a checkable item) to the learner.
    */
-  onGraded?: (cardId: string, grade: { rating: string; reasons: string[] }) => void;
+  onGraded?: (
+    cardId: string,
+    grade: { rating: string; reasons: string[]; checkpoints?: GradeCheckpoint[] },
+  ) => void;
   /**
    * Fired when a grader can't confidently rate an answer (a HOLD, not an error) —
    * so the host can show an honest "couldn't check this one" state instead of
@@ -215,7 +218,11 @@ function buildServer(
       async (args) => {
         try {
           const g = await gradeTurn(t, session.tracker, args.card_id);
-          session.onGraded?.(args.card_id, { rating: g.rating, reasons: g.reasons });
+          session.onGraded?.(args.card_id, {
+            rating: g.rating,
+            reasons: g.reasons,
+            checkpoints: g.checkpoints,
+          });
           return ok(g);
         } catch (e) {
           return fail(String(e instanceof Error ? e.message : e));

@@ -4,7 +4,7 @@
 import { getCard, reviewCard } from "./store.ts";
 import type { TurnTracker } from "./turn.ts";
 import { TurnError } from "./turn.ts";
-import type { EvalResult, HoldResult } from "./types.ts";
+import type { EvalResult, GradeCheckpoint, HoldResult } from "./types.ts";
 
 async function load(topicId: string, cardId: string) {
   const card = await getCard(topicId, cardId);
@@ -47,7 +47,14 @@ export async function gradeTurn(
   topicId: string,
   tracker: TurnTracker,
   cardId: string,
-): Promise<{ rating: string; due: string; reps: number; lapses: number; reasons: string[] }> {
+): Promise<{
+  rating: string;
+  due: string;
+  reps: number;
+  lapses: number;
+  reasons: string[];
+  checkpoints?: GradeCheckpoint[];
+}> {
   const evaluation = tracker.ratingFor(cardId);
   const outcome = await reviewCard(topicId, cardId, evaluation.rating);
   if (!outcome) throw new TurnError(`card not found: ${cardId}`);
@@ -58,5 +65,6 @@ export async function gradeTurn(
     reps: outcome.card.fsrs.reps,
     lapses: outcome.card.fsrs.lapses,
     reasons: evaluation.reasons, // the grade receipt (coverage breakdown for checkable items)
+    checkpoints: evaluation.checkpoints, // rubric-backed detail, absent on lexical grades
   };
 }

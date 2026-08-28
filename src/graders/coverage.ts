@@ -11,7 +11,7 @@
 // model's. The thresholds here are the spike-validated mapping (all-required for
 // Good, not >=0.75): that is what scored 0.91 exact accuracy without over-crediting.
 import { normalize } from "../evaluate.ts";
-import type { EvalRating, EvalResult, RecallCard } from "../types.ts";
+import type { EvalRating, EvalResult, GradeCheckpoint, RecallCard } from "../types.ts";
 
 export interface RubricCheckpoint {
   id: string;
@@ -29,6 +29,9 @@ export interface CoverageVector {
   bonusTotal: number;
   /** A flatly-wrong assertion present alongside correct ones — caps the grade at Hard. */
   contradiction?: boolean;
+  /** Per-checkpoint hit/miss + source quote, for the receipt. Optional: only the
+   *  floor matcher and the examiner recount populate it (both have the rubric). */
+  checkpoints?: GradeCheckpoint[];
 }
 
 /**
@@ -77,6 +80,12 @@ export function checkCoverage(rubric: RubricCheckpoint[], response: string): Cov
     requiredTotal: req.length,
     bonusHit: bonus.filter(hit).length,
     bonusTotal: bonus.length,
+    checkpoints: rubric.map((c) => ({
+      id: c.id,
+      claim: c.claim,
+      hit: hit(c),
+      sourceQuote: c.sourceQuote,
+    })),
   };
 }
 
@@ -89,7 +98,7 @@ export function coverageResult(v: CoverageVector): EvalResult {
     (v.bonusTotal ? `, ${v.bonusHit}/${v.bonusTotal} bonus` : "") +
     (v.contradiction ? "; contradiction (capped at Hard)" : "") +
     ` -> ${rating}`;
-  return { rating, score, reasons: [receipt] };
+  return { rating, score, reasons: [receipt], checkpoints: v.checkpoints };
 }
 
 /** The `coverage` grader (registered): deterministic floor over card.meta.rubric. */

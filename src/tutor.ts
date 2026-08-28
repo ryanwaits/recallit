@@ -13,7 +13,7 @@ import {
   type SessionEvent,
 } from "./agent.ts";
 import { readTopicConfig } from "./topic.ts";
-import type { RecallCard, TutorManifest } from "./types.ts";
+import type { GradeCheckpoint, RecallCard, TutorManifest } from "./types.ts";
 
 /** Load a tutor manifest from its course config (course.json). Agent config +
  *  surfaces are optional fields, so an ordinary course loads as a tutor that runs on
@@ -36,7 +36,10 @@ export interface TutorIO {
   /** A card's front changed mid-session (e.g. re-synthesize native audio). */
   onCardContentChanged?: (card: RecallCard) => Promise<void>;
   /** A card was graded — surface the code-owned rating + receipt to the learner. */
-  onGraded?: (cardId: string, grade: { rating: string; reasons: string[] }) => void;
+  onGraded?: (
+    cardId: string,
+    grade: { rating: string; reasons: string[]; checkpoints?: GradeCheckpoint[] },
+  ) => void;
   /** A grader couldn't confidently rate an answer (a HOLD, not an error) — surface an
    *  honest "couldn't check this one" state. The turn stays retryable. */
   onHeld?: (cardId: string, reason: string) => void;
