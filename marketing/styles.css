@@ -18,7 +18,7 @@ body {
 
 h1, h2, h3, h4, p, dl, dd, ul, ol { margin: 0; padding: 0; }
 h1, h2, h3 {
-  font: 400 inherit/var(--lh-tight) var(--serif);
+  font-weight: 400; font-family: var(--serif); line-height: var(--lh-tight);
   letter-spacing: var(--tracking-tight);
   overflow-wrap: anywhere;
   min-width: 0;
@@ -95,15 +95,16 @@ img, svg { display: block; max-width: 100%; }
 }
 .hero h1 {
   font-size: var(--text-display); letter-spacing: var(--tracking-display);
-  margin-bottom: var(--space-lg); max-width: 15ch; text-wrap: balance;
+  margin-bottom: var(--space-lg); max-width: 16ch; text-wrap: balance;
 }
-.hero h1 em { font-style: italic; font-weight: 400; }
+.hero h1 em { font-style: normal; font-weight: 500; }
 .hero p {
   max-width: 46ch; color: var(--ink-2); font-size: var(--text-md); line-height: var(--lh-relaxed);
   margin-bottom: var(--space-lg);
 }
 
 /* ── The deck · the hero object ──────────────────────────────────── */
+.deck-label { color: var(--muted); text-align: center; margin-bottom: var(--space-md); }
 .deck { position: relative; height: 22.5rem; }
 .dcard {
   position: absolute; left: 50%; top: 0; width: min(26.25rem, 100%);
@@ -177,34 +178,6 @@ img, svg { display: block; max-width: 100%; }
 .step h3 { font-size: var(--text-xl); margin-bottom: var(--space-2xs); }
 .step p { color: var(--ink-2); max-width: 60ch; }
 
-/* ── Ledger · the honest math ────────────────────────────────────── */
-.ledger { display: grid; grid-template-columns: var(--kicker-col) 1fr; gap: var(--space-xl); }
-.ledger dl { border-top: 1px solid var(--rule); }
-.ledger .row {
-  display: grid; grid-template-columns: 7.5rem 1fr; gap: var(--space-lg);
-  padding-block: var(--space-md); border-bottom: 1px solid var(--rule); align-items: baseline;
-}
-.ledger dt { font: 400 2rem/1 var(--serif); font-variant-numeric: tabular-nums; }
-.ledger dd { color: var(--ink-2); max-width: 56ch; }
-
-/* ── Subjects · the card motif at small scale ────────────────────── */
-.subjects { display: grid; grid-template-columns: var(--kicker-col) 1fr; gap: var(--space-xl); }
-.stack-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-lg); }
-.mini {
-  border: 1px solid var(--rule); border-radius: var(--radius-card);
-  padding: var(--space-lg) var(--space-lg) var(--space-md); background: var(--paper);
-  position: relative;
-}
-.mini::before {
-  content: ""; position: absolute; inset: 6px -3px -6px 3px;
-  border: 1px solid var(--rule); border-radius: var(--radius-card); background: var(--paper-2);
-  z-index: -1; transform: rotate(1.5deg);
-}
-.mini .k { color: var(--muted); margin-bottom: var(--space-xs); }
-.mini .q { font-size: var(--text-md); line-height: var(--lh-snug); margin-bottom: var(--space-xs); text-wrap: balance; }
-.mini .src { font: 400 0.6875rem/1.5 var(--mono); color: var(--muted); }
-.mini .src b { font-weight: 400; color: var(--ink); }
-
 /* ── Run it · pricing columns + terminal ─────────────────────────── */
 .run { display: grid; grid-template-columns: var(--kicker-col) 1fr; gap: var(--space-xl); }
 .run .cols { display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid var(--rule); }
@@ -253,8 +226,7 @@ img, svg { display: block; max-width: 100%; }
 @media (max-width: 60rem) {
   .hero { grid-template-columns: 1fr; gap: var(--space-xl); }
   .deck { max-width: 26rem; margin-inline: auto; width: 100%; }
-  .sec-head, .steps, .ledger, .subjects, .run { grid-template-columns: 1fr; gap: var(--space-md); }
-  .stack-row { grid-template-columns: 1fr; }
+  .sec-head, .steps, .run { grid-template-columns: 1fr; gap: var(--space-md); }
   .run .cols { grid-template-columns: 1fr; }
   .run .col + .col { padding-left: 0; border-left: 0; padding-top: var(--space-xl); }
 }

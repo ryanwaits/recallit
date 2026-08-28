@@ -3,19 +3,19 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>recallit — a tutor that won't tell you you've got it when you don't.</title>
-  <meta name="description" content="Hand recallit your PDFs and links, or just describe what you want to learn, and you get a tutor built around it. Practice your way, by drilling or just talking it through. The grade comes from code checking your answer against the source, not a model deciding to be nice." />
+  <title>recallit — a headless retention engine that won't say you've got it when you don't.</title>
+  <meta name="description" content="recallit is a headless retention engine: hand it a source, get cards that cite the exact line they came from, graded in code, never a model deciding to be nice. No UI included, build whatever sits on top, or try the reference tutor we built with it." />
   <meta name="theme-color" content="#fbf9f4" />
   <link rel="icon" href="favicon.svg" type="image/svg+xml" />
   <meta property="og:type" content="website" />
-  <meta property="og:title" content="recallit · honest about what you actually know" />
-  <meta property="og:description" content="Describe what you want to learn, practice it your way, and remember it. It won't tell you you've got it when you don't." />
+  <meta property="og:title" content="recallit · a headless retention engine" />
+  <meta property="og:description" content="Source in, honest cards out. Code owns the grade. You build whatever sits on top." />
   <meta property="og:image" content="og.png" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="recallit · honest about what you actually know" />
-  <meta name="twitter:description" content="Describe what you want to learn, practice it your way, and remember it. It won't tell you you've got it when you don't." />
+  <meta name="twitter:title" content="recallit · a headless retention engine" />
+  <meta name="twitter:description" content="Source in, honest cards out. Code owns the grade. You build whatever sits on top." />
   <meta name="twitter:image" content="og.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -31,11 +31,10 @@
     <a class="brand" href="#" aria-label="recallit — home">recallit</a>
     <nav class="links mono" aria-label="Primary">
       <a href="#method">How it grades</a>
-      <a href="#subjects">Subjects</a>
       <a href="#run">Run it</a>
       <a href="https://github.com/ryanwaits/recallit">GitHub</a>
     </nav>
-    <a class="btn ghost" href="demo/index.html">Try the demo</a>
+    <a class="btn ghost" href="demo/index.html">See it graded live</a>
   </header>
 
   <main id="main">
@@ -44,16 +43,18 @@
       <!-- ─── Hero ─── -->
       <section class="hero">
         <div>
-          <h1>A tutor that won't say <em>you've got it</em> when you don't.</h1>
-          <p>Hand it a book, a paper, a topic. It builds cards that cite the exact line they came from, then grades your answer against that line. Code does the checking, not a model being nice.</p>
+          <h1>We grade the memory. <em>You</em> build the interface.</h1>
+          <p>Hand recallit a source. It builds cards that cite the exact line they came from and grades your answer against that line, in code, never a model deciding to be nice. No UI included: wire it into a chat agent, a voice app, a CLI, whatever you're building.</p>
           <div class="ctas">
-            <a class="btn primary" href="demo/index.html">Try the demo</a>
-            <a class="btn ghost" href="#method">How it grades</a>
+            <a class="btn primary" href="demo/index.html">See it graded live</a>
+            <a class="btn ghost" href="https://github.com/ryanwaits/recallit">Read the docs</a>
           </div>
-          <p class="fine">No key, no account for the demo. Your cards are files on your disk.</p>
+          <p class="fine">No key, no account for the demo. Your cards are files on disk, not on our servers.</p>
         </div>
 
-        <div class="deck" aria-label="An example card: recallit grades your answer against the cited line.">
+        <div class="deck-wrap">
+        <p class="mono deck-label">The reference tutor, built on recallit</p>
+        <div class="deck" aria-label="Our reference tutor, built on recallit: an example card, graded against the cited line.">
           <div class="dcard k3"></div>
           <div class="dcard k2"></div>
           <div class="dcard k1">
@@ -67,6 +68,7 @@
             <div class="ratings"><span>again</span><span>hard</span><span class="hi">good</span><span>easy</span></div>
           </div>
         </div>
+        </div>
       </section>
 
       <!-- ─── How it works ─── -->
@@ -74,8 +76,8 @@
         <div class="sec-head">
           <span class="mono">How it works</span>
           <div>
-            <h2>Three steps. You only ever do one at a time.</h2>
-            <p>recallit holds the schedule so you don't have to keep it in your head.</p>
+            <h2>Three primitives. You wire up the rest.</h2>
+            <p>recallit does source ingestion, card generation, and honest grading. What sits around it, chat, voice, a GUI, a CLI, is entirely yours.</p>
           </div>
         </div>
         <div class="steps">
@@ -84,70 +86,23 @@
             <div class="step">
               <span class="n">1</span>
               <div>
-                <h3>Describe it</h3>
-                <p>Drop in PDFs and links, or name a topic. It builds the cards and cites the line each one came from. What it can't verify, it holds back and shows you.</p>
+                <h3>Feed it a source</h3>
+                <p>A file, a URL, a repo, or just a concept. It builds cards that cite the exact line they came from, for any subject, a book, a language, a paper, a codebase. What it can't verify, it holds back.</p>
               </div>
             </div>
             <div class="step">
               <span class="n">2</span>
               <div>
-                <h3>Practice it</h3>
-                <p>Drill, or talk it through. Either way you get a straight grade: the points you got, the ones you missed, and the line it checked.</p>
+                <h3>It grades, not a model being nice</h3>
+                <p>Code checks the answer against the cited line. For open-ended recall, code checks it against a rubric, a checklist of what a good answer covers, each point itself tied to a citable line. The rating is never up to the model, and never up to us: your cards are files on disk, not on a server.</p>
               </div>
             </div>
             <div class="step">
               <span class="n">3</span>
               <div>
-                <h3>Remember it</h3>
-                <p>The right card is waiting when you come back. Nothing to schedule, nothing to gamify.</p>
+                <h3>You build the interface</h3>
+                <p>recallit doesn't ship a UI opinion. Present, answer, grade, schedule: the primitives are the product. Build a chat agent, a voice loop, a dashboard, whatever your use case needs.</p>
               </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- ─── The honest math ─── -->
-      <section class="sec" id="math">
-        <div class="sec-head">
-          <span class="mono">The honest math</span>
-          <div><h2>Mostly, it just tells you the truth.</h2></div>
-        </div>
-        <div class="ledger">
-          <div></div>
-          <dl>
-            <div class="row"><dt>$0</dt><dd>to try in your browser. No key, no account, no spend, before you decide anything.</dd></div>
-            <div class="row"><dt>1</dt><dd>source line cited behind everything it teaches you, so you can always check it.</dd></div>
-            <div class="row"><dt>0</dt><dd>accounts or servers, and no way for anyone, us included, to quietly change your grade.</dd></div>
-          </dl>
-        </div>
-      </section>
-
-      <!-- ─── Any subject ─── -->
-      <section class="sec" id="subjects">
-        <div class="sec-head">
-          <span class="mono">Any subject</span>
-          <div>
-            <h2>Same tutor, anything you study.</h2>
-            <p>A book, a topic, a language, a paper. The way you practice can change; the grade behind it doesn't.</p>
-          </div>
-        </div>
-        <div class="subjects">
-          <div></div>
-          <div class="stack-row">
-            <div class="mini">
-              <p class="k mono">A book</p>
-              <p class="q">Why does Kahneman say confidence is a feeling, not a judgment?</p>
-              <p class="src"><b>Thinking, Fast and Slow</b> · ch. 20</p>
-            </div>
-            <div class="mini">
-              <p class="k mono">A language</p>
-              <p class="q">How do you say "you're right" in Mexican Spanish?</p>
-              <p class="src"><b>tienes razón</b> · native phrasing, matched</p>
-            </div>
-            <div class="mini">
-              <p class="k mono">A paper</p>
-              <p class="q">What does the attention head compute from Q, K, and V?</p>
-              <p class="src"><b>Attention Is All You Need</b> · §3.2.1</p>
             </div>
           </div>
         </div>
@@ -157,20 +112,23 @@
       <section class="sec" id="run">
         <div class="sec-head">
           <span class="mono">Run it</span>
-          <div><h2>Free to try. Yours to run.</h2></div>
+          <div>
+            <h2>Free to try. Yours to run.</h2>
+            <p>No accounts, no server, nothing we can quietly change. The engine and your cards live on your own disk.</p>
+          </div>
         </div>
         <div class="run">
           <div></div>
           <div class="cols">
             <div class="col">
-              <span class="mono">Free</span>
+              <span class="mono">Reference tutor</span>
               <div class="price">$0</div>
               <ul>
                 <li>The keyless browser demo, no account</li>
                 <li>Open source, runs with bunx</li>
-                <li>Study courses on your own machine</li>
+                <li>See the primitives working end to end</li>
               </ul>
-              <a class="btn ghost" href="demo/index.html">Try the demo</a>
+              <a class="btn ghost" href="demo/index.html">See it graded live</a>
             </div>
             <div class="col">
               <span class="mono">On your keys</span>
@@ -178,7 +136,7 @@
               <ul>
                 <li>About $1 to build a course, on your Anthropic key</li>
                 <li>Build studio: drop in sources, chat it into shape</li>
-                <li>Voice answers on a speech key</li>
+                <li>Same primitives, headless: wire in your own UI</li>
                 <li>No account. Nothing leaves your disk.</li>
               </ul>
               <div class="term">$ bunx @waits/recallit start
@@ -191,10 +149,10 @@ $ recallit daily   <span class="c"># the right card, when you show up</span></di
 
       <!-- ─── Final CTA ─── -->
       <section class="close">
-        <h2>Find out what you actually know.</h2>
-        <p>Run a session in your browser. No key, no account, no spend. The honest grade is the whole point, so try it before anything else.</p>
+        <h2>Build on it, or just use it.</h2>
+        <p>The engine is source in, honest cards out. See it graded live in the reference tutor, or start wiring it into your own.</p>
         <div class="ctas">
-          <a class="btn primary" href="demo/index.html">Try the demo</a>
+          <a class="btn primary" href="demo/index.html">See it graded live</a>
           <a class="btn ghost" href="https://github.com/ryanwaits/recallit">Star on GitHub</a>
         </div>
       </section>
