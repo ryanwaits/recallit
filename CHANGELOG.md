@@ -3,6 +3,38 @@
 All notable changes to `@waits/recallit`. Releases before 0.7.0 predate this file — see the
 git tags (`v0.1.1`–`v0.6.0`) for their history.
 
+## 0.8.0 — 2026-08-27
+
+### Added
+
+- **The Reading Room**, a redesign of the marketing site, demo, web app, and Studio around one
+  visual system: cream paper, a serif headline, a mono "receipt," and mint reserved strictly for
+  an honest passed grade — never a generic button or status color.
+- **Grader HOLD state.** When the examiner can't produce a confident judgment, the engine now
+  returns an honest `{hold: true, reason}` instead of throwing — the turn stays retryable, never
+  silently graded and never a killed session. Surfaced through the CLI (`recallit answer`), the
+  agent's `await_user_response` tool result, the WS protocol (`{type:"held"}`), the tutor's
+  system prompt, and a new held-state panel in the web app.
+- **Per-checkpoint grading receipt.** Coverage and examiner grades now report which rubric
+  checkpoints were hit and cite the source line backing each one; the web app renders a real
+  checklist plus a highlighted cited quote. A lexically-graded card has no rubric to cite and
+  degrades honestly to the rating and reason only, never a synthesized citation.
+- **Prompt caching** in the tutor's agent loop, cutting the cold-start latency every session used
+  to pay on first load.
+- OpenClaw skill docs: the Node install spec and gate reason codes are now fully documented, and
+  the skill is listed on ClawHub.
+
+### Fixed
+
+- A review question could render twice (once as a caption, once as the spoken prompt) — deduped.
+- Holding the spacebar to start voice recording while a text answer was focused would eat the
+  space keystroke and submit the field's contents as if it were an unintelligible recording.
+
+### Changed
+
+- `agent.ts`'s tool-name list is now auto-derived from the real tool set instead of hand-maintained
+  separately, so it can no longer silently drift out of sync.
+
 ## 0.7.0 — 2026-07-06
 
 ### Added
