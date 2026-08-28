@@ -17,11 +17,18 @@
   <meta name="twitter:title" content="recallit · a headless retention engine" />
   <meta name="twitter:description" content="Source in, honest cards out. Code owns the grade. You build whatever sits on top." />
   <meta name="twitter:image" content="og.png" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;1,400&family=JetBrains+Mono:wght@400;500&family=Inter:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="tokens.css" />
   <link rel="stylesheet" href="styles.css" />
+  <!-- This page only: system-font stack (no webfont fetch), matching the approved mockup's
+       exact look. marketing/demo + the app keep the documented Spectral/JetBrains Mono/Inter
+       system — see DESIGN.md. -->
+  <style>
+    :root {
+      --serif: Georgia, "Times New Roman", serif;
+      --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+      --mono: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace;
+    }
+  </style>
 </head>
 <body>
   <a class="sr-only" href="#main">Skip to content</a>
