@@ -16,7 +16,6 @@ export type { SessionFacts } from "./context.ts";
 export {
   appendContextNote,
   buildDailySessionPrompt,
-  buildPracticePrompt,
   buildSystemPrompt,
   dailyPhases,
   gatherFacts,

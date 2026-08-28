@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 import { join } from "node:path";
 import { $ } from "bun";
-import { type AnswerProvider, createReviewSession, runSession } from "./agent.ts";
+import { runSession } from "./agent.ts";
 // Thin CLI harness over the engine primitives. Proves parity headlessly and is
 // handy for seeding/inspecting topics. The agent (Sprint 2) uses the same functions.
 import { countCards, rebuildIndex } from "./db.ts";
@@ -32,7 +32,7 @@ import {
   readTopicConfig,
   setActiveTopic,
 } from "./topic.ts";
-import { loadManifest, runTutor, type TutorIO } from "./tutor.ts";
+import { buildTutorSession, loadManifest, runTutor, type TutorIO } from "./tutor.ts";
 import type { Modality } from "./types.ts";
 
 /** Split args into --flags (with values) and bare positionals, order-preserving. */
@@ -63,10 +63,12 @@ async function requireActive(explicit?: string): Promise<string> {
   return topic;
 }
 
-/** Run the full multi-phase daily session for `topic`. Shared by `daily` + `quickstart`. */
-async function runDailySession(topic: string, f: Record<string, string>): Promise<void> {
-  const io: TutorIO = {
-    answerProvider: async () => prompt("\nYour answer (blank to stop)> ") || null,
+/** The CLI's own TutorIO: narrates assistant text/tool calls to stdout and reads the
+ *  learner's answer via a synchronous prompt(). Shared by `daily`/`quickstart`, `agent`,
+ *  and `talk` — only the answer-prompt label differs between them. */
+function cliIO(answerLabel = "\nYour answer (blank to stop)> "): TutorIO {
+  return {
+    answerProvider: async () => prompt(answerLabel) || null,
     onEvent: (e) => {
       if (e.kind === "assistant_text") console.log(`\n🗣  ${e.data}`);
       else if (e.kind === "tool_use") console.log(`   · ${(e.data as { name: string }).name}`);
@@ -76,6 +78,11 @@ async function runDailySession(topic: string, f: Record<string, string>): Promis
       return prompt("> ") || null;
     },
   };
+}
+
+/** Run the full multi-phase daily session for `topic`. Shared by `daily` + `quickstart`. */
+async function runDailySession(topic: string, f: Record<string, string>): Promise<void> {
+  const io = cliIO();
   // The portable tutor artifact (agent config + style); bare course as fallback.
   const manifest = (await loadManifest(topic)) ?? {
     id: topic,
@@ -495,16 +502,7 @@ async function main(argv: string[]): Promise<void> {
     case "agent": {
       const topic = await requireActive(f.topic);
       // Interactive: the agent presents a card, this reads the learner's answer.
-      const provider: AnswerProvider = async () =>
-        prompt("\nYour answer (blank to stop)> ") || null;
-      const session = createReviewSession(topic, provider, (e) => {
-        if (e.kind === "assistant_text") console.log(`\n🗣  ${e.data}`);
-        else if (e.kind === "tool_use") console.log(`   · ${(e.data as { name: string }).name}`);
-      });
-      session.converseProvider = async (say) => {
-        console.log(`\n🗣  ${say}`);
-        return prompt("> ") || null;
-      };
+      const session = buildTutorSession(topic, cliIO());
       const res = await runSession(session, {
         model: f.model,
         maxTurns: f.maxTurns ? Number(f.maxTurns) : undefined,
@@ -525,15 +523,7 @@ async function main(argv: string[]): Promise<void> {
       // Open, ungraded conversation. Talk freely; the agent mines the useful
       // phrases that come up into cards you'll be graded on in a few days.
       const topic = await requireActive(f.topic);
-      const provider: AnswerProvider = async () => prompt("> ") || null; // no cards in talk mode
-      const session = createReviewSession(topic, provider, (e) => {
-        if (e.kind === "assistant_text") console.log(`\n🗣  ${e.data}`);
-        else if (e.kind === "tool_use") console.log(`   · ${(e.data as { name: string }).name}`);
-      });
-      session.converseProvider = async (say) => {
-        console.log(`\n🗣  ${say}`);
-        return prompt("> ") || null;
-      };
+      const session = buildTutorSession(topic, cliIO("> ")); // no cards in talk mode
       const res = await runSession(session, {
         mode: "talk",
         model: f.model,

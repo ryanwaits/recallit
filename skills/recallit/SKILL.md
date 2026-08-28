@@ -1,6 +1,6 @@
 ---
 name: recallit
-description: Build and drill spaced-repetition packs with recallit — turn a PDF, URL, repo, or plain concept into honest, source-grounded flashcards, then run the daily review loop. Use when the user wants to "make a deck/pack", "turn this into flashcards", "study X with recallit", or wants to drill/review a pack they already have. Fully keyless (no API keys needed); works entirely through the CLI.
+description: Build and drill spaced-repetition packs with recallit — turn a PDF, URL, repo, plain concept, or the current coding session's own work into honest, source-grounded flashcards, then run the daily review loop. Use when the user wants to "make a deck/pack", "turn this into flashcards", "study X with recallit", "help me remember what we just did/built/fixed", "quiz me on this session", or wants to drill/review a pack they already have. Fully keyless (no API keys needed); works entirely through the CLI.
 metadata:
   {
     "openclaw":
@@ -145,6 +145,7 @@ it verbatim into `packs/<id>/.author/source.txt` — the corpus every card must 
 | URL / article | Fetch it for clean text. If a JS app / paywall returns nothing usable, say so. |
 | Concept (no doc) | Search the concept + subtopics, fetch a few reputable results, write the evidence (quote + url per line) into `source.txt`. Set `meta.grounding: "web"` on the manifest. The concept name seeds queries — it is never card content. |
 | Code repo | Clone (shallow) to a temp dir; use README / package manifest / exported types as the surface. |
+| This session | No fetch needed — you already have it. Pull the substantive parts of the *current* conversation (the actual diffs, error messages, decisions, and the reasoning as it was actually stated) into `source.txt` verbatim, not a paraphrase — a card's quote should point at what was really said or done, not your summary of it. Deciding what's worth a card is judgment, not a rule: a bug that took real effort to diagnose, a non-obvious tradeoff, something you got corrected on — not everything that was discussed. Set `meta.source: {kind:"session"}` on the manifest. |
 
 **Precondition — do not skip:** if the corpus is empty or near-empty (image-only PDF, paywalled
 page with nothing extracted), abort with a clear message. Never emit cards from an empty corpus.
@@ -158,11 +159,11 @@ page with nothing extracted), abort with a clear message. Never emit cards from 
   "id": "<slug>",
   "name": "<Human Title>",
   "modality": "text",
-  "meta": { "source": { "kind": "pdf|url|repo|concept", "ref": "<path-or-url>" }, "grounding": "source" }
+  "meta": { "source": { "kind": "pdf|url|repo|concept|session", "ref": "<path-or-url-or-session-label>" }, "grounding": "source" }
 }
 ```
 
-Use `"grounding": "web"` for concept packs.
+Use `"grounding": "web"` for concept packs. For a session pack, `ref` is a short label for the work (e.g. "debugging the cache invalidation race, 2026-08-27"), not a path.
 
 ### Step 3 — draft cards, grounded in the corpus
 

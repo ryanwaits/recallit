@@ -6,7 +6,6 @@ import { join } from "node:path";
 import {
   appendContextNote,
   buildDailySessionPrompt,
-  buildPracticePrompt,
   buildSystemPrompt,
   gatherFacts,
   knownPhases,
@@ -72,18 +71,6 @@ describe("buildDailySessionPrompt", () => {
     const p = buildDailySessionPrompt(facts, ["reflect"]);
     expect(p).toContain("reflect:");
     expect(p).not.toContain("review:");
-  });
-});
-
-describe("buildPracticePrompt", () => {
-  test("includes tiered correction, mining, and the scenario", () => {
-    const p = buildPracticePrompt(facts, "Ordering tacos at a stand.");
-    expect(p).toContain("Recast");
-    expect(p).toContain("Explicit");
-    expect(p).toContain("Metalinguistic");
-    expect(p).toContain("mine_card");
-    expect(p).toContain("one-new-thing");
-    expect(p).toContain("Ordering tacos at a stand.");
   });
 });
 

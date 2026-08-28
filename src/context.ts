@@ -21,8 +21,17 @@ export async function gatherFacts(topicId: string, topic: TopicConfig): Promise<
   return { topic, totalCards: total, dueNow: due, contextNotes };
 }
 
-export function buildSystemPrompt(facts: SessionFacts): string {
-  const t = facts.topic;
+// Every prompt below is built as STATIC (topic-stable, identical across every session
+// of the same topic — cacheable) + PROMPT_CACHE_BOUNDARY + DYNAMIC (changes call to
+// call: live counts, learner-context notes, guardrails). Anthropic's prompt cache only
+// pays off on a stable prefix, and the agent SDK only honors the split when systemPrompt
+// is an array with SYSTEM_PROMPT_DYNAMIC_BOUNDARY marking it (see agent.ts) — so static
+// content MUST come first in these strings, dynamic content MUST come after the marker.
+// Reordering is safe for anything downstream that just checks substring presence.
+export const PROMPT_CACHE_BOUNDARY = "\n\n<<<RECALLIT_DYNAMIC_BOUNDARY>>>\n\n";
+
+/** The part of the identity block that never changes for a given topic. */
+function staticIdentity(t: TopicConfig): string[] {
   const goal = t.goalMetric ?? "cards_recalled";
   const lines = [
     "# recallit tutor",
@@ -40,14 +49,24 @@ export function buildSystemPrompt(facts: SessionFacts): string {
   ];
   if (t.recallStyle) lines.push(`- recall style: ${t.recallStyle}`);
   if (Object.keys(t.meta).length > 0) lines.push(`- domain config: ${JSON.stringify(t.meta)}`);
-  lines.push(
-    "",
+  return lines;
+}
+
+/** The part that changes on every call: live counts + accumulated learner-context notes. */
+function dynamicFacts(facts: SessionFacts): string[] {
+  return [
     "## What exists right now",
     `- ${facts.totalCards} cards total`,
     `- ${facts.dueNow} cards due for review now`,
     "",
     "## Learner context",
     facts.contextNotes.trim() || "(no context.md yet)",
+  ];
+}
+
+export function buildSystemPrompt(facts: SessionFacts): string {
+  const staticLines = [
+    ...staticIdentity(facts.topic),
     "",
     "## CRITICAL: how you operate",
     "You run autonomously through TOOLS in a single session. The learner is NOT reading your",
@@ -71,8 +90,8 @@ export function buildSystemPrompt(facts: SessionFacts): string {
     "- Never reveal a card's answer before await_user_response returns.",
     "- Never invent or override the rating; grade_card uses the engine's computed rating.",
     "- Keep narration concise and motivating; orient feedback around the goal metric.",
-  );
-  return lines.join("\n");
+  ];
+  return staticLines.join("\n") + PROMPT_CACHE_BOUNDARY + dynamicFacts(facts).join("\n");
 }
 
 /** Append a timestamped note to the topic's context.md (agent's update_context). */
@@ -156,73 +175,40 @@ export function resolveDailyPhases(topic: TopicConfig, regimen?: string): string
  * existing tools — no bespoke code per the agent-native principle.
  */
 export function buildDailySessionPrompt(facts: SessionFacts, remaining?: string[]): string {
+  // `remaining` (checkpoint resume) narrows to not-yet-done phases and is genuinely
+  // per-session, so it can't be cached; the full phase list for a fresh session is
+  // static per topic+style and belongs in the cacheable prefix.
+  const isResume = remaining !== undefined;
   const phases = remaining ?? coursePhases(facts.topic);
-  // Reuse the identity + facts header (everything before the review-specific section).
-  const base = buildSystemPrompt(facts).split("\n## CRITICAL")[0] ?? "";
-  const lines = [
-    base.trimEnd(),
+  const staticLines = [
+    ...staticIdentity(facts.topic),
     "",
     "## CRITICAL: how you operate",
     "You run autonomously through TOOLS in a single session. The learner's answers arrive",
     "ONLY via await_user_response — never wait for chat input. After each phase, call",
     "complete_phase(phase). When all phases are done, call complete_session. Do not stop early.",
     "",
-    "## Today's session — run these phases in order:",
-    ...phases.map((p, i) => `${i + 1}. ${p}: ${PHASE_GUIDE[p] ?? p}`),
-    "",
     "## Turn rules (apply in every phase that collects answers)",
     "- present_card gives only the FRONT; never reveal the back before await_user_response.",
     "- grade_card uses the engine's computed rating — never invent it.",
     "- Keep your turns short; maximize the learner's production time.",
   ];
-  return lines.join("\n");
-}
-
-/**
- * Practice/roleplay system prompt: output-focused conversation with immediate,
- * tiered error correction and mining of new items. Topic-agnostic — the subject
- * comes from the topic config + the optional scenario.
- */
-export function buildPracticePrompt(facts: SessionFacts, scenario?: string): string {
-  const t = facts.topic;
-  const goal = t.goalMetric ?? "items_produced";
-  const lines = [
-    "# recallit practice partner",
-    "",
-    `You run an interactive practice conversation for "${t.name}". Push the learner to`,
-    "PRODUCE, not just recognize — they should generate answers/utterances themselves.",
-    "",
-    "## Topic",
-    `- id: ${t.id}`,
-    `- modality: ${t.modality}`,
-    `- goal metric: ${goal}`,
-  ];
-  if (Object.keys(t.meta).length > 0) lines.push(`- domain config: ${JSON.stringify(t.meta)}`);
-  if (scenario) lines.push("", "## Scenario", scenario.trim());
-  lines.push(
-    "",
-    "## Get the learner's input",
-    "Always obtain the learner's response via await_user_response — never assume it.",
-    "",
-    "## Immediate, tiered error correction",
-    "Correct errors as they happen, escalating only as needed:",
-    "1. Recast — naturally restate their utterance correctly, without flagging it.",
-    "2. Explicit — point out the specific error and give the correct form.",
-    "3. Metalinguistic — explain the underlying rule so they notice the gap themselves.",
-    "Prefer the lightest tier that will land; escalate if the same error repeats.",
-    "",
-    "## Mine new and missed items",
-    "When a useful new element appears (or the learner misses one), call mine_card to",
-    "capture it. Follow the one-new-thing rule: each mined card introduces exactly ONE",
-    "new element, embedded in real context (an i+1 example). mine_card rejects items",
-    "with more than one new element or duplicates — pick a narrower element and retry.",
-    "",
-    "## Rules",
-    "- Favor the learner producing language over you talking; keep your turns short.",
-    "- Never fabricate that the learner said something; use await_user_response.",
-    "- When the learner ends, call complete_session with a short summary.",
-  );
-  return lines.join("\n");
+  if (!isResume) {
+    staticLines.push(
+      "",
+      "## Today's session — run these phases in order:",
+      ...phases.map((p, i) => `${i + 1}. ${p}: ${PHASE_GUIDE[p] ?? p}`),
+    );
+  }
+  const dynamicLines = dynamicFacts(facts);
+  if (isResume) {
+    dynamicLines.push(
+      "",
+      "## Today's session — run these remaining phases in order:",
+      ...phases.map((p, i) => `${i + 1}. ${p}: ${PHASE_GUIDE[p] ?? p}`),
+    );
+  }
+  return staticLines.join("\n") + PROMPT_CACHE_BOUNDARY + dynamicLines.join("\n");
 }
 
 /**
@@ -234,7 +220,7 @@ export function buildPracticePrompt(facts: SessionFacts, scenario?: string): str
  */
 export function buildTalkPrompt(facts: SessionFacts): string {
   const t = facts.topic;
-  const lines = [
+  const staticLines = [
     "# recallit free-talk partner",
     "",
     `You are a warm conversation partner for "${t.name}". The learner is practising by just`,
@@ -246,10 +232,9 @@ export function buildTalkPrompt(facts: SessionFacts): string {
     `- id: ${t.id}`,
     `- modality: ${t.modality}`,
   ];
-  if (Object.keys(t.meta).length > 0) lines.push(`- domain config: ${JSON.stringify(t.meta)}`);
-  if (facts.contextNotes.trim())
-    lines.push("", "## What they've been working on", facts.contextNotes.trim());
-  lines.push(
+  if (Object.keys(t.meta).length > 0)
+    staticLines.push(`- domain config: ${JSON.stringify(t.meta)}`);
+  staticLines.push(
     "",
     "## How to talk",
     "- Adapt to the subject: if this is a LANGUAGE topic, hold the conversation in the target language (infer it from the domain config and the cards); for any other subject, just talk about it naturally — explore it, think out loud together, follow their curiosity.",
@@ -269,5 +254,8 @@ export function buildTalkPrompt(facts: SessionFacts): string {
     "- Never fabricate that they said something; always get it via converse.",
     "- When they wind down, or converse reports they ended, call complete_session with a one-line summary of what you captured.",
   );
-  return lines.join("\n");
+  const dynamicLines = facts.contextNotes.trim()
+    ? ["## What they've been working on", facts.contextNotes.trim()]
+    : ["## What they've been working on", "(nothing recorded yet)"];
+  return staticLines.join("\n") + PROMPT_CACHE_BOUNDARY + dynamicLines.join("\n");
 }

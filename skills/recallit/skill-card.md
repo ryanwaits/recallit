@@ -3,9 +3,9 @@
 **Turn any source into honest, spaced-repetition flashcards — then drill them, right in chat.**
 
 recallit is a local, code-graded spaced-repetition engine. Give it a PDF, a URL, a code repo,
-or just a concept, and your agent builds a pack of cards grounded in that source — then runs
-your daily review loop, one exchange at a time, with the *engine* (not the model) deciding
-whether your answer was right.
+just a concept, or the coding session you're already in, and your agent builds a pack of cards
+grounded in that source — then runs your daily review loop, one exchange at a time, with the
+*engine* (not the model) deciding whether your answer was right.
 
 ## Why it's different
 
@@ -30,6 +30,7 @@ whether your answer was right.
 "turn this PDF into flashcards"
 "make a recallit deck from this article"
 "quiz me on the repo I just cloned"
+"help me remember what we just debugged"
 ```
 
 Once installed, ask your agent to build a pack from any source, then say "drill me" (or similar)

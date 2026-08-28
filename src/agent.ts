@@ -4,7 +4,12 @@
 // all invariants live in the tools (turn gating + engine-computed ratings).
 import { readdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
-import { createSdkMcpServer, query, tool } from "@anthropic-ai/claude-agent-sdk";
+import {
+  createSdkMcpServer,
+  query,
+  SYSTEM_PROMPT_DYNAMIC_BOUNDARY,
+  tool,
+} from "@anthropic-ai/claude-agent-sdk";
 import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 import { z } from "zod";
 import {
@@ -19,6 +24,7 @@ import {
   buildSystemPrompt,
   buildTalkPrompt,
   gatherFacts,
+  PROMPT_CACHE_BOUNDARY,
   resolveDailyPhases,
 } from "./context.ts";
 import { captureCard, mineCard } from "./mining.ts";
@@ -104,330 +110,308 @@ const fail = (msg: string): CallToolResult => ({
   isError: true,
 });
 
-/** Build the in-process MCP server for one review session. */
-function buildServer(session: ReviewSession, goalMetric: string) {
+/** Build the in-process MCP server for one review session, plus the exact list of
+ *  its tool names (mcp__recallit__-prefixed) for allowedTools — derived from the
+ *  same array passed to createSdkMcpServer, so the two can never drift apart. */
+function buildServer(
+  session: ReviewSession,
+  goalMetric: string,
+): { server: ReturnType<typeof createSdkMcpServer>; toolNames: string[] } {
   const t = session.topicId;
 
-  return createSdkMcpServer({
-    name: "recallit",
-    version: "1.0.0",
-    tools: [
-      tool(
-        "get_due_cards",
-        "List cards due for review now (front + id only — never the answer).",
-        { limit: z.number().int().positive().optional() },
-        async (args) => {
-          const due = await getDueCards(t, { limit: args.limit });
-          return ok(due.map((c) => ({ id: c.id, front: c.front, context: c.context })));
-        },
-      ),
+  const toolDefs = [
+    tool(
+      "get_due_cards",
+      "List cards due for review now (front + id only — never the answer).",
+      { limit: z.number().int().positive().optional() },
+      async (args) => {
+        const due = await getDueCards(t, { limit: args.limit });
+        return ok(due.map((c) => ({ id: c.id, front: c.front, context: c.context })));
+      },
+    ),
 
-      tool(
-        "present_card",
-        "Begin a review turn for a card; returns its FRONT (not the answer).",
-        { card_id: z.string() },
-        async (args) => {
+    tool(
+      "present_card",
+      "Begin a review turn for a card; returns its FRONT (not the answer).",
+      { card_id: z.string() },
+      async (args) => {
+        try {
+          return ok(await presentCard(t, session.tracker, args.card_id));
+        } catch (e) {
+          return fail(String(e instanceof Error ? e.message : e));
+        }
+      },
+    ),
+
+    tool(
+      "await_user_response",
+      "Collect the learner's answer for the presented card. Must be called before reveal_answer.",
+      { card_id: z.string() },
+      async (args) => {
+        const card = await getCard(t, args.card_id);
+        if (!card) return fail(`card not found: ${args.card_id}`);
+        const answer = await session.answerProvider(card.id, card.front, card.context, card.media);
+        if (answer === null) {
+          return ok({ ended: true, note: "learner ended the session; call complete_session" });
+        }
+        try {
+          await submitResponse(t, session.tracker, args.card_id, answer);
+          return ok({ answer });
+        } catch (e) {
+          return fail(String(e instanceof Error ? e.message : e));
+        }
+      },
+    ),
+
+    tool(
+      "converse",
+      "Roleplay/free-conversation turn: speak a line to the learner and capture their reply, WITHOUT presenting a card or grading. Returns the transcript. Use this (not await_user_response) for conversational phases.",
+      { say: z.string() },
+      async (args) => {
+        if (!session.converseProvider) {
+          return ok({
+            note: "no conversational channel in this session; present a card with await_user_response instead",
+          });
+        }
+        const reply = await session.converseProvider(args.say);
+        if (reply === null) {
+          return ok({ ended: true, note: "learner ended the session; call complete_session" });
+        }
+        return ok({ transcript: reply });
+      },
+    ),
+
+    tool(
+      "reveal_answer",
+      "Reveal the card's answer and the engine-computed rating. Gated: requires a recorded response.",
+      { card_id: z.string() },
+      async (args) => {
+        try {
+          return ok(await revealAnswer(t, session.tracker, args.card_id));
+        } catch (e) {
+          return fail(String(e instanceof Error ? e.message : e));
+        }
+      },
+    ),
+
+    tool(
+      "grade_card",
+      "Record the review and reschedule via FSRS, using the engine's computed rating.",
+      { card_id: z.string() },
+      async (args) => {
+        try {
+          const g = await gradeTurn(t, session.tracker, args.card_id);
+          session.onGraded?.(args.card_id, { rating: g.rating, reasons: g.reasons });
+          return ok(g);
+        } catch (e) {
+          return fail(String(e instanceof Error ? e.message : e));
+        }
+      },
+    ),
+
+    tool("get_progress", "Get progress + habit stats for the active topic.", {}, async () =>
+      ok(await getProgress(t, goalMetric)),
+    ),
+
+    tool("read_context", "Read the learner's context.md notes.", {}, async () => {
+      const facts = await gatherFacts(t, (await readTopicConfig(t)) ?? defaultTopic(t));
+      return ok({ context: facts.contextNotes });
+    }),
+
+    tool(
+      "read_card",
+      "Read a single card by id (including its answer).",
+      { card_id: z.string() },
+      async (args) => {
+        const c = await getCard(t, args.card_id);
+        return c ? ok(c) : fail(`card not found: ${args.card_id}`);
+      },
+    ),
+
+    tool(
+      "create_card",
+      "Create a new card in the active topic.",
+      {
+        front: z.string(),
+        back: z.string(),
+        type: z.string().optional(),
+        context: z.string().optional(),
+        tags: z.array(z.string()).optional(),
+      },
+      async (args) => {
+        const c = await createCard(t, {
+          front: args.front,
+          back: args.back,
+          type: args.type,
+          context: args.context,
+          tags: args.tags,
+        });
+        return ok({ id: c.id });
+      },
+    ),
+
+    tool(
+      "update_card",
+      "Update fields of an existing card.",
+      {
+        card_id: z.string(),
+        front: z.string().optional(),
+        back: z.string().optional(),
+        context: z.string().optional(),
+      },
+      async (args) => {
+        const { card_id, ...patch } = args;
+        const before = await getCard(t, card_id);
+        const c = await updateCard(t, card_id, patch);
+        if (!c) return fail(`card not found: ${card_id}`);
+        // The prompt text changed: let the host refresh derived audio so the
+        // stored native.mp3 doesn't go stale against the new front.
+        if (patch.front !== undefined && before && patch.front !== before.front) {
           try {
-            return ok(await presentCard(t, session.tracker, args.card_id));
+            await session.onCardContentChanged?.(c);
           } catch (e) {
-            return fail(String(e instanceof Error ? e.message : e));
-          }
-        },
-      ),
-
-      tool(
-        "await_user_response",
-        "Collect the learner's answer for the presented card. Must be called before reveal_answer.",
-        { card_id: z.string() },
-        async (args) => {
-          const card = await getCard(t, args.card_id);
-          if (!card) return fail(`card not found: ${args.card_id}`);
-          const answer = await session.answerProvider(
-            card.id,
-            card.front,
-            card.context,
-            card.media,
-          );
-          if (answer === null) {
-            return ok({ ended: true, note: "learner ended the session; call complete_session" });
-          }
-          try {
-            await submitResponse(t, session.tracker, args.card_id, answer);
-            return ok({ answer });
-          } catch (e) {
-            return fail(String(e instanceof Error ? e.message : e));
-          }
-        },
-      ),
-
-      tool(
-        "converse",
-        "Roleplay/free-conversation turn: speak a line to the learner and capture their reply, WITHOUT presenting a card or grading. Returns the transcript. Use this (not await_user_response) for conversational phases.",
-        { say: z.string() },
-        async (args) => {
-          if (!session.converseProvider) {
-            return ok({
-              note: "no conversational channel in this session; present a card with await_user_response instead",
+            record(session, "info", {
+              warn: "card audio regen failed",
+              error: String(e instanceof Error ? e.message : e),
             });
           }
-          const reply = await session.converseProvider(args.say);
-          if (reply === null) {
-            return ok({ ended: true, note: "learner ended the session; call complete_session" });
-          }
-          return ok({ transcript: reply });
-        },
-      ),
+        }
+        return ok({ id: c.id });
+      },
+    ),
 
-      tool(
-        "reveal_answer",
-        "Reveal the card's answer and the engine-computed rating. Gated: requires a recorded response.",
-        { card_id: z.string() },
-        async (args) => {
-          try {
-            return ok(await revealAnswer(t, session.tracker, args.card_id));
-          } catch (e) {
-            return fail(String(e instanceof Error ? e.message : e));
-          }
-        },
-      ),
+    tool("delete_card", "Delete a card by id.", { card_id: z.string() }, async (args) => {
+      const removed = await deleteCard(t, args.card_id);
+      return ok({ removed });
+    }),
 
-      tool(
-        "grade_card",
-        "Record the review and reschedule via FSRS, using the engine's computed rating.",
-        { card_id: z.string() },
-        async (args) => {
-          try {
-            const g = await gradeTurn(t, session.tracker, args.card_id);
-            session.onGraded?.(args.card_id, { rating: g.rating, reasons: g.reasons });
-            return ok(g);
-          } catch (e) {
-            return fail(String(e instanceof Error ? e.message : e));
-          }
-        },
-      ),
+    tool(
+      "search_cards",
+      "Search cards by text across front/back/context/tags.",
+      { query: z.string() },
+      async (args) => {
+        const found = await searchCards(t, args.query);
+        return ok(found.map((c) => ({ id: c.id, front: c.front, back: c.back })));
+      },
+    ),
 
-      tool("get_progress", "Get progress + habit stats for the active topic.", {}, async () =>
-        ok(await getProgress(t, goalMetric)),
-      ),
-
-      tool("read_context", "Read the learner's context.md notes.", {}, async () => {
-        const facts = await gatherFacts(t, (await readTopicConfig(t)) ?? defaultTopic(t));
-        return ok({ context: facts.contextNotes });
-      }),
-
-      tool(
-        "read_card",
-        "Read a single card by id (including its answer).",
-        { card_id: z.string() },
-        async (args) => {
-          const c = await getCard(t, args.card_id);
-          return c ? ok(c) : fail(`card not found: ${args.card_id}`);
-        },
-      ),
-
-      tool(
-        "create_card",
-        "Create a new card in the active topic.",
-        {
-          front: z.string(),
-          back: z.string(),
-          type: z.string().optional(),
-          context: z.string().optional(),
-          tags: z.array(z.string()).optional(),
-        },
-        async (args) => {
-          const c = await createCard(t, {
-            front: args.front,
+    tool(
+      "mine_card",
+      "Capture ONE new element from context as a card (i+1). Rejected if more than one element is new, the element isn't in the content, or it's a duplicate.",
+      {
+        content: z.string(),
+        new_element: z.string(),
+        back: z.string().optional(),
+        type: z.string().optional(),
+      },
+      async (args) => {
+        try {
+          const { card } = await mineCard(t, {
+            content: args.content,
+            newElement: args.new_element,
             back: args.back,
             type: args.type,
-            context: args.context,
-            tags: args.tags,
           });
-          return ok({ id: c.id });
-        },
-      ),
-
-      tool(
-        "update_card",
-        "Update fields of an existing card.",
-        {
-          card_id: z.string(),
-          front: z.string().optional(),
-          back: z.string().optional(),
-          context: z.string().optional(),
-        },
-        async (args) => {
-          const { card_id, ...patch } = args;
-          const before = await getCard(t, card_id);
-          const c = await updateCard(t, card_id, patch);
-          if (!c) return fail(`card not found: ${card_id}`);
-          // The prompt text changed: let the host refresh derived audio so the
-          // stored native.mp3 doesn't go stale against the new front.
-          if (patch.front !== undefined && before && patch.front !== before.front) {
-            try {
-              await session.onCardContentChanged?.(c);
-            } catch (e) {
-              record(session, "info", {
-                warn: "card audio regen failed",
-                error: String(e instanceof Error ? e.message : e),
-              });
-            }
-          }
-          return ok({ id: c.id });
-        },
-      ),
-
-      tool("delete_card", "Delete a card by id.", { card_id: z.string() }, async (args) => {
-        const removed = await deleteCard(t, args.card_id);
-        return ok({ removed });
-      }),
-
-      tool(
-        "search_cards",
-        "Search cards by text across front/back/context/tags.",
-        { query: z.string() },
-        async (args) => {
-          const found = await searchCards(t, args.query);
-          return ok(found.map((c) => ({ id: c.id, front: c.front, back: c.back })));
-        },
-      ),
-
-      tool(
-        "mine_card",
-        "Capture ONE new element from context as a card (i+1). Rejected if more than one element is new, the element isn't in the content, or it's a duplicate.",
-        {
-          content: z.string(),
-          new_element: z.string(),
-          back: z.string().optional(),
-          type: z.string().optional(),
-        },
-        async (args) => {
-          try {
-            const { card } = await mineCard(t, {
-              content: args.content,
-              newElement: args.new_element,
-              back: args.back,
-              type: args.type,
-            });
-            const q = checkCardQuality({
-              front: card.front,
-              back: card.back,
-              context: card.context,
-            });
-            return ok({ id: card.id, qualityFlags: q.flags });
-          } catch (e) {
-            return fail(String(e instanceof Error ? e.message : e));
-          }
-        },
-      ),
-
-      tool(
-        "capture_card",
-        "Capture a whole phrase, fact, or idea the learner wants to learn and remember, as a card for later spaced practice (use this in free-talk, not mine_card). front = the prompt, question, or situation; back = what they should be able to recall or produce; context = where it came from. Dedups on front; no one-new-thing limit.",
-        {
-          front: z.string(),
-          back: z.string(),
-          context: z.string().optional(),
-          type: z.string().optional(),
-        },
-        async (args) => {
-          try {
-            const { card, qualityFlags } = await captureCard(t, {
-              front: args.front,
-              back: args.back,
-              context: args.context,
-              type: args.type,
-            });
-            return ok({ id: card.id, qualityFlags });
-          } catch (e) {
-            return fail(String(e instanceof Error ? e.message : e));
-          }
-        },
-      ),
-
-      tool(
-        "update_context",
-        "Append a note to the learner's context (what went well, weak spots) for future sessions.",
-        { note: z.string() },
-        async (args) => {
-          await appendContextNote(t, args.note);
-          return ok({ saved: true });
-        },
-      ),
-
-      tool("list_scenarios", "List available roleplay/practice scenario ids.", {}, async () => {
-        try {
-          const files = await readdir(scenariosDir(t));
-          return ok(files.filter((f) => f.endsWith(".md")).map((f) => f.replace(/\.md$/, "")));
-        } catch {
-          return ok([]);
+          const q = checkCardQuality({
+            front: card.front,
+            back: card.back,
+            context: card.context,
+          });
+          return ok({ id: card.id, qualityFlags: q.flags });
+        } catch (e) {
+          return fail(String(e instanceof Error ? e.message : e));
         }
-      }),
+      },
+    ),
 
-      tool(
-        "read_scenario",
-        "Read a roleplay/practice scenario by id.",
-        { id: z.string() },
-        async (args) => {
-          try {
-            const text = await readFile(join(scenariosDir(t), `${args.id}.md`), "utf8");
-            return ok({ id: args.id, scenario: text });
-          } catch {
-            return fail(`scenario not found: ${args.id}`);
-          }
-        },
-      ),
+    tool(
+      "capture_card",
+      "Capture a whole phrase, fact, or idea the learner wants to learn and remember, as a card for later spaced practice (use this in free-talk, not mine_card). front = the prompt, question, or situation; back = what they should be able to recall or produce; context = where it came from. Dedups on front; no one-new-thing limit.",
+      {
+        front: z.string(),
+        back: z.string(),
+        context: z.string().optional(),
+        type: z.string().optional(),
+      },
+      async (args) => {
+        try {
+          const { card, qualityFlags } = await captureCard(t, {
+            front: args.front,
+            back: args.back,
+            context: args.context,
+            type: args.type,
+          });
+          return ok({ id: card.id, qualityFlags });
+        } catch (e) {
+          return fail(String(e instanceof Error ? e.message : e));
+        }
+      },
+    ),
 
-      tool(
-        "complete_phase",
-        "Mark a daily-session phase complete (checkpoint, so a resumed session skips it).",
-        { phase: z.string() },
-        async (args) => {
-          await markPhaseComplete(t, session.id, args.phase);
-          return ok({ phase: args.phase });
-        },
-      ),
+    tool(
+      "update_context",
+      "Append a note to the learner's context (what went well, weak spots) for future sessions.",
+      { note: z.string() },
+      async (args) => {
+        await appendContextNote(t, args.note);
+        return ok({ saved: true });
+      },
+    ),
 
-      tool(
-        "complete_session",
-        "Signal the session is finished. Provide a short summary.",
-        { summary: z.string() },
-        async (args) => {
-          session.completed = true;
-          session.summary = args.summary;
-          return ok({ done: true });
-        },
-      ),
-    ],
-  });
+    tool("list_scenarios", "List available roleplay/practice scenario ids.", {}, async () => {
+      try {
+        const files = await readdir(scenariosDir(t));
+        return ok(files.filter((f) => f.endsWith(".md")).map((f) => f.replace(/\.md$/, "")));
+      } catch {
+        return ok([]);
+      }
+    }),
+
+    tool(
+      "read_scenario",
+      "Read a roleplay/practice scenario by id.",
+      { id: z.string() },
+      async (args) => {
+        try {
+          const text = await readFile(join(scenariosDir(t), `${args.id}.md`), "utf8");
+          return ok({ id: args.id, scenario: text });
+        } catch {
+          return fail(`scenario not found: ${args.id}`);
+        }
+      },
+    ),
+
+    tool(
+      "complete_phase",
+      "Mark a daily-session phase complete (checkpoint, so a resumed session skips it).",
+      { phase: z.string() },
+      async (args) => {
+        await markPhaseComplete(t, session.id, args.phase);
+        return ok({ phase: args.phase });
+      },
+    ),
+
+    tool(
+      "complete_session",
+      "Signal the session is finished. Provide a short summary.",
+      { summary: z.string() },
+      async (args) => {
+        session.completed = true;
+        session.summary = args.summary;
+        return ok({ done: true });
+      },
+    ),
+  ];
+
+  return {
+    server: createSdkMcpServer({ name: "recallit", version: "1.0.0", tools: toolDefs }),
+    toolNames: toolDefs.map((d) => `mcp__recallit__${d.name}`),
+  };
 }
 
 function defaultTopic(id: string): TopicConfig {
   return { id, name: id, modality: "text", meta: {} };
 }
-
-export const TOOL_NAMES = [
-  "get_due_cards",
-  "present_card",
-  "await_user_response",
-  "converse",
-  "reveal_answer",
-  "grade_card",
-  "get_progress",
-  "read_context",
-  "read_card",
-  "create_card",
-  "update_card",
-  "delete_card",
-  "search_cards",
-  "mine_card",
-  "capture_card",
-  "update_context",
-  "list_scenarios",
-  "read_scenario",
-  "complete_phase",
-  "complete_session",
-].map((n) => `mcp__recallit__${n}`);
 
 export interface RunOptions {
   prompt?: string;
@@ -501,7 +485,23 @@ export async function runSession(
   if (opts.guardrails?.length) {
     systemPrompt += `\n\n## Additional constraints\n${opts.guardrails.map((g) => `- ${g}`).join("\n")}`;
   }
-  const server = buildServer(session, goalMetric);
+  const { server, toolNames } = buildServer(session, goalMetric);
+
+  // Split on the cache boundary so the SDK marks the topic-stable prefix (identity,
+  // rules, phase guide) as cacheable and only the per-session facts (due count,
+  // learner-context notes, guardrails) as the uncached dynamic tail. Cuts prompt
+  // processing time on every session after the first for a given topic. A prompt with
+  // no boundary (shouldn't happen for the builders above, but stay safe) falls back to
+  // the plain string.
+  const boundaryIdx = systemPrompt.indexOf(PROMPT_CACHE_BOUNDARY);
+  const systemPromptForQuery: string | string[] =
+    boundaryIdx === -1
+      ? systemPrompt
+      : [
+          systemPrompt.slice(0, boundaryIdx),
+          SYSTEM_PROMPT_DYNAMIC_BOUNDARY,
+          systemPrompt.slice(boundaryIdx + PROMPT_CACHE_BOUNDARY.length),
+        ];
 
   let result: RunResult = { stopReason: "unknown", numTurns: 0, costUsd: 0 };
 
@@ -509,8 +509,8 @@ export async function runSession(
     prompt: opts.prompt ?? defaultPrompt,
     options: {
       mcpServers: { recallit: server },
-      allowedTools: TOOL_NAMES,
-      systemPrompt,
+      allowedTools: toolNames,
+      systemPrompt: systemPromptForQuery,
       model: opts.model ?? "claude-sonnet-4-6",
       maxTurns: opts.maxTurns ?? 60,
       maxBudgetUsd: opts.maxBudgetUsd ?? 1,
