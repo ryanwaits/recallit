@@ -11,13 +11,16 @@ The engine knows nothing about any subject. A topic is a plug-in: config + cards
 
 ## Quick start
 
-One command — seeds a starter pack (Conversational Mexican Spanish), boots the app, opens your browser:
+`@waits/recallit` is the engine only — no bundled UI. Install it, then author and drill from the CLI:
 
 ```bash
-bunx @waits/recallit start
+bun add -g @waits/recallit
+recallit topic add <a-file, a-url, a-repo, or a bare concept>
+recallit due
+recallit answer <cardId> "your answer"
 ```
 
-Keyless by default: real cards, real grading, **no API spend**. Paste an `ANTHROPIC_API_KEY` at the prompt (or set it in your environment) to enable the live AI tutor. Data persists to `~/.recallit`.
+Data persists to `~/.recallit`. Want to see it work with zero setup first? [`@waits/recallit-tutor`](tutor/) is a reference browser app built on this same engine — `bunx @waits/recallit-tutor` seeds a starter pack, boots the app, and opens your browser, keyless by default: real cards, real grading, **no API spend**. Paste an `ANTHROPIC_API_KEY` at its prompt (or set it in your environment) to enable the live AI tutor there.
 
 Comprehension grading (`coverage` cards) can also run on **any OpenAI-compatible endpoint** instead of Anthropic — e.g. a local Ollama:
 
@@ -53,9 +56,11 @@ src/
   pack.ts       topic-pack spec: manifest/card schemas + loadPack
   install.ts    installPack: validate + materialize a pack into ~/.recallit
   resolve.ts    resolve `topic add` source (dir/tarball/git/npm) to a pack dir
-  server.ts     Bun HTTP+WS voice host
   index.ts      public API barrel (also the engine's importable package surface)
   cli.ts        headless CLI harness
+
+tutor/          reference browser app (@waits/recallit-tutor) — a separate
+                package built on this engine, not part of it. See tutor/.
 ```
 
 Data lives under `~/.recallit` (override with `RECALLIT_DATA_DIR`). Subjects ship as **packs** under `packs/<id>/`; install with `topic add` (see ARCHITECTURE.md → *Topic packs*).
@@ -102,11 +107,13 @@ RECALLIT_LIVE_TEST=1 ANTHROPIC_API_KEY=sk-ant-... bun test test/agent.live.test.
 
 ## Voice mode (browser)
 
-A Bun HTTP+WS server hosts a voice review session: the browser records push-to-talk
-audio, the server transcribes it (STT), stores the attempt next to the card, and feeds
-the transcript into the same turn machine; the agent's prompts are spoken back (TTS).
+Voice hosting lives in [`tutor/`](tutor/) (`@waits/recallit-tutor`), not in the engine: a
+Bun HTTP+WS server hosts a voice review session — the browser records push-to-talk audio,
+the server transcribes it (STT), stores the attempt next to the card, and feeds the
+transcript into the engine's turn machine; the agent's prompts are spoken back (TTS).
 
 ```bash
+cd tutor
 export ANTHROPIC_API_KEY=sk-ant-...      # agent loop
 export ELEVENLABS_API_KEY=...            # TTS + STT (Scribe) — covers voice on its own
 export ELEVENLABS_VOICE_ID=...           # optional; per-topic voice
@@ -115,9 +122,9 @@ bun run serve                            # http://localhost:3000
 
 By default both TTS and STT use ElevenLabs (Scribe). To use OpenAI `gpt-4o-transcribe`
 for STT instead, set `RECALLIT_STT=openai` and provide `OPENAI_API_KEY` (needs credits).
-STT/TTS sit behind `SttProvider`/`TtsProvider` interfaces (`src/voice/`), so providers
+STT/TTS sit behind `SttProvider`/`TtsProvider` interfaces (`tutor/src/voice/`), so providers
 are swappable and the WS/turn wiring is tested offline with mocks. Optional live
-round-trip: `RECALLIT_LIVE_TEST=1 bun test test/voice.live.test.ts`.
+round-trip: `RECALLIT_LIVE_TEST=1 bun test tutor/test/voice.live.test.ts`.
 
 ## Mining & correction
 

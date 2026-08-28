@@ -8,13 +8,13 @@ recallit is **one deploy = one user** (not a SaaS): your data lives on disk unde
 
 ## 0. Get started
 
-From zero — `start` seeds a starter pack (Conversational Mexican Spanish), boots the app, and opens your browser:
+`@waits/recallit` is the engine only, no bundled UI. From zero, drive the CLI directly (see below). Want a zero-setup browser demo first? [`@waits/recallit-tutor`](../tutor/) is a separate reference-app package built on this engine — it seeds a starter pack (Conversational Mexican Spanish), boots the app, and opens your browser:
 
 ```bash
-bunx @waits/recallit start
+bunx @waits/recallit-tutor
 ```
 
-Keyless by default (real cards, real grading, **no API spend**). Paste an `ANTHROPIC_API_KEY` at the prompt — or set it in your environment — to enable the live AI tutor; voiced practice also needs `ELEVENLABS_API_KEY`. Data persists to `~/.recallit`. Headless/CI runs skip the browser and just print the URL.
+Keyless by default (real cards, real grading, **no API spend**). Paste an `ANTHROPIC_API_KEY` at the prompt — or set it in your environment — to enable the live AI tutor there; voiced practice also needs `ELEVENLABS_API_KEY`. Data persists to `~/.recallit`. Headless/CI runs skip the browser and just print the URL.
 
 For everything else, drive the CLI directly. recallit is **Bun-only** (the engine imports `bun:sqlite`). The CLI bin is `recallit`.
 
@@ -143,15 +143,21 @@ bun run seed:spanish    # = recallit topic add packs/spanish-mx-rgv --force
 
 ### Hosting the browser surface
 
+The browser surface lives in `tutor/` (`@waits/recallit-tutor`), a separate package built on this engine — not part of `@waits/recallit`:
+
 ```bash
+cd tutor
 bun run serve            # full server (needs voice + Anthropic keys for voice/agent)
 bun run serve:local      # keyless dev server: real grading, stubbed STT/TTS, no LLM
-bun run serve:marketing  # static marketing site (port 8080)
 ```
 
-The full server (`src/server.ts`) serves the SPA at `/`, a pack gallery at `GET /api/packs`, progress at `GET /api/progress?topicId=`, card audio at `GET /media/<topicId>/<cardId>/<file>`, and a WebSocket session at `/ws?topicId=`. The pack-install route `POST /api/packs/install` is **gated by `RECALLIT_NO_INSTALL`** — set it on any shared/public deploy to return 403 (it executes arbitrary git/npm otherwise).
+```bash
+bun run serve:marketing  # static marketing site (port 8080) — still at repo root
+```
 
-> The full SPA (`public/index.html`) and live server are functional; a hosted "deploy-your-own" product is on the roadmap, not shipped.
+The full server (`tutor/src/server.ts`) serves the SPA at `/`, a pack gallery at `GET /api/packs`, progress at `GET /api/progress?topicId=`, card audio at `GET /media/<topicId>/<cardId>/<file>`, and a WebSocket session at `/ws?topicId=`. The pack-install route `POST /api/packs/install` is **gated by `RECALLIT_NO_INSTALL`** — set it on any shared/public deploy to return 403 (it executes arbitrary git/npm otherwise).
+
+> The full SPA (`tutor/public/index.html`) and live server are functional; a hosted "deploy-your-own" product is on the roadmap, not shipped.
 
 ---
 
@@ -198,7 +204,7 @@ ELEVENLABS_API_KEY=...    # default STT (Scribe) + TTS
 # optional: use OpenAI for STT
 RECALLIT_STT=openai OPENAI_API_KEY=...
 
-bun run serve
+cd tutor && bun run serve
 # open the SPA, pick a voice pack, push-to-talk
 ```
 

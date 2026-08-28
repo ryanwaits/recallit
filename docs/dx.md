@@ -23,11 +23,16 @@ bun install
 | `lint` | `biome check src` | Biome lint + format check over `src`. |
 | `lint:fix` | `biome check --write src` | Auto-fix lint/format. |
 | `cli` | `bun run src/cli.ts` | Run the CLI from source. |
-| `serve` | `bun run src/server.ts` | The real HTTP + WS server (needs voice provider keys). |
-| `serve:local` | `bun run scripts/serve-local.ts` | **Keyless** dev server: real grading, stubbed STT/TTS, no LLM. |
 | `serve:marketing` | `bun run scripts/serve-marketing.ts` | Static marketing site server (default port 8080). |
 | `examiner:harness` | `bun run scripts/examiner-harness.ts` | Re-runnable examiner stress test (needs `ANTHROPIC_API_KEY`). |
 | `seed:spanish` | `bun run src/cli.ts topic add packs/spanish-mx-rgv --force` | Install the bundled RGV Spanish pack. |
+
+The browser/voice server lives in the separate `tutor/` package (`@waits/recallit-tutor`), not the engine's own scripts:
+
+| Script (run from `tutor/`) | Command | What it does |
+| --- | --- | --- |
+| `serve` | `bun run src/server.ts` | The real HTTP + WS server (needs voice provider keys). |
+| `serve:local` | `bun run src/serve-local.ts` | **Keyless** dev server: real grading, stubbed STT/TTS, no LLM. |
 
 Per the user's tooling preference, prefer `bunx` over `npx` when running one-off CLI tools (e.g. `bunx tsc`, `bunx biome`).
 
@@ -35,7 +40,7 @@ Per the user's tooling preference, prefer `bunx` over `npx` when running one-off
 
 ```bash
 # Real grading loop, zero API keys, browser UI:
-bun run serve:local
+cd tutor && bun run serve:local
 # then open the printed localhost URL — push-to-talk is stubbed, but the
 # phase rail, grade-receipt chips, and FSRS scheduling are all real.
 ```

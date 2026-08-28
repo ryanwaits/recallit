@@ -200,7 +200,7 @@ Runs the agent editor → `ANTHROPIC_API_KEY` + real cost. Dedup is exact-front-
 A pack with `modality:voice`/`both` unlocks shadowing + roleplay in `daily`, plus the push-to-talk browser:
 
 ```bash
-bun run serve          # http://localhost:3000 — runs the daily regimen
+cd tutor && bun run serve   # http://localhost:3000 — runs the daily regimen (separate @waits/recallit-tutor package)
 ```
 
 Needs `ELEVENLABS_API_KEY` (one key: TTS + Scribe STT). Per-card `native.mp3` plays in shadowing; roleplay uses the card-less `converse` turn. Per-topic `meta.voiceId` is wired (no `ELEVENLABS_VOICE_ID` needed). Alt STT: `RECALLIT_STT=openai` + `OPENAI_API_KEY`. Full voice internals, data flow, and provider swaps: **`docs/guides/03-operating-the-agent.md`**.
@@ -224,7 +224,7 @@ Needs `ELEVENLABS_API_KEY` (one key: TTS + Scribe STT). Per-card `native.mp3` pl
 | `rebuild [--topic id]` | rebuild the sqlite index |
 | `pack review <pack-dir>` / `pack write <pack-dir>` | inspect / re-gate needs-review cards (no LLM) |
 | `pack edit <id> "<instruction>" [--dry-run\|--auto]` | enhance a pack (additive = FSRS preserved) (LLM) |
-| `bun run serve` | voice browser, runs daily regimen |
+| `cd tutor && bun run serve` | voice browser, runs daily regimen (separate `@waits/recallit-tutor` package) |
 
 **LLM-backed** (`agent`, `daily`, `pack edit`) need `ANTHROPIC_API_KEY` and cost real money. **Deterministic** (`answer`, `review`, `due`, `stats`, `card *`, `pack review/write`) need no key and no spend.
 

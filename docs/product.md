@@ -39,11 +39,11 @@ It is explicitly **not** a multi-tenant SaaS: no accounts, no managed-key billin
 | Surface | What it is | How you reach it |
 |---|---|---|
 | **CLI** | Thin harness over the engine primitives. Topic/card CRUD, due/review/answer, pack generation, agent loops. | `bunx @waits/recallit <command>` (bin: `recallit`) |
-| **Branded SPA** | Single-file browser app (`public/index.html`): pack gallery, push-to-talk + text, live phase rail, grade-receipt chips. | `bun run src/server.ts` (HTTP + WS); requires voice providers |
-| **Voice** | Pluggable STT/TTS (`SttProvider` / `TtsProvider`). Concrete ElevenLabs + OpenAI implementations. | Wired into the server; per-card `native.mp3` audio on disk |
+| **Branded SPA** | Single-file browser app (`tutor/public/index.html`, a separate package: `@waits/recallit-tutor`): pack gallery, push-to-talk + text, live phase rail, grade-receipt chips. | `bunx @waits/recallit-tutor`, or `bun run src/server.ts` from `tutor/` (HTTP + WS); requires voice providers |
+| **Voice** | Pluggable STT/TTS (`SttProvider` / `TtsProvider`). Concrete ElevenLabs + OpenAI implementations. | Lives in `tutor/src/voice/`, wired into the server; per-card `native.mp3` audio on disk |
 | **Pack export** | Self-contained study-kit HTML: ready cards + base64-embedded audio + checkable-item "key points". Zero external requests. | `recallit pack export <id>` |
 | **Mobile / PWA** | **Planned/gated** (Phase 0–3, see `docs/design/mobile-surfaces.md`). Track A = offline study deck (today); Track B = full tutor PWA (gated on a real https deploy + your own keys). | Add-to-Home-Screen of an exported deck (today); installable SPA (gated) |
-| **Dev servers** | `serve:local` (keyless SPA over real grading, no LLM/voice), `serve:marketing` (static marketing site). | `bun run scripts/serve-local.ts` / `serve-marketing.ts` |
+| **Dev servers** | `tutor/`'s `serve:local` (keyless SPA over real grading, no LLM/voice), root's `serve:marketing` (static marketing site). | `cd tutor && bun run serve:local` / `bun run scripts/serve-marketing.ts` |
 
 ### CLI command surface
 
@@ -184,7 +184,7 @@ recallit quickstart <source>   # install a pack, then start today's session
 
 ## Keys, cost & deployment reality
 
-- **Free, no keys:** CLI recall over hand-authored or already-installed cards (lexical grading); the keyless dev SPA (`serve:local`) over real grading; the static marketing site; an exported study deck.
+- **Free, no keys:** CLI recall over hand-authored or already-installed cards (lexical grading); `@waits/recallit-tutor`'s keyless dev SPA (`serve:local`) over real grading; the static marketing site; an exported study deck.
 - **Costs real money (your keys, your spend):** pack generation (`ANTHROPIC_API_KEY`), the examiner per turn, and voice STT/TTS (`ELEVENLABS_API_KEY` / OpenAI). The icon is free; the conversation is not.
 - **Bundled packs are repo-only:** `spanish-mx-rgv` (voice, RGV Spanish) and `architecture` (comprehension, dogfooded from the repo's own `ARCHITECTURE.md`) ship in the repo but **not** in the npm tarball (`files: ["src"]`). A consumer installing `@waits/recallit` gets the CLI/engine, not those packs.
 - **Runtime:** Bun-only — the engine imports `bun:sqlite`.

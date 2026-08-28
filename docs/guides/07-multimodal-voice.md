@@ -51,7 +51,10 @@ Because audio ships in the pack, install + shadowing + review need **no ElevenLa
 
 ## 3. Run it — browser (`serve`)
 
+The browser server lives in the separate `tutor/` package (`@waits/recallit-tutor`):
+
 ```bash
+cd tutor
 bun run serve     # http://localhost:3000  (PORT to override)
 ```
 

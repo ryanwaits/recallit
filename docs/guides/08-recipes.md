@@ -115,10 +115,10 @@ bun run cli pack edit zod "card 7 is wrong, fix the back"
 ## Recipe 6 — Speak a language (voice)
 
 ```bash
-bun run seed:spanish      # install the reference Conversational Mexican Spanish (RGV) pack (41 cards, bundled audio)
-bun run serve             # voice browser at localhost:3000 — push-to-talk, runs the daily regimen
+bun run seed:spanish        # install the reference Conversational Mexican Spanish (RGV) pack (41 cards, bundled audio)
+(cd tutor && bun run serve) # voice browser at localhost:3000 — push-to-talk, runs the daily regimen
 #   or headless:
-bun run cli daily         # shadowing → review → roleplay → reflect
+bun run cli daily           # shadowing → review → roleplay → reflect
 ```
 
 A `voice` / `both` modality pack turns on shadowing + roleplay phases (text packs run only review → reflect). Per-card `native.mp3` is played in shadowing; roleplay drives free spoken turns via a card-less `converse` turn (no card required — wired in `agent`, `daily`, and the browser `serve`). Seeded audio is bundled, so seeding needs **no** ElevenLabs key; live TTS/STT in `serve` does. STT provider swap: `RECALLIT_STT=openai` + `OPENAI_API_KEY` uses `gpt-4o-transcribe` instead of ElevenLabs Scribe. Full voice internals: [03-operating-the-agent.md](03-operating-the-agent.md).

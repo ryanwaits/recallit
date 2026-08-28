@@ -2,10 +2,10 @@
 
 register: brand
 
-> The marketing surfaces (landing, demo, packs) are design-forward: design IS the product there. The in-app SPA (`public/`) is the `product` register: design serves the task.
+> The marketing surfaces (landing, demo, packs) are design-forward: design IS the product there. The reference tutor's SPA (`tutor/public/`, a separate package, `@waits/recallit-tutor`) is the `product` register: design serves the task.
 
 ## What it is
-A headless, honest, source-grounded retention engine. Hand it a source, it builds cards that cite a real line, and grades your answer against that line in code, never a model deciding to be nice. recallit ships no UI opinion: present, answer, grade, schedule are the primitives, and whatever sits on top, a chat agent, a voice loop, a dashboard, a CLI, is yours to build. The tutor in `public/` and the demo are recallit's own **reference implementation** of that engine, not the product itself.
+A headless, honest, source-grounded retention engine. Hand it a source, it builds cards that cite a real line, and grades your answer against that line in code, never a model deciding to be nice. recallit ships no UI opinion: present, answer, grade, schedule are the primitives, and whatever sits on top, a chat agent, a voice loop, a dashboard, a CLI, is yours to build. `@waits/recallit-tutor` (the tutor and the demo) is recallit's own **reference implementation** of that engine, published as a genuinely separate package that depends on the engine like any other consumer, not the product itself.
 
 **The one line:** We grade the memory. You build the interface.
 
@@ -18,7 +18,7 @@ A headless, honest, source-grounded retention engine. Hand it a source, it build
 
 ## Brand & tone
 - **Honest, calm, literary, warm.** Not a flashy app, not hype-y dev-tool copy either. The emotional hook is the one rare, true thing: *it won't tell you you've got it when you don't.* Most apps flatter; this one is on your side.
-- **Plain language by default; precise engine vocabulary is earned, not banned, on builder-facing surfaces.** The landing page and docs speak to builders evaluating the engine, so naming a real primitive (rubric, grade, schedule) is clarifying, not jargon, as long as it's a thing the engine actually does, defined in plain words nearby. The *reference tutor's own UI* (`public/`, the demo) still speaks to a learner mid-session and stays jargon-free there (never: FSRS, examiner, grader, modality, coverage, registry, regimen, phase). Say the outcome, not the mechanism, when the reader is the person being graded.
+- **Plain language by default; precise engine vocabulary is earned, not banned, on builder-facing surfaces.** The landing page and docs speak to builders evaluating the engine, so naming a real primitive (rubric, grade, schedule) is clarifying, not jargon, as long as it's a thing the engine actually does, defined in plain words nearby. The *reference tutor's own UI* (`tutor/public/`, the demo) still speaks to a learner mid-session and stays jargon-free there (never: FSRS, examiner, grader, modality, coverage, registry, regimen, phase). Say the outcome, not the mechanism, when the reader is the person being graded.
 - **No em dashes** (commas, colons, periods, parentheses).
 - Confident but never hype. Show receipts, not adjectives.
 

@@ -25,7 +25,7 @@ metadata:
 
 recallit is a local, code-graded spaced-repetition engine. Everything below runs through the
 `recallit` CLI — no browser required. That matters here: inside a container/remote OpenClaw
-install the browser SPA (`recallit start`'s web UI) is usually **not reachable**, so this skill
+install the browser SPA (`@waits/recallit-tutor`'s web UI) is usually **not reachable**, so this skill
 is written entirely for the CLI/agent-loop path. It works with zero API keys — `ANTHROPIC_API_KEY`
 is optional and only used by recallit's own *built-in* pack-authoring agent (`recallit pack
 <source>`), which this skill does not depend on.

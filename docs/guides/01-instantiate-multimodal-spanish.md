@@ -74,7 +74,7 @@ Bundled in the pack (`packs/spanish-mx-rgv/assets/*.mp3`) and copied to `data/to
 
 | Command | What it gives you |
 |---|---|
-| `bun run serve` | Voice server on `:3000`. `/` push-to-talk browser client, `/ws` mic→STT→turn→TTS, `/api/progress`. Hold button/Space to record `audio/webm`. |
+| `cd tutor && bun run serve` | Voice server on `:3000` (separate `@waits/recallit-tutor` package). `/` push-to-talk browser client, `/ws` mic→STT→turn→TTS, `/api/progress`. Hold button/Space to record `audio/webm`. |
 | `bun run cli daily [--topic spanish-mx-rgv] [--model m]` | Full multi-phase regimen: shadowing → review → roleplay → reflect. Resumes mid-day from last completed phase (checkpoint). |
 | `bun run cli agent [--topic id] [--model m] [--maxTurns n]` | Interactive review loop: agent presents card, CLI reads your typed answer, engine grades, schedules. |
 
@@ -87,7 +87,7 @@ bun run cli due --topic spanish-mx-rgv     # lists due card fronts (never backs)
 bun run cli stats --topic spanish-mx-rgv   # totalCards, dueNow, reviewedToday, streak
 ls data/topics/spanish-mx-rgv/cards/*/native.mp3 | wc -l   # expect 41 if audio seeded
 ```
-- Spoken turn: `bun run serve`, open `http://localhost:3000`, hold to speak → caption shows transcript, agent replies with synthesized audio.
+- Spoken turn: `cd tutor && bun run serve`, open `http://localhost:3000`, hold to speak → caption shows transcript, agent replies with synthesized audio.
 - Progress: `/api/progress` (server) or `get_progress` in an agent session → `{goalMetric:"minutes_spoken", dueNow, reviewedToday, streak, dangerZone}`.
 
 ## Gotchas
