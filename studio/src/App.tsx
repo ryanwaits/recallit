@@ -273,12 +273,8 @@ function JobCard({ d }: { d?: JobData }) {
             </svg>
           )}
           {d.status === "queued" && <span style={{ fontSize: "1.1rem" }}>⏳</span>}
-          {d.status === "done" && (
-            <span style={{ color: "var(--ink-2)", fontWeight: 700 }}>✓</span>
-          )}
-          {d.status === "error" && (
-            <span style={{ color: "var(--coral,#a33d39)" }}>✗</span>
-          )}
+          {d.status === "done" && <span style={{ color: "var(--ink-2)", fontWeight: 700 }}>✓</span>}
+          {d.status === "error" && <span style={{ color: "var(--coral,#a33d39)" }}>✗</span>}
         </div>
         <div>
           <div className="jc-name">{d.packId ?? "building tutor"}</div>
