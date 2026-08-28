@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "engine": ">=0.1.0",
+  "id": "spanish-mx-rgv",
+  "name": "Conversational Mexican Spanish (RGV)",
+  "modality": "voice",
+  "recallStyle": "Speak answers aloud; i+1 sentences; mine new words from conversation.",
+  "goalMetric": "minutes_spoken",
+  "meta": {
+    "dialect": "mx-rgv",
+    "register": "norteño/fronterizo",
+    "language": "es",
+    "codeSwitch": "tolerate RGV Spanglish in comprehension; model standard Mexican forms in production",
+    "voiceId": "ewn5JTa3lNPY8QVuZJi6"
+  }
+}

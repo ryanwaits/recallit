@@ -5,7 +5,7 @@
     "": {
       "name": "@waits/recallit-tutor",
       "dependencies": {
-        "@waits/recallit": "file:..",
+        "@waits/recallit": "^0.9.0",
       },
       "devDependencies": {
         "@biomejs/biome": "^2.2.0",
@@ -79,7 +79,7 @@
 
     "@vercel/oidc": ["@vercel/oidc@3.2.0", "", {}, "sha512-UycprH3T6n3jH0k44NHMa7pnFHGu/N05MjojYr+Mc6I7obkoLIJujSWwin1pCvdy/eOxrI/l3uDLQsmcrOb4ug=="],
 
-    "@waits/recallit": ["@waits/recallit@file:..", { "dependencies": { "@ai-sdk/anthropic": "4.0.8", "@ai-sdk/openai-compatible": "3.0.5", "@anthropic-ai/claude-agent-sdk": "^0.3.150", "ai": "7.0.16", "gray-matter": "^4.0.3", "ts-fsrs": "5.4.1", "zod": "^4.4.3" }, "devDependencies": { "@biomejs/biome": "^2.2.0", "@types/bun": "^1.2.0", "typescript": "^5.7.0" }, "bin": { "recallit": "src/cli.ts" } }],
+    "@waits/recallit": ["@waits/recallit@0.9.0", "", { "dependencies": { "@ai-sdk/anthropic": "4.0.8", "@ai-sdk/openai-compatible": "3.0.5", "@anthropic-ai/claude-agent-sdk": "^0.3.150", "ai": "7.0.16", "gray-matter": "^4.0.3", "ts-fsrs": "5.4.1", "zod": "^4.4.3" }, "bin": { "recallit": "src/cli.ts" } }, "sha512-uZOFZoiBxGSJsiOvKOmEeTNitHcB5d9WJW0zP28MZCVYny8Uko1t3qecBWGYG7AbZ65Y6IGS6dHO8qCbbMODBA=="],
 
     "@workflow/serde": ["@workflow/serde@4.1.0", "", {}, "sha512-pav4F2BoirECWR7Nf1TKt+2eETcBj7jj4cBefQ8VXQCA6NPkaKeLfj/zMgi+3zYV5ZIBT4GuUiphsj0/b9hPQQ=="],
 

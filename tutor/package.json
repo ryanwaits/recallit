@@ -1,6 +1,6 @@
 {
   "name": "@waits/recallit-tutor",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "type": "module",
   "description": "recallit's reference tutor: a keyless browser SPA + voice review server built on @waits/recallit, proving the engine's headless surface by using it like any other consumer would.",
   "license": "MIT",
@@ -26,7 +26,8 @@
   },
   "files": [
     "src",
-    "public"
+    "public",
+    "packs/spanish-mx-rgv"
   ],
   "publishConfig": {
     "access": "public"
@@ -41,7 +42,7 @@
     "serve:local": "bun run src/serve-local.ts"
   },
   "dependencies": {
-    "@waits/recallit": "file:.."
+    "@waits/recallit": "^0.9.0"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.2.0",

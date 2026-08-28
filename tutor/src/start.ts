@@ -7,6 +7,9 @@ import { installPack, listTopics } from "@waits/recallit";
 import { startKeylessServer } from "./serve-local.ts";
 import { startServer } from "./server.ts";
 
+// Bundled with this package (tutor/packs/), not the engine's — the engine ships its
+// own copy for `recallit seed:spanish`, but a globally-installed @waits/recallit-tutor
+// can't reach into another package's files, so this one carries its own.
 const STARTER_PACK = join(import.meta.dir, "..", "packs", "spanish-mx-rgv");
 
 /** Open `url` in the default browser (best-effort; never throws). */
@@ -67,4 +70,9 @@ export async function start(): Promise<void> {
   const url = `http://localhost:${server.port}`;
   console.log(`\n  ▸ ${url}\n`);
   if (interactive) openBrowser(url);
+}
+
+// Run directly: `bunx @waits/recallit-tutor` (bin) or `bun run src/start.ts`.
+if (import.meta.main) {
+  await start();
 }
