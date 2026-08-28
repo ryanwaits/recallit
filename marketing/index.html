@@ -29,12 +29,11 @@
   <!-- ─── Nav ─── -->
   <header class="nav">
     <a class="brand" href="#" aria-label="recallit — home">recallit</a>
-    <nav class="links mono" aria-label="Primary">
+    <nav class="links" aria-label="Primary">
       <a href="#method">How it grades</a>
-      <a href="#run">Run it</a>
+      <a href="#docs">Docs</a>
       <a href="https://github.com/ryanwaits/recallit">GitHub</a>
     </nav>
-    <a class="btn ghost" href="demo/index.html">See it graded live</a>
   </header>
 
   <main id="main">
@@ -42,118 +41,120 @@
 
       <!-- ─── Hero ─── -->
       <section class="hero">
-        <div>
-          <h1>We grade the memory. <em>You</em> build the interface.</h1>
-          <p>Hand recallit a source. It builds cards that cite the exact line they came from and grades your answer against that line, in code, never a model deciding to be nice. No UI included: wire it into a chat agent, a voice app, a CLI, whatever you're building.</p>
-          <div class="ctas">
-            <a class="btn primary" href="demo/index.html">See it graded live</a>
-            <a class="btn ghost" href="https://github.com/ryanwaits/recallit">Read the docs</a>
-          </div>
-          <p class="fine">No key, no account for the demo. Your cards are files on disk, not on our servers.</p>
+        <h1>A retention engine for agents.</h1>
+        <p class="lede">Source in. Honest, code-graded cards out. No UI included, build whatever sits on top.</p>
+        <p class="sub">Hand it a file, a URL, a repo, or a concept. Every card cites the line it came from, and the grade is computed by code checking your answer against that line, never a model deciding to be nice.</p>
+
+        <div class="tags">
+          <span class="tag">CLI</span>
+          <span class="tag">Claude Code skill</span>
+          <span class="tag">headless primitives</span>
+          <span class="tag">bunx</span>
+          <a class="tag" href="demo/index.html">reference tutor (browser)</a>
         </div>
 
-        <div class="deck-wrap">
-        <p class="mono deck-label">The reference tutor, built on recallit</p>
-        <div class="deck" aria-label="Our reference tutor, built on recallit: an example card, graded against the cited line.">
-          <div class="dcard k3"></div>
-          <div class="dcard k2"></div>
-          <div class="dcard k1">
-            <p class="k mono">Card 14 of 32 · Thinking, Fast and Slow</p>
-            <p class="q">What does Kahneman mean by "what you see is all there is"?</p>
-            <p class="you">We judge from the evidence in front of us and don't notice what's missing.</p>
-            <div class="receipt">
-              <span class="g">Good</span><span class="why">Matched the claim. Back in 4 days.</span>
-              <span class="src">ch. 7 · "<mark>System 1 is radically insensitive to both the quality and the quantity of the information</mark> that gives rise to impressions."</span>
-            </div>
-            <div class="ratings"><span>again</span><span>hard</span><span class="hi">good</span><span>easy</span></div>
+        <div class="term-card">
+          <div class="term-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="label">terminal</span></div>
+          <div class="term-body">
+            <div><span class="p">$</span> recallit due --topic thinking-fast-and-slow</div>
+            <div class="out">1 due</div>
+            <div><span class="p">$</span> recallit answer c14 <span class="s">"We judge from the evidence in front of us and don't notice what's missing."</span> --topic thinking-fast-and-slow</div>
+            <div class="out">{ rating: <span class="rating">"Good"</span>, reasons: [<span class="s">"ch.7: 'System 1 is radically insensitive to both the quality and the quantity...'"</span>] }</div>
           </div>
-        </div>
         </div>
       </section>
 
-      <!-- ─── How it works ─── -->
+      <!-- ─── Primitives ─── -->
       <section class="sec" id="method">
-        <div class="sec-head">
-          <span class="mono">How it works</span>
-          <div>
-            <h2>Three primitives. You wire up the rest.</h2>
-            <p>recallit does source ingestion, card generation, and honest grading. What sits around it, chat, voice, a GUI, a CLI, is entirely yours.</p>
+        <span class="mono sec-kicker">Primitives</span>
+        <h2>Three things it actually does.</h2>
+        <p class="sec-lede">Everything else, chat, voice, a GUI, a CLI, is yours to build on top.</p>
+
+        <div class="grid">
+          <div class="cell">
+            <h3>Source ingestion</h3>
+            <code class="fn">prepareSource()</code>
+            <p>A file, a URL, a repo, or a bare concept. Every card cites the exact line it came from. What it can't verify, it holds back.</p>
+          </div>
+          <div class="cell">
+            <h3>Honest grading</h3>
+            <code class="fn">grade_card()</code>
+            <p>Code checks the answer against the cited line, or an evidence-verified rubric for open recall. Never up to the model.</p>
+          </div>
+          <div class="cell">
+            <h3>Scheduling</h3>
+            <code class="fn">get_due_cards()</code>
+            <p>FSRS spaced repetition, computed by code. The right card is waiting when you come back.</p>
+          </div>
+          <div class="cell">
+            <h3>Honest holds</h3>
+            <code class="fn">await_user_response()</code>
+            <p>When it can't confidently grade an answer, it says so. Never a guessed rating, the turn stays retryable.</p>
+          </div>
+          <div class="cell">
+            <h3>Headless by default</h3>
+            <code class="fn">present_card() &middot; reveal_answer()</code>
+            <p>No UI opinion shipped. Wire the primitives into a chat agent, a voice loop, a dashboard, whatever fits.</p>
+          </div>
+          <div class="cell">
+            <h3>Reference tutor</h3>
+            <code class="fn">bunx @waits/recallit start</code>
+            <p>A working example built on the same primitives, not the only way to use them. <a href="demo/index.html">Try it in the browser, no key.</a></p>
           </div>
         </div>
-        <div class="steps">
-          <div></div>
-          <div>
-            <div class="step">
-              <span class="n">1</span>
-              <div>
-                <h3>Feed it a source</h3>
-                <p>A file, a URL, a repo, or just a concept. It builds cards that cite the exact line they came from, for any subject, a book, a language, a paper, a codebase. What it can't verify, it holds back.</p>
-              </div>
-            </div>
-            <div class="step">
-              <span class="n">2</span>
-              <div>
-                <h3>It grades, not a model being nice</h3>
-                <p>Code checks the answer against the cited line. For open-ended recall, code checks it against a rubric, a checklist of what a good answer covers, each point itself tied to a citable line. The rating is never up to the model, and never up to us: your cards are files on disk, not on a server.</p>
-              </div>
-            </div>
-            <div class="step">
-              <span class="n">3</span>
-              <div>
-                <h3>You build the interface</h3>
-                <p>recallit doesn't ship a UI opinion. Present, answer, grade, schedule: the primitives are the product. Build a chat agent, a voice loop, a dashboard, whatever your use case needs.</p>
-              </div>
-            </div>
-          </div>
+
+        <div class="receipt-strip">
+          <span class="grade-pill">&#10003; good</span>
+          <span>this is the one honest mint moment on the whole page, and it only shows up on an actual grade.</span>
         </div>
       </section>
 
       <!-- ─── Run it ─── -->
-      <section class="sec" id="run">
-        <div class="sec-head">
-          <span class="mono">Run it</span>
-          <div>
-            <h2>Free to try. Yours to run.</h2>
-            <p>No accounts, no server, nothing we can quietly change. The engine and your cards live on your own disk.</p>
-          </div>
-        </div>
-        <div class="run">
-          <div></div>
-          <div class="cols">
-            <div class="col">
-              <span class="mono">Reference tutor</span>
-              <div class="price">$0</div>
-              <ul>
-                <li>The keyless browser demo, no account</li>
-                <li>Open source, runs with bunx</li>
-                <li>See the primitives working end to end</li>
-              </ul>
-              <a class="btn ghost" href="demo/index.html">See it graded live</a>
-            </div>
-            <div class="col">
-              <span class="mono">On your keys</span>
-              <div class="price">$0<small>to us</small></div>
-              <ul>
-                <li>About $1 to build a course, on your Anthropic key</li>
-                <li>Build studio: drop in sources, chat it into shape</li>
-                <li>Same primitives, headless: wire in your own UI</li>
-                <li>No account. Nothing leaves your disk.</li>
-              </ul>
-              <div class="term">$ bunx @waits/recallit start
-$ recallit pack ./notes.pdf
-$ recallit daily   <span class="c"># the right card, when you show up</span></div>
-            </div>
-          </div>
-        </div>
-      </section>
+      <section class="sec" id="docs">
+        <span class="mono sec-kicker">Run it</span>
+        <h2>Copy, paste, go.</h2>
+        <p class="sec-lede">Files on disk, no accounts, no server. Everything below is the real CLI.</p>
 
-      <!-- ─── Final CTA ─── -->
-      <section class="close">
-        <h2>Build on it, or just use it.</h2>
-        <p>The engine is source in, honest cards out. See it graded live in the reference tutor, or start wiring it into your own.</p>
-        <div class="ctas">
-          <a class="btn primary" href="demo/index.html">See it graded live</a>
-          <a class="btn ghost" href="https://github.com/ryanwaits/recallit">Star on GitHub</a>
+        <div class="doc-block">
+          <h3>Install</h3>
+          <div class="term-card">
+            <div class="term-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="label">terminal</span></div>
+            <div class="term-body">
+              <div><span class="cmd">bun add -g @waits/recallit</span> <span class="cmt"># bun-only, imports bun:sqlite</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="doc-block">
+          <h3>Author a pack</h3>
+          <div class="term-card">
+            <div class="term-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="label">terminal</span></div>
+            <div class="term-body">
+              <div><span class="cmd">recallit pack write packs/my-course</span></div>
+              <div><span class="cmd">recallit topic add packs/my-course</span> <span class="cmt"># installs READY cards only</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="doc-block">
+          <h3>Drill it</h3>
+          <div class="term-card">
+            <div class="term-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="label">terminal</span></div>
+            <div class="term-body">
+              <div><span class="cmd">recallit due --topic my-course</span> <span class="flag">--limit</span> 5</div>
+              <div><span class="cmd">recallit answer</span> &lt;cardId&gt; <span class="s">"your answer"</span> <span class="flag">--topic</span> my-course</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="doc-block">
+          <h3>Inside Claude Code</h3>
+          <div class="term-card">
+            <div class="term-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="label">claude code</span></div>
+            <div class="term-body">
+              <div class="cmt">Already ships as a Claude Code / OpenClaw skill, fully keyless, CLI-only. No MCP server, no browser, no API key for grading.</div>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -161,13 +162,8 @@ $ recallit daily   <span class="c"># the right card, when you show up</span></di
   </main>
 
   <footer class="foot">
-    <span class="brand">recallit</span>
-    <span class="links mono">
-      <a href="https://github.com/ryanwaits/recallit">GitHub</a>
-      <a href="https://github.com/ryanwaits/recallit#readme">Docs</a>
-      <a href="packs/index.html">Courses</a>
-    </span>
-    <span class="mono">Describe · Practice · Remember</span>
+    <span class="mono">recallit &middot; headless retention engine</span>
+    <a href="https://github.com/ryanwaits/recallit">github.com/ryanwaits/recallit</a>
   </footer>
 </body>
 </html>
